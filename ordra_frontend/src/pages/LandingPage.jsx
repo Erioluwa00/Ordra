@@ -36,11 +36,11 @@ export default function LandingPage() {
             <a href="#how-it-works" onClick={() => setMenuOpen(false)}>How It Works</a>
             <a href="#pricing" onClick={() => setMenuOpen(false)}>Pricing</a>
             <a href="#testimonials" onClick={() => setMenuOpen(false)}>FAQ</a>
-            <Link to="/app" className="mobile-cta-link" onClick={() => setMenuOpen(false)}>Get Started</Link>
+            <Link to="/auth/signup" className="mobile-cta-link" onClick={() => setMenuOpen(false)}>Get Started</Link>
           </div>
 
           <div className="nav-right">
-            <Link to="/app" className="nav-button">Get Started</Link>
+            <Link to="/auth/signup" className="nav-button">Get Started</Link>
             <button
               className="hamburger"
               onClick={() => setMenuOpen(o => !o)}
@@ -348,7 +348,7 @@ export default function LandingPage() {
               <li><Check size={16} color="#9333ea" /> Basic customer list</li>
               <li><Check size={16} color="#9333ea" /> Order status tracking</li>
             </ul>
-            <Link to="/app" className="btn pricing-btn">Start for Free</Link>
+            <Link to="/auth/signup" className="btn pricing-btn">Start for Free</Link>
           </div>
           <div className="pricing-card pro">
             <div className="popular-badge">Most Popular</div>
@@ -364,7 +364,7 @@ export default function LandingPage() {
               <li><Check size={16} color="#ffffff" /> Advanced sales analytics</li>
               <li><Check size={16} color="#ffffff" /> Priority support</li>
             </ul>
-            <Link to="/app" className="btn pricing-btn pro-btn">Get Pro</Link>
+            <Link to="/auth/signup" className="btn pricing-btn pro-btn">Get Pro</Link>
           </div>
         </div>
       </section>
@@ -413,7 +413,7 @@ export default function LandingPage() {
           <div className="cta-inner">
             <h2>Ready to clear the chaos?</h2>
             <p>Join hundreds of sellers who have upgraded their business from WhatsApp chats to a professional dashboard.</p>
-            <Link to="/app" className="btn cta-btn">
+            <Link to="/auth/signup" className="btn cta-btn">
               Get Started <ArrowRight size={18} />
             </Link>
           </div>
