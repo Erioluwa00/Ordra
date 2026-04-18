@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Brand Colors matching Landing Page */
+  --primary-purple: #9333ea;
+  --primary-purple-hover: #7e22ce;
+  --secondary-purple: #f3e8ff; 
+  --text-dark: #111827;
+  --text-muted: #6b7280;
+  --bg-light: #ffffff;
+  --bg-purple-light: #faf5ff;
+  
+  --font-main: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: var(--font-main);
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+ul {
+  list-style: none;
+}
+
+/* Utilities */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.mb-4 { margin-bottom: 1rem; }
+.mb-8 { margin-bottom: 2rem; }
+.my-8 { margin-top: 2rem; margin-bottom: 2rem; }
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+.section-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-muted);
+}
