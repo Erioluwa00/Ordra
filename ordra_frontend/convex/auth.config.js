@@ -8,5 +8,9 @@ export default {
       domain: "https://efficient-avocet-41.convex.site",
       applicationID: "convex",
     },
+    {
+      domain: "https://content-porpoise-842.convex.site",
+      applicationID: "convex",
+    },
   ],
 };
