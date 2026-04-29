@@ -1,35 +1,59 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
+import { useConvexAuth, useQuery } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { api } from "../../convex/_generated/api";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      const stored = localStorage.getItem('ordra_user');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
+  const { isAuthenticated, isLoading } = useConvexAuth();
+  const { signOut } = useAuthActions();
 
-  const login = (userData) => {
-    const userObj = {
-      name: userData.name || userData.given_name + ' ' + (userData.family_name || ''),
-      email: userData.email,
-      picture: userData.picture || null,
-      provider: userData.provider || 'email',
-    };
-    localStorage.setItem('ordra_user', JSON.stringify(userObj));
-    setUser(userObj);
-  };
+  // Fetch the current user's profile from Convex
+  const userProfile = useQuery(api.users.getUserProfile);
 
-  const logout = () => {
-    localStorage.removeItem('ordra_user');
-    setUser(null);
+  // While Convex is still deciding if we are logged in, show the branded splash
+  if (isLoading) {
+    return (
+      <div style={{
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--bg-app)',
+        position: 'fixed',
+        inset: 0,
+        zIndex: 99999,
+      }}>
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            width: '120px',
+            height: '120px',
+            objectFit: 'contain',
+            filter: 'drop-shadow(0 0 20px rgba(147, 51, 234, 0.1))'
+          }}
+        >
+          <source src="/logo-animation.webm" type="video/webm" />
+        </video>
+      </div>
+    );
+  }
+
+  const logout = async () => {
+    await signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{
+      user: userProfile,
+      logout,
+      isAuthenticated,
+      isLoading
+    }}>
       {children}
     </AuthContext.Provider>
   );

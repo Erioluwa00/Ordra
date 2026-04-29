@@ -1,0 +1,25 @@
+# Dependencies
+node_modules
+ordra_frontend/node_modules
+
+# Build output
+dist
+ordra_frontend/dist
+
+# Environment variables
+.env
+.env.local
+ordra_frontend/.env
+ordra_frontend/.env.local
+ordra_frontend/.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode
+.idea
+
+# Convex
+ordra_frontend/convex_keys.txt

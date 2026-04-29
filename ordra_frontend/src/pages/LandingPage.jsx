@@ -5,6 +5,7 @@ import {
   Wallet, Truck, Menu, X, ChevronUp, Package, Users, Zap,
   AlertCircle, CreditCard, MapPin, HelpCircle, Star, Play
 } from 'lucide-react';
+import logo from '../assets/logo.png';
 import './LandingPage.css';
 
 export default function LandingPage() {
@@ -29,7 +30,10 @@ export default function LandingPage() {
       {/* ── NAVBAR ──────────────────────────────────── */}
       <div className={`navbar-wrapper${scrolled ? ' scrolled' : ''}`}>
         <nav className="navbar">
-          <div className="nav-brand">Ordra</div>
+          <div className="nav-brand">
+            <img src={logo} alt="Ordra Logo" className="nav-logo-img" />
+            <span>Ordra</span>
+          </div>
 
           <div className={`nav-links${menuOpen ? ' mobile-open' : ''}`}>
             <a href="#features" onClick={() => setMenuOpen(false)}>Features</a>
@@ -424,7 +428,10 @@ export default function LandingPage() {
       <footer className="site-footer">
         <div className="footer-inner">
           <div className="footer-brand-col">
-            <div className="nav-brand">Ordra</div>
+            <div className="nav-brand">
+              <img src={logo} alt="Ordra Logo" className="nav-logo-img" />
+              <span>Ordra</span>
+            </div>
             <p>Elevating order management for curated businesses.<br />Simple, beautiful, and secure.</p>
             <p className="footer-copy">© 2026 Ordra Curation. All rights reserved.</p>
           </div>

@@ -6,34 +6,49 @@
 
 .auth-root {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background: #ffffff;
 }
 
+@media (min-width: 1024px) {
+  .auth-root {
+    flex-direction: row;
+  }
+}
+
 /* ── LEFT PANEL ─────────────────────────────── */
 .auth-left {
-  display: none;
-  width: 420px;
-  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
   background-color: #f3e8ff;
   position: relative;
   overflow: hidden;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 2.5rem;
+  padding: 2rem 1.5rem;
 }
 
 @media (min-width: 1024px) {
-  .auth-left { display: flex; }
+  .auth-left { 
+    width: 420px;
+    flex-shrink: 0;
+    justify-content: space-between;
+    padding: 2.5rem;
+  }
 }
 
 /* Decorative geometric shapes — no gradients */
 .auth-left-art {
-  flex: 1;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .auth-left-art {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .art-circle-lg {
@@ -98,12 +113,27 @@
 }
 
 /* Left panel content */
-.auth-left-logo {
+.auth-left-brand {
   font-size: 1.375rem;
   font-weight: 800;
   color: #9333ea;
   letter-spacing: -0.5px;
   z-index: 1;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.auth-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+@media (min-width: 1024px) {
+  .auth-left-brand { margin-bottom: 0; }
 }
 
 .auth-left-footer {
@@ -150,22 +180,13 @@
   align-items: center;
   justify-content: center;
   padding: 2.5rem 1.5rem;
-  min-height: 100vh;
-}
-
-/* Mobile logo (shows when left panel is hidden) */
-.auth-mobile-logo {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #9333ea;
-  position: absolute;
-  top: 1.5rem;
-  left: 1.5rem;
 }
 
 @media (min-width: 1024px) {
-  .auth-mobile-logo { display: none; }
+  .auth-right { min-height: 100vh; }
 }
+
+
 
 .auth-form-wrapper {
   width: 100%;

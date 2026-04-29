@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logo from '../assets/logo.png';
 import '../layouts/AuthLayout.css';
 
 export default function AuthLayout({ children, activeTab }) {
@@ -7,7 +8,10 @@ export default function AuthLayout({ children, activeTab }) {
     <div className="auth-root">
       {/* ── LEFT PANEL ── */}
       <div className="auth-left">
-        <div className="auth-left-logo">Ordra</div>
+        <Link to="/" className="auth-left-brand">
+          <img src={logo} alt="Ordra Logo" className="auth-logo-img" />
+          <span>Ordra</span>
+        </Link>
 
         {/* Decorative Art */}
         <div className="auth-left-art">
@@ -38,7 +42,7 @@ export default function AuthLayout({ children, activeTab }) {
 
       {/* ── RIGHT PANEL ── */}
       <div className="auth-right">
-        <Link to="/" className="auth-mobile-logo">Ordra</Link>
+
         <div className="auth-form-wrapper">
           {children}
         </div>

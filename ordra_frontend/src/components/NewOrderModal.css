@@ -1,0 +1,885 @@
+/* ═══════════════════════════════════════════════
+   NEW ORDER MODAL — NewOrderModal.css
+   ═══════════════════════════════════════════════ */
+
+/* ── Backdrop ────────────────────────────────── */
+.nom-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1100;
+  /* no extra padding — sheet takes the safe area itself */
+  padding: 0;
+  opacity: 0;
+  animation: nomFadeIn 0.2s forwards ease-out;
+}
+
+@media (min-width: 640px) {
+  .nom-backdrop {
+    align-items: center;
+    padding: 1rem;
+  }
+}
+
+/* ── Sheet / Modal Box ───────────────────────── */
+.nom-sheet {
+  background: var(--bg-panel);
+  width: 100%;
+  max-width: 620px;
+
+  /* ↓ KEY FIX: explicit height contract so flex children stay inside */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;            /* lets flex shrink below content size */
+
+  /* Mobile: bottom-sheet, capped at 92dvh so nothing escapes the chrome */
+  height: 92dvh;
+  max-height: 92dvh;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -4px 60px rgba(0, 0, 0, 0.12);
+  transform: translateY(40px);
+  animation: nomSlideUp 0.32s forwards cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Fallback for browsers without dvh support */
+@supports not (height: 1dvh) {
+  .nom-sheet {
+    height: 92vh;
+    max-height: 92vh;
+  }
+}
+
+@media (min-width: 640px) {
+  /* Tablet / Desktop: centred dialog — fills the full allowed height
+     so the scrollable body + pinned footer always work correctly */
+  .nom-sheet {
+    height: min(88vh, 740px);   /* fill, don't just shrink-to-content */
+    max-height: min(88vh, 740px);
+    border-radius: 20px;
+    box-shadow: 0 24px 60px -10px rgba(0, 0, 0, 0.18);
+  }
+}
+
+/* ── Header ──────────────────────────────────── */
+.nom-header {
+  padding: 1.25rem 1.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.nom-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nom-header-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #9333ea, #7e22ce);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.nom-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.nom-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.nom-close {
+  background: var(--border-subtle);
+  border: none;
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.nom-close:hover { background: var(--border-main); color: var(--text-primary); }
+
+.nom-close:hover { background: var(--border-main); color: var(--text-primary); }
+
+/* ── Scrollable Body ─────────────────────────── */
+.nom-body {
+  /* Takes all remaining height between the fixed header + footer */
+  flex: 1 1 0;            /* grow, shrink, don't base on content */
+  min-height: 0;          /* essential for overflow to kick in */
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding: 0 1.5rem;
+
+  /* Subtle custom scrollbar (webkit) */
+  scrollbar-width: thin;
+  scrollbar-color: #d8b4fe #f3f4f6;
+}
+
+.nom-body::-webkit-scrollbar-thumb:hover {
+  background: #a855f7;
+}
+
+/* ── Sections ────────────────────────────────── */
+.nom-section {
+  padding: 1.25rem 0 0;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 1.25rem;
+}
+
+.nom-section--last {
+  border-bottom: none;
+}
+
+.nom-section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.65rem;
+}
+
+/* ── Unified name field (customer section) ───── */
+.nom-name-wrap {
+  position: relative;
+}
+
+/* Green tint when an existing customer is matched */
+.nom-input--linked {
+  border-color: #16a34a !important;
+  background: rgba(22, 163, 74, 0.08) !important;
+}
+
+/* "returning" badge that floats inside the input */
+.nom-linked-badge {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.15);
+  padding: 0.18rem 0.5rem;
+  border-radius: 99px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.nom-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-main);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.nom-suggestion-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.nom-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.nom-suggestion-item:hover {
+  background: var(--input-bg);
+}
+
+.nom-suggestion-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+.nom-suggestion-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.nom-suggestion-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.nom-suggestion-phone {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.nom-dropdown-empty {
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.nom-dropdown-add {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  border: none;
+  background: var(--input-bg);
+  cursor: pointer;
+  border-top: 1px solid var(--border-subtle);
+  transition: background 0.15s;
+}
+.nom-dropdown-add:hover { background: var(--bg-app); }
+
+/* ── Product Catalog Suggestions ─────────────── */
+.nom-item-row-wrapper {
+  position: relative;
+}
+
+.nom-item-desc-wrap {
+  position: relative;
+}
+
+.nom-catalog-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: -160px; /* Expand to cover qty and price areas if needed */
+  background: var(--bg-panel);
+  border: 1px solid var(--border-main);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  z-index: 105;
+  overflow: hidden;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+@media (max-width: 520px) {
+  .nom-catalog-suggestions {
+    right: 0;
+  }
+}
+
+.nom-catalog-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.nom-catalog-item:last-child {
+  border-bottom: none;
+}
+
+.nom-catalog-item:hover {
+  background: var(--input-bg);
+}
+
+.nom-cat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.nom-cat-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.nom-cat-price {
+  font-size: 0.75rem;
+  color: #9333ea;
+  font-weight: 600;
+}
+
+.nom-cat-stock {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 99px;
+}
+
+.nom-cat-stock.low {
+  color: #d97706;
+  background: rgba(217, 119, 6, 0.1);
+}
+
+.nom-cat-stock.out {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ── Selected Customer Chip ──────────────────── */
+.nom-customer-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--input-bg);
+  border: 1.5px solid var(--border-main);
+  border-radius: 12px;
+}
+
+.nom-chip-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #9333ea, #7e22ce);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.nom-chip-info { flex: 1; }
+.nom-chip-name {
+  display: block;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+.nom-chip-phone {
+  display: block;
+  font-size: 0.78rem;
+  color: #7c3aed;
+}
+
+.nom-chip-clear {
+  background: #ede9fe;
+  border: none;
+  color: #7c3aed;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s;
+  flex-shrink: 0;
+}
+.nom-chip-clear:hover { background: #d8b4fe; }
+
+/* ── New Customer Inline Form ────────────────── */
+.nom-new-cust-form {
+  background: var(--bg-app);
+  border: 1.5px dashed var(--border-main);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.nom-new-cust-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.nom-link-btn {
+  background: none;
+  border: none;
+  color: #9333ea;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.nom-link-btn:hover { text-decoration: underline; }
+
+/* ── Generic inputs ──────────────────────────── */
+.nom-input {
+  width: 100%;
+  padding: 0.65rem 0.875rem;
+  border: 1.5px solid var(--border-main);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--input-bg);
+  transition: all 0.18s;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.nom-input:focus {
+  border-color: var(--accent-primary);
+  background: var(--bg-surface);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.nom-input.error { border-color: #ef4444; }
+
+.nom-textarea {
+  resize: vertical;
+  min-height: 72px;
+  font-family: inherit;
+  color: var(--text-primary);
+}
+
+.nom-field-sub {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.nom-date-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nom-date-icon {
+  position: absolute;
+  left: 0.875rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.nom-date-input {
+  padding-left: 2.5rem !important;
+}
+
+.nom-urgent-toggle {
+  display: block;
+  cursor: pointer;
+}
+
+.nom-hidden-checkbox {
+  display: none;
+}
+
+.nom-toggle-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  background: var(--input-bg);
+  border: 1.5px solid var(--border-main);
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nom-urgent-toggle:hover .nom-toggle-inner {
+  border-color: var(--border-main);
+  background: var(--bg-surface);
+}
+
+.nom-urgent-toggle.active .nom-toggle-inner {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #ef4444;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+}
+
+.nom-urgent-toggle.active .nom-toggle-inner svg {
+  fill: #ef4444;
+}
+
+/* ── Form layout helpers ─────────────────────── */
+.nom-form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 480px) {
+  .nom-form-row { grid-template-columns: 1fr 1fr; }
+}
+
+.nom-form-group { display: flex; flex-direction: column; gap: 0; }
+
+.nom-two-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 480px) {
+  .nom-two-col { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Item Rows ───────────────────────────────── */
+.nom-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ── Desktop / Tablet (≥ 480px): single-line row ─── */
+.nom-item-row {
+  display: grid;
+  grid-template-columns: 1fr 58px 100px 30px;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.nom-item-desc-wrap { min-width: 0; }
+
+.nom-qty {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  text-align: center;
+}
+
+.nom-price-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nom-price-prefix {
+  position: absolute;
+  left: 0.625rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nom-price-input {
+  padding-left: 1.5rem;
+}
+
+.nom-remove-item {
+  background: #fee2e2;
+  border: none;
+  color: #ef4444;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s;
+  flex-shrink: 0;
+  justify-self: center;
+}
+.nom-remove-item:hover { background: #fecaca; }
+
+/* ── Mobile (≤ 520px wide modal = roughly phones): 2-line card layout ───
+   Using a wide-enough max-width so it fires on real phones even when the
+   modal's padding makes the inner content wider than 479px.             */
+@media (max-width: 520px) {
+  .nom-item-row {
+    grid-template-columns: 1fr 52px 1fr 30px;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "desc desc desc desc"
+      "qty  price price del";
+    gap: 0.35rem 0.4rem;
+    background: var(--input-bg);
+    border: 1px solid var(--border-main);
+    border-radius: 10px;
+    padding: 0.6rem 0.65rem;
+  }
+
+  .nom-item-row .nom-item-desc-wrap  { grid-area: desc; }
+  .nom-item-row .nom-qty             { grid-area: qty; text-align: left; }
+  .nom-item-row .nom-price-wrap      { grid-area: price; }
+  .nom-item-row .nom-remove-item {
+    grid-area: del;
+    justify-self: end;
+    align-self: center;
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Tighten inputs inside the card */
+  .nom-item-row .nom-input {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-size: 0.85rem;
+    background: var(--bg-surface);
+  }
+}
+
+/* ── Add Item Button ─────────────────────────── */
+.nom-add-item-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  background: none;
+  border: 1.5px dashed var(--border-main);
+  border-radius: 8px;
+  padding: 0.5rem 0.875rem;
+  cursor: pointer;
+  transition: all 0.18s;
+  margin-bottom: 0.25rem;
+}
+.nom-add-item-btn:hover {
+  background: var(--input-bg);
+  border-color: var(--accent-primary);
+}
+
+/* ── Subtotal ────────────────────────────────── */
+.nom-subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--input-bg);
+  border-radius: 10px;
+  padding: 0.625rem 0.875rem;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.nom-subtotal-val {
+  font-weight: 800;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+/* ── Payment Toggles ─────────────────────────── */
+.nom-toggle-group {
+  display: flex;
+  background: var(--border-subtle);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.nom-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+
+.nom-toggle:hover { color: var(--text-primary); background: var(--border-main); }
+
+.nom-toggle.active.unpaid  { background: #fef3c7; color: #d97706; }
+.nom-toggle.active.partial { background: #dbeafe; color: #2563eb; }
+.nom-toggle.active.paid    { background: #dcfce7; color: #16a34a; }
+
+/* ── Status Select ───────────────────────────── */
+.nom-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nom-status-indicator {
+  position: absolute;
+  left: 0.75rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nom-select {
+  width: 100%;
+  padding: 0.65rem 2rem 0.65rem 1.75rem;
+  border: 1.5px solid var(--border-main);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--input-bg);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: all 0.18s;
+}
+
+.nom-select:focus {
+  border-color: var(--accent-primary);
+  background: var(--bg-surface);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.nom-select-chevron {
+  position: absolute;
+  right: 0.75rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* ── Error text ──────────────────────────────── */
+.nom-error {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 0.3rem;
+  font-weight: 500;
+}
+
+.nom-item-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fef2f2;
+  color: #ef4444;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: 1px solid #fee2e2;
+  margin-top: 0.5rem;
+  animation: nomShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes nomShake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* ── Footer ──────────────────────────────────── */
+.nom-footer {
+  /* Never shrinks — sticks to the bottom of the sheet */
+  flex-shrink: 0;
+  padding: 0.875rem 1.25rem;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: var(--bg-panel);
+  border-radius: 0 0 24px 24px;
+}
+
+@media (min-width: 640px) {
+  .nom-footer {
+    padding: 1rem 1.5rem;
+    border-radius: 0 0 20px 20px;
+  }
+}
+
+/* Stack footer vertically on very small phones */
+@media (max-width: 360px) {
+  .nom-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .nom-wa-btn     { justify-content: center; }
+  .nom-footer-right { justify-content: flex-end; }
+}
+
+.nom-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.nom-wa-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.875rem;
+  background: #dcfce7;
+  color: #16a34a;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.nom-wa-btn:hover:not(:disabled) { background: #bbf7d0; }
+.nom-wa-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.nom-submit {
+  padding: 0.625rem 1.25rem;
+}
+
+/* ── Animations ──────────────────────────────── */
+@keyframes nomFadeIn {
+  to { opacity: 1; }
+}
+
+@keyframes nomSlideUp {
+  to { transform: translateY(0); }
+}

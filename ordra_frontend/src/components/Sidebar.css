@@ -1,0 +1,136 @@
+/* ═══════════════════════════════════════════════
+   SIDEBAR — Ordra Dashboard
+   ═══════════════════════════════════════════════ */
+
+.sidebar {
+  width: 260px;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: transform 0.3s;
+}
+
+.sidebar-header {
+  padding: 0 0.75rem 2rem;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.sidebar-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.sidebar-link:hover {
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
+
+.sidebar-link.active {
+  background: var(--accent-soft);
+  color: var(--accent-primary);
+}
+
+.sidebar-link-icon {
+  margin-top: 1px;
+}
+
+.sidebar-footer {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  color: #ef4444;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
+  border: none;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Mobile Handle */
+@media (max-width: 1023px) {
+  .sidebar {
+    position: fixed;
+    transform: translateX(-100%);
+    box-shadow: 0 0 40px rgba(0,0,0,0.1);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+/* Close (X) button — only visible on mobile */
+.sidebar-close-btn {
+  display: none;         /* hidden on desktop */
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 0;
+  transition: color 0.18s, background 0.18s;
+}
+.sidebar-close-btn:hover {
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
+
+@media (max-width: 1023px) {
+  .sidebar-close-btn {
+    display: flex;       /* visible only when sidebar is in mobile/overlay mode */
+    align-items: center;
+    justify-content: center;
+  }
+}

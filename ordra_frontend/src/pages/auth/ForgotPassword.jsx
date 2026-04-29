@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft } from 'lucide-react';
+import { useAuthActions } from "@convex-dev/auth/react";
 import AuthLayout from '../../layouts/AuthLayout';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
+  const { signIn } = useAuthActions();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -14,8 +16,20 @@ export default function ForgotPassword() {
     if (!email.includes('@')) { setError('Enter a valid email address'); return; }
     setError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 900));
-    navigate('/auth/check-email', { state: { email } });
+    
+    try {
+      await signIn("password", { email, flow: "reset" });
+      navigate('/auth/reset-password', { state: { email } });
+    } catch (err) {
+      console.error(err);
+      if (err.message && err.message.includes("InvalidAccountId")) {
+        setError("No account found with this email address.");
+      } else {
+        setError("Failed to send reset email. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
