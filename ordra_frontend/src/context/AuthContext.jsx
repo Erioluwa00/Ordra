@@ -41,6 +41,7 @@ export function AuthProvider({ children }) {
             pointerEvents: 'none' // Prevents users from accidentally clicking it to show controls
           }}
         >
+          <source src="/logo-animation.mp4" type="video/mp4" />
           <source src="/logo-animation.webm" type="video/webm" />
         </video>
       </div>
