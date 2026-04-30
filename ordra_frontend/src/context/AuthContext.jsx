@@ -30,11 +30,15 @@ export function AuthProvider({ children }) {
           muted
           loop
           playsInline
+          webkit-playsinline="true"
+          preload="auto"
+          disablePictureInPicture
           style={{
             width: '120px',
             height: '120px',
             objectFit: 'contain',
-            filter: 'drop-shadow(0 0 20px rgba(147, 51, 234, 0.1))'
+            filter: 'drop-shadow(0 0 20px rgba(147, 51, 234, 0.1))',
+            pointerEvents: 'none' // Prevents users from accidentally clicking it to show controls
           }}
         >
           <source src="/logo-animation.webm" type="video/webm" />
