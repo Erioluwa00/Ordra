@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ProductProvider } from './context/ProductContext';
 import LandingPage from './pages/LandingPage';
+import ScrollToTop from './components/ScrollToTop';
 import SignUp from './pages/auth/SignUp';
 import LogIn from './pages/auth/LogIn';
 import ForgotPassword from './pages/auth/ForgotPassword';
@@ -70,6 +71,7 @@ function App() {
       <ProductProvider>
         <AuthProvider>
           <Router>
+            <ScrollToTop />
             <AppRoutes />
           </Router>
         </AuthProvider>
