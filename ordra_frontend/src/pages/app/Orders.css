@@ -123,7 +123,16 @@
 .ord-filter-right {
   display: flex;
   gap: 0.6rem;
-  flex-shrink: 0;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .ord-filter-right {
+    width: auto;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+  }
 }
 
 .ord-priority-toggle {
@@ -154,6 +163,22 @@
 
 .ord-priority-toggle.active svg {
   fill: #ef4444;
+}
+
+@media (max-width: 640px) {
+  .ord-priority-toggle, .ord-select-wrap {
+    flex: 1;
+    min-width: 120px;
+  }
+  .ord-priority-toggle {
+    justify-content: center;
+  }
+  .ord-select {
+    width: 100%;
+    text-align: center;
+    padding-left: 1.8rem;
+    padding-right: 1.5rem;
+  }
 }
 
 .ord-item-cell {
