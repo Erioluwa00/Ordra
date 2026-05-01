@@ -12,7 +12,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0; /* allows truncation inside */
+  min-width: 0;
+  /* allows truncation inside */
 }
 
 /* ── TOPBAR ─────────────────────────────────── */
@@ -43,18 +44,22 @@
   border-radius: 6px;
   display: flex;
 }
+
 .menu-toggle:hover {
   background: var(--bg-app);
   color: var(--text-primary);
 }
 
 @media (min-width: 1024px) {
-  .menu-toggle { display: none; }
+  .menu-toggle {
+    display: none;
+  }
 }
 
 .search-bar-wrapper {
   position: relative;
-  display: none; /* hidden on small mobile */
+  display: none;
+  /* hidden on small mobile */
 }
 
 @media (max-width: 639px) {
@@ -74,10 +79,17 @@
   }
 
   @keyframes slideInDown {
-    from { transform: translateY(-10px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
-  
+
   .search-bar-wrapper.mobile-active .search-input {
     flex: 1;
     padding: 0.75rem 1rem 0.75rem 2.75rem;
@@ -102,7 +114,7 @@
     cursor: pointer;
     transition: all 0.2s;
   }
-  
+
   .search-toggle-mobile:hover {
     background: var(--bg-app);
     color: var(--text-primary);
@@ -122,8 +134,15 @@
 }
 
 @media (min-width: 640px) {
-  .search-bar-wrapper { display: block; width: 300px; }
-  .search-toggle-mobile, .mobile-search-close { display: none; }
+  .search-bar-wrapper {
+    display: block;
+    width: 300px;
+  }
+
+  .search-toggle-mobile,
+  .mobile-search-close {
+    display: none;
+  }
 }
 
 .search-icon {
@@ -171,7 +190,11 @@
   border-radius: 50%;
   transition: background 0.2s;
 }
-.notification-btn:hover { background: var(--bg-app); color: var(--text-primary); }
+
+.notification-btn:hover {
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
 
 .user-profile {
   display: flex;
@@ -191,15 +214,18 @@
   justify-content: center;
   font-weight: 700;
   font-size: 0.875rem;
-  box-shadow: 0 2px 4px rgba(147,51,234,0.1);
+  box-shadow: 0 2px 4px rgba(147, 51, 234, 0.1);
 }
 
 .user-info {
-  display: none; /* hidden on mobile */
+  display: none;
+  /* hidden on mobile */
 }
 
 @media (min-width: 640px) {
-  .user-info { display: block; }
+  .user-info {
+    display: block;
+  }
 }
 
 .user-name {
@@ -215,5 +241,7 @@
 }
 
 @media (min-width: 768px) {
-  .app-content { padding: 2rem; }
+  .app-content {
+    padding: 2rem;
+  }
 }

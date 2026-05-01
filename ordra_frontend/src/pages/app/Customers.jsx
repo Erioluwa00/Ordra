@@ -371,83 +371,85 @@ export default function Customers() {
       <div className="table-container">
 
         {/* DESKTOP */}
-        <table className="full-table">
-          <thead>
-            <tr>
-              <th>Customer</th>
-              <th>Contact</th>
-              <th>Address</th>
-              <th>Orders</th>
-              <th>Lifetime Value</th>
-              <th style={{ textAlign: 'right' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              [...Array(5)].map((_, i) => (
-                <tr key={i}>
+        <div className="ord-table-wrapper">
+          <table className="full-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Contact</th>
+                <th>Address</th>
+                <th>Orders</th>
+                <th>Lifetime Value</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <tr key={i}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className="skeleton" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+                        <div className="skeleton" style={{ width: '100px', height: '16px' }} />
+                      </div>
+                    </td>
+                    <td><div className="skeleton" style={{ width: '120px', height: '16px' }} /></td>
+                    <td><div className="skeleton" style={{ width: '100px', height: '16px' }} /></td>
+                    <td><div className="skeleton" style={{ width: '40px', height: '16px' }} /></td>
+                    <td><div className="skeleton" style={{ width: '90px', height: '16px' }} /></td>
+                    <td></td>
+                  </tr>
+                ))
+              ) : filteredCustomers.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
+                    No customers found.
+                  </td>
+                </tr>
+              ) : filteredCustomers.map(cust => (
+                <tr
+                  key={cust._id}
+                  className="cust-row"
+                  onClick={() => setDrawerCustomer(cust)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div className="skeleton" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
-                      <div className="skeleton" style={{ width: '100px', height: '16px' }} />
+                    <div className="cust-cell">
+                      <div className="c-avatar">{getInitials(cust.name)}</div>
+                      <div>
+                        <span className="cust-name">{cust.name}</span>
+                        {cust.email && <span className="cust-email">{cust.email}</span>}
+                      </div>
                     </div>
                   </td>
-                  <td><div className="skeleton" style={{ width: '120px', height: '16px' }} /></td>
-                  <td><div className="skeleton" style={{ width: '100px', height: '16px' }} /></td>
-                  <td><div className="skeleton" style={{ width: '40px', height: '16px' }} /></td>
-                  <td><div className="skeleton" style={{ width: '90px', height: '16px' }} /></td>
-                  <td></td>
-                </tr>
-              ))
-            ) : filteredCustomers.length === 0 ? (
-              <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
-                  No customers found.
-                </td>
-              </tr>
-            ) : filteredCustomers.map(cust => (
-              <tr
-                key={cust._id}
-                className="cust-row"
-                onClick={() => setDrawerCustomer(cust)}
-                style={{ cursor: 'pointer' }}
-              >
-                <td>
-                  <div className="cust-cell">
-                    <div className="c-avatar">{getInitials(cust.name)}</div>
-                    <div>
-                      <span className="cust-name">{cust.name}</span>
-                      {cust.email && <span className="cust-email">{cust.email}</span>}
+                  <td><span className="cust-phone">{cust.phone}</span></td>
+                  <td>
+                    <span className="cust-val-primary" style={{ maxWidth: 200, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {cust.address || '—'}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="cust-orders-badge">{cust.totalOrders}</span>
+                  </td>
+                  <td><span className="cust-val-primary" style={{ color: '#16a34a' }}>{formatCurrency(cust.lifetimeValue)}</span></td>
+                  <td onClick={e => e.stopPropagation()}>
+                    <div className="action-menu">
+                      <button className="icon-btn" onClick={() => handleOpenModal(cust)} title="Edit" aria-label="Edit">
+                        <Edit2 size={16} />
+                      </button>
+                      <button className="icon-btn delete" onClick={() => setCustToDelete(cust)} title="Delete" aria-label="Delete">
+                        <Trash2 size={16} />
+                      </button>
+                      <button className="icon-btn" onClick={() => setDrawerCustomer(cust)} title="View history" aria-label="View history">
+                        <ChevronRight size={16} />
+                      </button>
                     </div>
-                  </div>
-                </td>
-                <td><span className="cust-phone">{cust.phone}</span></td>
-                <td>
-                  <span className="cust-val-primary" style={{ maxWidth: 200, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {cust.address || '—'}
-                  </span>
-                </td>
-                <td>
-                  <span className="cust-orders-badge">{cust.totalOrders}</span>
-                </td>
-                <td><span className="cust-val-primary" style={{ color: '#16a34a' }}>{formatCurrency(cust.lifetimeValue)}</span></td>
-                <td onClick={e => e.stopPropagation()}>
-                  <div className="action-menu">
-                    <button className="icon-btn" onClick={() => handleOpenModal(cust)} title="Edit" aria-label="Edit">
-                      <Edit2 size={16} />
-                    </button>
-                    <button className="icon-btn delete" onClick={() => setCustToDelete(cust)} title="Delete" aria-label="Delete">
-                      <Trash2 size={16} />
-                    </button>
-                    <button className="icon-btn" onClick={() => setDrawerCustomer(cust)} title="View history" aria-label="View history">
-                      <ChevronRight size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* MOBILE CARDS */}
         <div className="mobile-card-view">

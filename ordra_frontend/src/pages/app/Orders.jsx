@@ -366,124 +366,126 @@ export default function Orders() {
       <div className="table-container">
 
         {/* DESKTOP TABLE */}
-        <table className="ord-table full-table">
-          <thead>
-            <tr>
-              <th style={{ width: '40px' }}>
-                <input 
-                  type="checkbox" 
-                  checked={displayed.length > 0 && selectedOrderIds.size === displayed.length}
-                  onChange={toggleSelectAll}
-                />
-              </th>
-              <th>Order</th>
-              <th>Customer</th>
-              <th>Items</th>
-              <th>Amount</th>
-              <th>Payment</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              [...Array(5)].map((_, i) => (
-                <tr key={i}>
-                  <td><div className="skeleton" style={{ width: '60px', height: '16px' }} /></td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div className="skeleton" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
-                      <div className="skeleton" style={{ width: '100px', height: '16px' }} />
-                    </div>
-                  </td>
-                  <td><div className="skeleton" style={{ width: '150px', height: '16px' }} /></td>
-                  <td><div className="skeleton" style={{ width: '80px', height: '16px' }} /></td>
-                  <td><div className="skeleton" style={{ width: '70px', height: '24px', borderRadius: '99px' }} /></td>
-                  <td><div className="skeleton" style={{ width: '80px', height: '24px', borderRadius: '99px' }} /></td>
-                  <td><div className="skeleton" style={{ width: '60px', height: '16px' }} /></td>
-                  <td></td>
-                </tr>
-              ))
-            ) : displayed.length === 0 ? (
+        <div className="ord-table-wrapper">
+          <table className="ord-table full-table">
+            <thead>
               <tr>
-                <td colSpan={8} className="ord-empty">
-                  <div className="ord-empty-inner">
-                    <Package size={32} />
-                    <p>No orders match your filters</p>
-                    <button className="ord-empty-clear" onClick={() => { 
-                      setSearch(''); 
-                      setFilterStatus('All'); 
-                      setFilterPayment('all');
-                      setFilterUrgent(false);
-                    }}>
-                      Clear filters
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ) : displayed.map(order => (
-              <tr
-                key={order._id}
-                className={`ord-row${flashedId === order._id ? ' paid-flash' : ''}${selectedOrderIds.has(order._id) ? ' selected' : ''}`}
-                onClick={() => setSelectedOrder(order)}
-              >
-                <td onClick={e => e.stopPropagation()}>
+                <th style={{ width: '40px' }}>
                   <input 
                     type="checkbox" 
-                    checked={selectedOrderIds.has(order._id)}
-                    onChange={(e) => toggleSelectOrder(e, order._id)}
+                    checked={displayed.length > 0 && selectedOrderIds.size === displayed.length}
+                    onChange={toggleSelectAll}
                   />
-                </td>
-                <td><span className="ord-id">{order.orderId}</span></td>
-                <td>
-                  <div className="cust-cell">
-                    <div className="c-avatar">{getInitials(order.customer)}</div>
-                    <div>
-                      <span className="cust-name">{order.customer}</span>
-                      <span className="cust-email">{order.customerPhone}</span>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <div className="ord-item-cell">
-                    <span className="ord-item-text">{order.item}</span>
-                    {(order.isUrgent || isUpcoming(order.deliveryDate)) && (
-                      <div className="ord-priority-tag">
-                        <Flag size={10} fill="currentColor" />
-                        {order.isUrgent ? 'URGENT' : 'UPCOMING'}
-                      </div>
-                    )}
-                  </div>
-                </td>
-                <td><span className="ord-amount">{formatCurrency(order.total)}</span></td>
-                <td onClick={e => e.stopPropagation()}>
-                  <QuickPayButton
-                    order={order}
-                    onMarkPaid={handleMarkPaid}
-                    flashing={flashedId === order.id}
-                  />
-                </td>
-                <td onClick={e => e.stopPropagation()}>
-                  <StatusChanger orderId={order._id} current={order.status} onChange={handleStatusChange} />
-                </td>
-                <td>
-                  <div className="ord-date-cell">
-                    <span className="ord-date">{relativeDate(order.createdAt)}</span>
-                    {order.deliveryDate && (
-                      <span className="ord-delivery-date">
-                        <Calendar size={10} /> {new Date(order.deliveryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td>
-                  <ChevronRight size={16} className="ord-arrow" />
-                </td>
+                </th>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Amount</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <tr key={i}>
+                    <td><div className="skeleton" style={{ width: '60px', height: '16px' }} /></td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className="skeleton" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+                        <div className="skeleton" style={{ width: '100px', height: '16px' }} />
+                      </div>
+                    </td>
+                    <td><div className="skeleton" style={{ width: '150px', height: '16px' }} /></td>
+                    <td><div className="skeleton" style={{ width: '80px', height: '16px' }} /></td>
+                    <td><div className="skeleton" style={{ width: '70px', height: '24px', borderRadius: '99px' }} /></td>
+                    <td><div className="skeleton" style={{ width: '80px', height: '24px', borderRadius: '99px' }} /></td>
+                    <td><div className="skeleton" style={{ width: '60px', height: '16px' }} /></td>
+                    <td></td>
+                  </tr>
+                ))
+              ) : displayed.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="ord-empty">
+                    <div className="ord-empty-inner">
+                      <Package size={32} />
+                      <p>No orders match your filters</p>
+                      <button className="ord-empty-clear" onClick={() => { 
+                        setSearch(''); 
+                        setFilterStatus('All'); 
+                        setFilterPayment('all');
+                        setFilterUrgent(false);
+                      }}>
+                        Clear filters
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : displayed.map(order => (
+                <tr
+                  key={order._id}
+                  className={`ord-row${flashedId === order._id ? ' paid-flash' : ''}${selectedOrderIds.has(order._id) ? ' selected' : ''}`}
+                  onClick={() => setSelectedOrder(order)}
+                >
+                  <td onClick={e => e.stopPropagation()}>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedOrderIds.has(order._id)}
+                      onChange={(e) => toggleSelectOrder(e, order._id)}
+                    />
+                  </td>
+                  <td><span className="ord-id">{order.orderId}</span></td>
+                  <td>
+                    <div className="cust-cell">
+                      <div className="c-avatar">{getInitials(order.customer)}</div>
+                      <div>
+                        <span className="cust-name">{order.customer}</span>
+                        <span className="cust-email">{order.customerPhone}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="ord-item-cell">
+                      <span className="ord-item-text">{order.item}</span>
+                      {(order.isUrgent || isUpcoming(order.deliveryDate)) && (
+                        <div className="ord-priority-tag">
+                          <Flag size={10} fill="currentColor" />
+                          {order.isUrgent ? 'URGENT' : 'UPCOMING'}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td><span className="ord-amount">{formatCurrency(order.total)}</span></td>
+                  <td onClick={e => e.stopPropagation()}>
+                    <QuickPayButton
+                      order={order}
+                      onMarkPaid={handleMarkPaid}
+                      flashing={flashedId === order.id}
+                    />
+                  </td>
+                  <td onClick={e => e.stopPropagation()}>
+                    <StatusChanger orderId={order._id} current={order.status} onChange={handleStatusChange} />
+                  </td>
+                  <td>
+                    <div className="ord-date-cell">
+                      <span className="ord-date">{relativeDate(order.createdAt)}</span>
+                      {order.deliveryDate && (
+                        <span className="ord-delivery-date">
+                          <Calendar size={10} /> {new Date(order.deliveryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td>
+                    <ChevronRight size={16} className="ord-arrow" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* MOBILE CARDS */}
         <div className="mobile-card-view">
