@@ -93,12 +93,17 @@ export default function Debts() {
         <div className="debt-section-header">
           <div className="debt-search-wrap">
             <Search size={18} className="search-icon" />
-            <input type="text" placeholder="Search by customer name or phone..." className="debt-search-input" />
+            <input 
+              type="text" 
+              placeholder="Search by customer name or phone..." 
+              className="debt-search-input" 
+            />
           </div>
         </div>
 
         {/* Desktop Table View */}
         <div className="table-container desktop-only">
+          <div className="ord-table-wrapper">
           <table className="ord-table">
             <thead>
               <tr>
@@ -150,6 +155,7 @@ export default function Debts() {
             </tbody>
           </table>
         </div>
+      </div>
 
         {/* Mobile List View */}
         <div className="mobile-only debt-mobile-list">

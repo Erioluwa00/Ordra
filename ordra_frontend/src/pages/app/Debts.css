@@ -21,7 +21,39 @@
 .debt-search-wrap {
   position: relative;
   max-width: 420px;
+  width: 100%;
 }
+
+@media (max-width: 640px) {
+  .debt-search-wrap {
+    max-width: 100%;
+  }
+}
+
+.ord-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 0.5rem;
+}
+
+.ord-table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.ord-table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ord-table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--border-main);
+  border-radius: 10px;
+}
+
+.ord-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
 
 .debt-search-wrap .search-icon {
   position: absolute;
