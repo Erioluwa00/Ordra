@@ -216,8 +216,13 @@ input:-webkit-autofill:active {
 
 /* Skeleton Loading Animation */
 @keyframes shimmer {
-  0% { background-position: -468px 0; }
-  100% { background-position: 468px 0; }
+  0% {
+    background-position: -468px 0;
+  }
+
+  100% {
+    background-position: 468px 0;
+  }
 }
 
 .skeleton {
