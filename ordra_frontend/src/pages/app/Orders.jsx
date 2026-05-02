@@ -545,38 +545,40 @@ export default function Orders() {
                   readOnly 
                 />
               </div>
-              <div className="ord-mobile-card-top">
-                <div className="cust-cell">
-                  <div className="c-avatar">{getInitials(order.customer)}</div>
-                  <div>
-                    <span className="cust-name">{order.customer}</span>
-                    <span className="cust-email">{order.orderId}</span>
+              <div className="ord-mobile-card-content">
+                <div className="ord-mobile-card-top">
+                  <div className="cust-cell">
+                    <div className="c-avatar">{getInitials(order.customer)}</div>
+                    <div>
+                      <span className="cust-name">{order.customer}</span>
+                      <span className="cust-email">{order.orderId}</span>
+                    </div>
+                  </div>
+                  <div className="ord-mobile-badges">
+                    <StatusBadge status={order.status} />
+                    <PaymentBadge status={order.paymentStatus} />
                   </div>
                 </div>
-                <div className="ord-mobile-badges">
-                  <StatusBadge status={order.status} />
-                  <PaymentBadge status={order.paymentStatus} />
+                <div className="ord-mobile-card-body">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span className="ord-item-text">{order.item}</span>
+                    {order.isUrgent && <span className="ord-mobile-priority-tag urgent">URGENT</span>}
+                    {isUpcoming(order.deliveryDate) && !order.isUrgent && <span className="ord-mobile-priority-tag upcoming">UPCOMING</span>}
+                  </div>
                 </div>
-              </div>
-              <div className="ord-mobile-card-body">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <span className="ord-item-text">{order.item}</span>
-                  {order.isUrgent && <span className="ord-mobile-priority-tag urgent">URGENT</span>}
-                  {isUpcoming(order.deliveryDate) && !order.isUrgent && <span className="ord-mobile-priority-tag upcoming">UPCOMING</span>}
+                <div className="ord-mobile-card-foot">
+                  <span className="ord-amount">{formatCurrency(order.total)}</span>
+                  {order.paymentStatus !== 'paid' && order.status !== 'Cancelled' ? (
+                    <button
+                      className="ord-mobile-pay-btn"
+                      onMouseDown={e => { e.stopPropagation(); handleMarkPaid(order._id); }}
+                    >
+                      <CheckCheck size={12} /> Mark Paid
+                    </button>
+                  ) : (
+                    <span className="ord-date">{relativeDate(order.createdAt)}</span>
+                  )}
                 </div>
-              </div>
-              <div className="ord-mobile-card-foot">
-                <span className="ord-amount">{formatCurrency(order.total)}</span>
-                {order.paymentStatus !== 'paid' && order.status !== 'Cancelled' ? (
-                  <button
-                    className="ord-mobile-pay-btn"
-                    onMouseDown={e => { e.stopPropagation(); handleMarkPaid(order._id); }}
-                  >
-                    <CheckCheck size={12} /> Mark Paid
-                  </button>
-                ) : (
-                  <span className="ord-date">{relativeDate(order.createdAt)}</span>
-                )}
               </div>
             </div>
           ))}
