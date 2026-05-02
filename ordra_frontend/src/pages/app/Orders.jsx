@@ -370,9 +370,10 @@ export default function Orders() {
           <table className="ord-table full-table">
             <thead>
               <tr>
-                <th style={{ width: '40px' }}>
+                <th style={{ width: '48px' }}>
                   <input 
                     type="checkbox" 
+                    className="custom-checkbox"
                     checked={displayed.length > 0 && selectedOrderIds.size === displayed.length}
                     onChange={toggleSelectAll}
                   />
@@ -432,6 +433,7 @@ export default function Orders() {
                   <td onClick={e => e.stopPropagation()}>
                     <input 
                       type="checkbox" 
+                      className="custom-checkbox"
                       checked={selectedOrderIds.has(order._id)}
                       onChange={(e) => toggleSelectOrder(e, order._id)}
                     />
@@ -489,6 +491,17 @@ export default function Orders() {
 
         {/* MOBILE CARDS */}
         <div className="mobile-card-view">
+          {displayed.length > 0 && (
+            <div className="mobile-select-all-bar">
+              <input 
+                type="checkbox" 
+                className="custom-checkbox"
+                checked={displayed.length > 0 && selectedOrderIds.size === displayed.length}
+                onChange={toggleSelectAll}
+              />
+              <span>Select All ({displayed.length})</span>
+            </div>
+          )}
           {isLoading ? (
             [...Array(3)].map((_, i) => (
               <div key={i} className="ord-mobile-card">
@@ -525,7 +538,12 @@ export default function Orders() {
               onClick={() => setSelectedOrder(order)}
             >
               <div className="ord-mobile-card-select" onClick={e => toggleSelectOrder(e, order._id)}>
-                <input type="checkbox" checked={selectedOrderIds.has(order._id)} readOnly />
+                <input 
+                  type="checkbox" 
+                  className="custom-checkbox"
+                  checked={selectedOrderIds.has(order._id)} 
+                  readOnly 
+                />
               </div>
               <div className="ord-mobile-card-top">
                 <div className="cust-cell">
@@ -589,17 +607,16 @@ export default function Orders() {
         <div className="ord-bulk-bar">
           <div className="ord-bulk-info">
             <span className="ord-bulk-count">{selectedOrderIds.size}</span>
-            <span>selected</span>
           </div>
           <div className="ord-bulk-actions">
             <button className="ord-bulk-btn" onClick={() => handleBulkUpdate('payment', 'paid')}>
-              <CheckCheck size={16} /> <span>Mark Paid</span>
+              <CheckCheck size={16} /> <span className="bulk-btn-text">Paid</span>
             </button>
             <button className="ord-bulk-btn" onClick={() => handleBulkUpdate('status', 'Delivered')}>
-              <Truck size={16} /> <span>Mark Delivered</span>
+              <Truck size={16} /> <span className="bulk-btn-text">Delivered</span>
             </button>
             <button className="ord-bulk-btn cancel" onClick={() => setSelectedOrderIds(new Set())}>
-              <X size={16} /> <span>Cancel</span>
+              <X size={16} />
             </button>
           </div>
         </div>
