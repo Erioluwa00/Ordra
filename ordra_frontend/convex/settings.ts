@@ -9,9 +9,12 @@ const DEFAULT_SETTINGS = {
   notifyPayments: true,
   notifySummary: true,
   lowStockThreshold: 5,
+  stockpileDays: 7,
   templateConfirmation: "Hi {{name}}, your order #{{id}} for {{total}} has been received! We'll notify you when it's ready. 😊",
-  templateReminder: "Hello {{name}}, just a friendly reminder that your payment of {{balance}} for order #{{id}} is still pending. Thank you! 🙏"
+  templateReminder: "Hello {{name}}, just a friendly reminder that your payment of {{balance}} for order #{{id}} is still pending. Thank you! 🙏",
+  templateStockpile: "Hi {{name}} 👋, this is a pickup reminder for your order *#{{id}}* ({{item}}).\n\nYour order has been ready for *{{days}} days* and is currently taking up storage space.\n\nPlease arrange a pickup at your earliest convenience. Thank you! 🙏",
 };
+
 
 // Get settings for the current user, or return defaults if none exist
 export const getSettings = query({
@@ -44,6 +47,8 @@ export const updateSettings = mutation({
     templateConfirmation: v.string(),
     templateReminder: v.string(),
     lowStockThreshold: v.optional(v.number()),
+    stockpileDays: v.optional(v.number()),
+    templateStockpile: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await auth.getUserId(ctx);

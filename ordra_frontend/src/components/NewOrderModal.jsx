@@ -44,6 +44,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
   const [custName,        setCustName]        = useState('');
   const [custPhone,       setCustPhone]       = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedCustId,  setSelectedCustId]  = useState(null); // Tracks if we've "locked in" an existing customer
 
   const [items,         setItems]         = useState([{ id: Date.now(), desc: '', qty: 1, price: '' }]);
   const [activeCatalogRow, setActiveCatalogRow] = useState(null);
@@ -58,6 +59,8 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
   const [submitted,     setSubmitted]     = useState(false);
   const [saving,        setSaving]        = useState(false);
 
+  const suggestionRef = useRef(null);
+
   // ── Derived
   const subtotal = items.reduce((acc, it) => {
     const p = Number(String(it.price).replace(/[^0-9.]/g, '')) || 0;
@@ -66,18 +69,31 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
 
   // Suggestions logic
   const suggestions = useMemo(() => {
-    if (!custName.trim() || !customers) return [];
+    if (!custName.trim() || !customers || selectedCustId) return [];
+    const query = custName.toLowerCase();
     return customers
-      .filter(c => c.name.toLowerCase().includes(custName.toLowerCase()) || c.phone.includes(custName))
+      .filter(c => c.name.toLowerCase().includes(query) || c.phone.includes(query))
       .slice(0, 5);
-  }, [custName, customers]);
+  }, [custName, customers, selectedCustId]);
 
   const selectCustomer = (customer) => {
     setCustName(customer.name);
     setCustPhone(customer.phone);
     if (customer.address) setDeliveryAddr(customer.address);
+    setSelectedCustId(customer._id);
     setShowSuggestions(false);
   };
+
+  // Handle click outside for suggestions
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (suggestionRef.current && !suggestionRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -85,6 +101,8 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
         setCustName(initialData.customer || '');
         setCustPhone(initialData.customerPhone || '');
         setDeliveryAddr(initialData.deliveryAddress || '');
+        // For duplicates/edits, we don't necessarily lock the ID unless we match it
+        setSelectedCustId(null); 
         if (initialData.items) {
           setItems(initialData.items.map((it, idx) => ({
             id: Date.now() + idx,
@@ -96,6 +114,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
       } else {
         setCustName('');
         setCustPhone('');
+        setSelectedCustId(null);
         setItems([{ id: Date.now(), desc: '', qty: 1, price: '' }]);
         setDeliveryAddr('');
       }
@@ -219,17 +238,26 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
                 <User size={14} /><span>Customer</span>
               </div>
               <div className="nom-form-row">
-                <div className="nom-form-group nom-name-wrap">
+                <div className="nom-form-group nom-name-wrap" ref={suggestionRef}>
                   <input
                     ref={nameRef}
                     type="text"
-                    className={`nom-input${errors.custName ? ' error' : ''}`}
+                    className={`nom-input${errors.custName ? ' error' : ''}${selectedCustId ? ' nom-input--linked' : ''}`}
                     placeholder="Customer name *"
                     value={custName}
                     autoComplete="off"
-                    onFocus={() => setShowSuggestions(true)}
-                    onChange={e => { setCustName(e.target.value); setShowSuggestions(true); }}
+                    onFocus={() => !selectedCustId && setShowSuggestions(true)}
+                    onChange={e => { 
+                      setCustName(e.target.value); 
+                      setSelectedCustId(null); // Break link if they edit
+                      setShowSuggestions(true); 
+                    }}
                   />
+                  {selectedCustId && (
+                    <div className="nom-linked-badge">
+                      <CheckCircle2 size={12} /> Returning
+                    </div>
+                  )}
                   {showSuggestions && suggestions.length > 0 && (
                     <div className="nom-suggestions">
                       {suggestions.map(c => (
@@ -257,12 +285,16 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
                     placeholder="Phone number *"
                     value={custPhone}
                     autoComplete="off"
-                    onChange={e => setCustPhone(e.target.value)}
+                    onChange={e => {
+                      setCustPhone(e.target.value);
+                      setSelectedCustId(null); // Break link if they edit
+                    }}
                   />
                   {errors.custPhone && <p className="nom-error">{errors.custPhone}</p>}
                 </div>
               </div>
             </section>
+
 
             <section className="nom-section">
               <div className="nom-section-label">

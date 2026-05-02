@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   User, Palette, CreditCard, Bell, MessageSquare, 
-  Shield, Save, Trash2, Check, Globe, Zap, Clock
+  Shield, Save, Trash2, Check, Globe, Zap, Clock, Archive
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -46,9 +46,17 @@ export default function Settings() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let finalValue = value;
+    
+    if (type === 'checkbox') {
+      finalValue = checked;
+    } else if (type === 'number') {
+      finalValue = value === '' ? 0 : Number(value);
+    }
+
     setSettings(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: finalValue
     }));
   };
 
@@ -70,6 +78,7 @@ export default function Settings() {
     { id: 'appearance', label: 'Appearance', icon: <Palette size={18} /> },
     { id: 'templates',  label: 'Templates',  icon: <MessageSquare size={18} /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },
+    { id: 'stockpile',  label: 'Stockpile',  icon: <Archive size={18} /> },
     { id: 'account',    label: 'Security',   icon: <Shield size={18} /> },
   ];
 
@@ -350,6 +359,58 @@ export default function Settings() {
             </div>
           )}
 
+
+          {/* STOCKPILE SETTINGS */}
+          {activeTab === 'stockpile' && (
+            <div className="settings-card">
+              <div className="settings-card-header">
+                <h2 className="settings-card-title"><Archive size={20} /> Stockpile Notices</h2>
+                <p className="settings-card-subtitle">Configure when orders are flagged as stockpiling and customize the pickup reminder message sent to customers.</p>
+              </div>
+              <div className="form-section">
+                <div className="form-group">
+                  <label className="form-label">Stockpile Threshold (Days)</label>
+                  <p className="settings-card-subtitle" style={{ marginBottom: '0.6rem' }}>
+                    Flag a paid, uncollected order as "stockpiling" after this many days.
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <input
+                      className="settings-input"
+                      type="number"
+                      min="1"
+                      max="60"
+                      name="stockpileDays"
+                      value={settings.stockpileDays ?? 7}
+                      onChange={handleChange}
+                      style={{ maxWidth: '120px' }}
+                    />
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>days after order is placed</span>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Pickup Reminder Template</label>
+                  <textarea
+                    className="settings-input settings-textarea"
+                    name="templateStockpile"
+                    value={settings.templateStockpile ?? ''}
+                    onChange={handleChange}
+                  />
+                  <div className="template-tags">
+                    <span className="tag-badge">{"{{name}}"}</span>
+                    <span className="tag-badge">{"{{id}}"}</span>
+                    <span className="tag-badge">{"{{item}}"}</span>
+                    <span className="tag-badge">{"{{days}}"}</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(245,158,11,0.08)', borderRadius: '12px', border: '1px solid rgba(245,158,11,0.25)' }}>
+                <p style={{ fontSize: '0.8125rem', color: '#b45309', display: 'flex', gap: '0.5rem', alignItems: 'flex-start', lineHeight: 1.6 }}>
+                  <Archive size={16} style={{ flexShrink: 0, marginTop: '1px' }} />
+                  <span>When an order matches the threshold, it appears under the <strong>Stockpiling</strong> filter on the Orders page. Select multiple orders and hit <strong>Notify</strong> to send pickup reminders via WhatsApp or clipboard — one customer at a time.</span>
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* ACCOUNT SECURITY */}
           {activeTab === 'account' && (

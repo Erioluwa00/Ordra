@@ -7,9 +7,10 @@ import {
   ChevronDown, Clock, CheckCircle2, XCircle,
   Package, Truck, RotateCcw, ArrowUpDown,
   MapPin, CreditCard, FileText, X, ChevronRight,
-  AlertCircle, Zap, CheckCheck, Copy, Flag, Calendar
+  AlertCircle, Zap, CheckCheck, Copy, Flag, Calendar, Bell, Archive
 } from 'lucide-react';
 import NewOrderModal from '../../components/NewOrderModal';
+import StockpileNoticeModal from '../../components/StockpileNoticeModal';
 import OrderDrawer, {
   StatusBadge,
   PaymentBadge,
@@ -103,18 +104,24 @@ function StatusChanger({ orderId, current, onChange }) {
 // ─────────────────────────────────────────────────
 export default function Orders() {
   const liveOrders = useQuery(api.orders.getAllOrders);
+  const liveSettings = useQuery(api.settings.getSettings);
   const updateStatus = useMutation(api.orders.updateOrderStatus);
   const updatePayment = useMutation(api.orders.updateOrderPaymentStatus);
+  const markNotifiedMutation = useMutation(api.orders.markNotified);
   
   const isLoading = liveOrders === undefined;
   const orders = liveOrders || [];
+  const stockpileDays = liveSettings?.stockpileDays ?? 7;
+  const stockpileTemplate = liveSettings?.templateStockpile ?? '';
 
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterPayment, setFilterPayment] = useState('all');
+  const [filterStockpile, setFilterStockpile] = useState(false);
   const [sortBy, setSortBy] = useState('date_desc');
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [stockpileModalOrders, setStockpileModalOrders] = useState(null); // null = closed
   const [selectedOrderIds, setSelectedOrderIds] = useState(new Set());
   const [duplicateOrderData, setDuplicateOrderData] = useState(null);
   const [flashedId, setFlashedId] = useState(null);
@@ -140,6 +147,16 @@ export default function Orders() {
     const diff = new Date(isoDate).getTime() - Date.now();
     return diff > 0 && diff < days * 24 * 3600000;
   };
+
+  const isStockpiling = (order) => {
+    if (order.paymentStatus !== 'paid') return false;
+    if (order.status === 'Delivered' || order.status === 'Cancelled') return false;
+    const ms = Date.now() - new Date(order.createdAt).getTime();
+    const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+    return days >= stockpileDays;
+  };
+
+  const stockpilingCount = useMemo(() => orders.filter(isStockpiling).length, [orders, stockpileDays]);
 
   // ── Handlers
   const handleDuplicate = (order) => {
@@ -174,9 +191,11 @@ export default function Orders() {
     if (filterUrgent) {
       list = list.filter(o => (o.isUrgent || isUpcoming(o.deliveryDate)) && o.status !== 'Delivered' && o.status !== 'Cancelled');
     }
+    if (filterStockpile) {
+      list = list.filter(o => isStockpiling(o));
+    }
 
     list.sort((a, b) => {
-      // Urgent orders always come first if we are sorting by date
       if (sortBy === 'date_desc' || sortBy === 'date_asc') {
         const aUrgent = a.isUrgent || isUpcoming(a.deliveryDate);
         const bUrgent = b.isUrgent || isUpcoming(b.deliveryDate);
@@ -190,7 +209,7 @@ export default function Orders() {
       return 0;
     });
     return list;
-  }, [orders, search, filterStatus, filterPayment, sortBy, filterUrgent]);
+  }, [orders, search, filterStatus, filterPayment, sortBy, filterUrgent, filterStockpile, stockpileDays]);
 
   // ── Handlers
   const handleStatusChange = async (orderId, newStatus) => {
@@ -362,6 +381,23 @@ export default function Orders() {
         })}
       </div>
 
+      {/* ── Stockpile Filter Tab (appears only when there are stockpiling orders) */}
+      {stockpilingCount > 0 && (
+        <button
+          className={`ord-stockpile-tab${filterStockpile ? ' active' : ''}`}
+          onClick={() => {
+            setFilterStockpile(f => !f);
+            setFilterStatus('All');
+            setFilterPayment('all');
+            setFilterUrgent(false);
+          }}
+        >
+          <Archive size={14} />
+          Stockpiling
+          <span className="ord-stockpile-count">{stockpilingCount}</span>
+        </button>
+      )}
+
       {/* ── Orders Table / Cards */}
       <div className="table-container">
 
@@ -457,6 +493,12 @@ export default function Orders() {
                           {order.isUrgent ? 'URGENT' : 'UPCOMING'}
                         </div>
                       )}
+                      {isStockpiling(order) && (
+                        <div className="ord-stockpile-tag">
+                          <Archive size={10} />
+                          STOCKPILING
+                        </div>
+                      )}
                     </div>
                   </td>
                   <td><span className="ord-amount">{formatCurrency(order.total)}</span></td>
@@ -473,6 +515,11 @@ export default function Orders() {
                   <td>
                     <div className="ord-date-cell">
                       <span className="ord-date">{relativeDate(order.createdAt)}</span>
+                      {order.notifiedAt && (
+                        <span className="ord-notified-tag">
+                          <Bell size={10} /> Notified
+                        </span>
+                      )}
                       {order.deliveryDate && (
                         <span className="ord-delivery-date">
                           <Calendar size={10} /> {new Date(order.deliveryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
@@ -564,6 +611,7 @@ export default function Orders() {
                     <span className="ord-item-text">{order.item}</span>
                     {order.isUrgent && <span className="ord-mobile-priority-tag urgent">URGENT</span>}
                     {isUpcoming(order.deliveryDate) && !order.isUrgent && <span className="ord-mobile-priority-tag upcoming">UPCOMING</span>}
+                    {isStockpiling(order) && <span className="ord-mobile-priority-tag stockpile">STOCKPILING</span>}
                   </div>
                 </div>
                 <div className="ord-mobile-card-foot">
@@ -617,11 +665,35 @@ export default function Orders() {
             <button className="ord-bulk-btn" onClick={() => handleBulkUpdate('status', 'Delivered')}>
               <Truck size={16} /> <span className="bulk-btn-text">Delivered</span>
             </button>
+            <button
+              className="ord-bulk-btn notify"
+              onClick={() => {
+                const selectedStockpiling = displayed.filter(
+                  o => selectedOrderIds.has(o._id) && isStockpiling(o)
+                );
+                const allSelected = displayed.filter(o => selectedOrderIds.has(o._id));
+                setStockpileModalOrders(selectedStockpiling.length > 0 ? selectedStockpiling : allSelected);
+              }}
+            >
+              <Bell size={16} /> <span className="bulk-btn-text">Notify</span>
+            </button>
             <button className="ord-bulk-btn cancel" onClick={() => setSelectedOrderIds(new Set())}>
               <X size={16} />
             </button>
           </div>
         </div>
+      )}
+
+      {/* ── Stockpile Notice Modal */}
+      {stockpileModalOrders && (
+        <StockpileNoticeModal
+          orders={stockpileModalOrders}
+          template={stockpileTemplate}
+          onClose={() => setStockpileModalOrders(null)}
+          onNotified={async (ids) => {
+            await markNotifiedMutation({ orderIds: ids });
+          }}
+        />
       )}
     </div>
   );

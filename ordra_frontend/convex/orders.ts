@@ -581,3 +581,22 @@ export const getDebtors = query({
     return Object.values(debtorsMap).sort((a: any, b: any) => b.totalOwed - a.totalOwed);
   },
 });
+
+// Mark one or more orders as "stockpile-notified"
+export const markNotified = mutation({
+  args: {
+    orderIds: v.array(v.id("orders")),
+  },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const now = new Date().toISOString();
+    for (const orderId of args.orderIds) {
+      const order = await ctx.db.get(orderId);
+      if (!order || order.userId !== userId) continue;
+      await ctx.db.patch(orderId, { notifiedAt: now });
+    }
+  },
+});
+

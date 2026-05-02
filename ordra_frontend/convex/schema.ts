@@ -28,6 +28,7 @@ export default defineSchema({
     deliveryDate: v.optional(v.string()), // ISO string or YYYY-MM-DD
     isUrgent: v.optional(v.boolean()),
     createdAt: v.string(), // ISO string
+    notifiedAt: v.optional(v.string()), // ISO string — last stockpile notice sent
   }).index("by_user", ["userId"]),
 
   customers: defineTable({
@@ -69,6 +70,8 @@ export default defineSchema({
     templateConfirmation: v.string(),
     templateReminder: v.string(),
     lowStockThreshold: v.optional(v.number()), // default 5 if not set
+    stockpileDays: v.optional(v.number()),      // days before order is stockpiling, default 7
+    templateStockpile: v.optional(v.string()),  // pickup-reminder message template
   }).index("by_user", ["userId"]),
 
   inventoryLogs: defineTable({
