@@ -253,23 +253,112 @@ input:checked + .slider:before {
   transform: translateX(20px);
 }
 
-/* ── Template Helper Tags ── */
-.template-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+/* ── Template Editor Layout ── */
+.template-editor-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: flex-start;
 }
 
-.tag-badge {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 0.75rem;
-  background: var(--input-bg);
+.template-edit-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.template-preview-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 2rem;
+}
+
+.preview-label {
+  font-size: 0.7rem;
+  font-weight: 700;
   color: var(--text-muted);
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-  cursor: help;
-  user-select: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* WhatsApp Style Bubble */
+.wa-bubble {
+  background: var(--input-bg);
+  padding: 1rem;
+  border-radius: 0 16px 16px 16px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  position: relative;
+  max-width: 100%;
+  border: 1px solid var(--border-subtle);
+  white-space: pre-wrap;
+  box-shadow: var(--shadow-sm);
+}
+
+.wa-bubble::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 8px 12px 0;
+  border-color: transparent var(--border-subtle) transparent transparent;
+}
+
+/* Interactive Tags */
+.tag-badge-btn {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent-primary);
+  padding: 0.35rem 0.65rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.tag-badge-btn:hover {
+  background: var(--accent-primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.template-notice-box {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  background: rgba(147, 51, 234, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(147, 51, 234, 0.1);
+}
+
+.template-notice-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 0.75rem;
+  line-height: 1.5;
+  align-items: flex-start;
+}
+
+.template-notice-text strong {
+  color: var(--accent-primary);
+}
+
+@media (max-width: 900px) {
+  .template-editor-group {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .template-preview-pane {
+    padding-top: 0;
+  }
 }
 
 /* ── Footer / Actions ── */

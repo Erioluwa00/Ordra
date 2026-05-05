@@ -149,33 +149,16 @@ export default function Settings() {
                     onChange={handleChange}
                   />
                 </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Phone Number</label>
-                    <input 
-                      className="settings-input" 
-                      type="tel" 
-                      name="phone"
-                      placeholder="e.g. 08012345678"
-                      value={settings.phone}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Currency</label>
-                    <div className="settings-select-wrap">
-                      <select 
-                        className="settings-input" 
-                        name="currency"
-                        value={settings.currency}
-                        onChange={handleChange}
-                      >
-                        <option value="NGN">Nigerian Naira (₦)</option>
-                        <option value="USD">US Dollar ($)</option>
-                        <option value="GBP">British Pound (£)</option>
-                      </select>
-                    </div>
-                  </div>
+                <div className="form-group">
+                  <label className="form-label">Phone Number</label>
+                  <input 
+                    className="settings-input" 
+                    type="tel" 
+                    name="phone"
+                    placeholder="e.g. 08012345678"
+                    value={settings.phone}
+                    onChange={handleChange}
+                  />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Email Address</label>
@@ -245,39 +228,105 @@ export default function Settings() {
                 <p className="settings-card-subtitle">Personalize the messages you send to customers on WhatsApp</p>
               </div>
               <div className="form-section">
-                <div className="form-group">
-                  <label className="form-label">Order Confirmation</label>
-                  <textarea 
-                    className="settings-input settings-textarea" 
-                    name="templateConfirmation"
-                    value={settings.templateConfirmation}
-                    onChange={handleChange}
-                  />
-                  <div className="template-tags">
-                    <span className="tag-badge">{"{{name}}"}</span>
-                    <span className="tag-badge">{"{{id}}"}</span>
-                    <span className="tag-badge">{"{{total}}"}</span>
+                
+                {/* Order Confirmation */}
+                <div className="template-editor-group">
+                  <div className="template-edit-pane">
+                    <label className="form-label">Order Confirmation</label>
+                    <textarea 
+                      className="settings-input settings-textarea" 
+                      name="templateConfirmation"
+                      id="templateConfirmation"
+                      value={settings.templateConfirmation}
+                      onChange={handleChange}
+                      placeholder="Hi {{name}}, your order..."
+                    />
+                    <div className="template-tags">
+                      {['{{name}}', '{{id}}', '{{total}}'].map(tag => (
+                        <button 
+                          key={tag} 
+                          className="tag-badge-btn"
+                          onClick={() => {
+                            const el = document.getElementById('templateConfirmation');
+                            const start = el.selectionStart;
+                            const end = el.selectionEnd;
+                            const text = settings.templateConfirmation;
+                            const next = text.substring(0, start) + tag + text.substring(end);
+                            setSettings(s => ({ ...s, templateConfirmation: next }));
+                            setTimeout(() => {
+                              el.focus();
+                              el.setSelectionRange(start + tag.length, start + tag.length);
+                            }, 10);
+                          }}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="template-preview-pane">
+                    <span className="preview-label">Live Preview</span>
+                    <div className="wa-bubble">
+                      {settings.templateConfirmation
+                        .replace(/\{\{name\}\}/g, 'John Doe')
+                        .replace(/\{\{id\}\}/g, 'ORD-123')
+                        .replace(/\{\{total\}\}/g, '₦15,000') || 'Start typing to see preview...'}
+                    </div>
                   </div>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Payment Reminder</label>
-                  <textarea 
-                    className="settings-input settings-textarea" 
-                    name="templateReminder"
-                    value={settings.templateReminder}
-                    onChange={handleChange}
-                  />
-                  <div className="template-tags">
-                    <span className="tag-badge">{"{{name}}"}</span>
-                    <span className="tag-badge">{"{{id}}"}</span>
-                    <span className="tag-badge">{"{{balance}}"}</span>
+
+                <div style={{ height: '1px', background: 'var(--border-subtle)', margin: '1rem 0' }} />
+
+                {/* Payment Reminder */}
+                <div className="template-editor-group">
+                  <div className="template-edit-pane">
+                    <label className="form-label">Payment Reminder</label>
+                    <textarea 
+                      className="settings-input settings-textarea" 
+                      name="templateReminder"
+                      id="templateReminder"
+                      value={settings.templateReminder}
+                      onChange={handleChange}
+                    />
+                    <div className="template-tags">
+                      {['{{name}}', '{{id}}', '{{balance}}'].map(tag => (
+                        <button 
+                          key={tag} 
+                          className="tag-badge-btn"
+                          onClick={() => {
+                            const el = document.getElementById('templateReminder');
+                            const start = el.selectionStart;
+                            const end = el.selectionEnd;
+                            const text = settings.templateReminder;
+                            const next = text.substring(0, start) + tag + text.substring(end);
+                            setSettings(s => ({ ...s, templateReminder: next }));
+                            setTimeout(() => {
+                              el.focus();
+                              el.setSelectionRange(start + tag.length, start + tag.length);
+                            }, 10);
+                          }}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="template-preview-pane">
+                    <span className="preview-label">Live Preview</span>
+                    <div className="wa-bubble">
+                      {settings.templateReminder
+                        .replace(/\{\{name\}\}/g, 'John Doe')
+                        .replace(/\{\{id\}\}/g, 'ORD-123')
+                        .replace(/\{\{balance\}\}/g, '₦5,200') || 'Start typing to see preview...'}
+                    </div>
                   </div>
                 </div>
               </div>
-              <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#fef3c7', borderRadius: '12px', border: '1px solid #fde68a' }}>
-                 <p style={{fontSize: '0.8125rem', color: '#92400e', display: 'flex', gap: '0.5rem'}}>
-                    <Clock size={16} /> 
-                    <span>Templates are automatically populated when you click 'Send Update' in the order drawer.</span>
+
+              <div className="template-notice-box">
+                 <p className="template-notice-text">
+                    <Zap size={16} /> 
+                    <span>These placeholders (like <strong>{"{{name}}"}</strong>) are automatically replaced with real customer details when you send a message.</span>
                  </p>
               </div>
             </div>
