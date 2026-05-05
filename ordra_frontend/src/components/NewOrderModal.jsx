@@ -25,15 +25,15 @@ const formatCurrency = (val) => {
 };
 
 const STATUS_OPTIONS = [
-  { value: 'new',        label: 'New',       color: '#6366f1' },
+  { value: 'new', label: 'New', color: '#6366f1' },
   { value: 'processing', label: 'Processing', color: '#2563eb' },
-  { value: 'ready',      label: 'Ready',      color: '#7c3aed' },
-  { value: 'delivered',  label: 'Delivered',  color: '#16a34a' },
-  { value: 'cancelled',  label: 'Cancelled',  color: '#ef4444' },
+  { value: 'ready', label: 'Ready', color: '#7c3aed' },
+  { value: 'delivered', label: 'Delivered', color: '#16a34a' },
+  { value: 'cancelled', label: 'Cancelled', color: '#ef4444' },
 ];
 
 export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
-  const nameRef  = useRef(null);
+  const nameRef = useRef(null);
   const phoneRef = useRef(null);
   const { products } = useProducts();
 
@@ -41,23 +41,23 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
   const createOrder = useMutation(api.orders.createOrder);
   const customers = useQuery(api.orders.getCustomers);
 
-  const [custName,        setCustName]        = useState('');
-  const [custPhone,       setCustPhone]       = useState('');
+  const [custName, setCustName] = useState('');
+  const [custPhone, setCustPhone] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [selectedCustId,  setSelectedCustId]  = useState(null); // Tracks if we've "locked in" an existing customer
+  const [selectedCustId, setSelectedCustId] = useState(null); // Tracks if we've "locked in" an existing customer
 
-  const [items,         setItems]         = useState([{ id: Date.now(), desc: '', qty: 1, price: '' }]);
+  const [items, setItems] = useState([{ id: Date.now(), desc: '', qty: 1, price: '' }]);
   const [activeCatalogRow, setActiveCatalogRow] = useState(null);
-  const [deliveryAddr,  setDeliveryAddr]  = useState('');
-  const [orderStatus,   setOrderStatus]   = useState('new');
+  const [deliveryAddr, setDeliveryAddr] = useState('');
+  const [orderStatus, setOrderStatus] = useState('new');
   const [paymentStatus, setPaymentStatus] = useState('unpaid');
-  const [amountPaid,    setAmountPaid]    = useState('');
-  const [deliveryDate,   setDeliveryDate]   = useState('');
-  const [isUrgent,       setIsUrgent]       = useState(false);
-  const [notes,         setNotes]         = useState('');
-  const [errors,        setErrors]        = useState({});
-  const [submitted,     setSubmitted]     = useState(false);
-  const [saving,        setSaving]        = useState(false);
+  const [amountPaid, setAmountPaid] = useState('');
+  const [deliveryDate, setDeliveryDate] = useState('');
+  const [isUrgent, setIsUrgent] = useState(false);
+  const [notes, setNotes] = useState('');
+  const [errors, setErrors] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const suggestionRef = useRef(null);
 
@@ -102,7 +102,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
         setCustPhone(initialData.customerPhone || '');
         setDeliveryAddr(initialData.deliveryAddress || '');
         // For duplicates/edits, we don't necessarily lock the ID unless we match it
-        setSelectedCustId(null); 
+        setSelectedCustId(null);
         if (initialData.items) {
           setItems(initialData.items.map((it, idx) => ({
             id: Date.now() + idx,
@@ -155,7 +155,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
 
   const togglePayment = (val) => {
     setPaymentStatus(val);
-    if (val === 'paid')   setAmountPaid(String(subtotal));
+    if (val === 'paid') setAmountPaid(String(subtotal));
     if (val === 'unpaid') setAmountPaid('');
   };
 
@@ -163,10 +163,10 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
     ev.preventDefault();
     setSubmitted(true);
     const e = {};
-    if (!custName.trim())  e.custName  = 'Customer name is required';
+    if (!custName.trim()) e.custName = 'Customer name is required';
     if (!custPhone.trim()) e.custPhone = 'Phone number is required';
     if (!items.some(it => it.desc.trim())) e.items = 'Add at least one item';
-    
+
     if (Object.keys(e).length) { setErrors(e); return; }
 
     const capitalizedName = custName.trim().split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
@@ -247,10 +247,10 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
                     value={custName}
                     autoComplete="off"
                     onFocus={() => !selectedCustId && setShowSuggestions(true)}
-                    onChange={e => { 
-                      setCustName(e.target.value); 
+                    onChange={e => {
+                      setCustName(e.target.value);
                       setSelectedCustId(null); // Break link if they edit
-                      setShowSuggestions(true); 
+                      setShowSuggestions(true);
                     }}
                   />
                   {selectedCustId && (
@@ -261,8 +261,8 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
                   {showSuggestions && suggestions.length > 0 && (
                     <div className="nom-suggestions">
                       {suggestions.map(c => (
-                        <div 
-                          key={c._id} 
+                        <div
+                          key={c._id}
                           className="nom-suggestion-item"
                           onClick={() => selectCustomer(c)}
                         >

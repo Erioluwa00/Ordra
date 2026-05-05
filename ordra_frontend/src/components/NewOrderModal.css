@@ -624,7 +624,8 @@
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   transition: all 0.2s;
-  position: relative; /* For absolute remove button */
+  position: relative;
+  /* For absolute remove button */
 }
 
 .nom-item-row:focus-within {

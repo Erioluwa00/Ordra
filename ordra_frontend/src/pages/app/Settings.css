@@ -445,3 +445,156 @@ input:checked + .slider:before {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Settings Modals ── */
+.settings-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: settingsFadeIn 0.2s ease-out;
+}
+
+.settings-modal {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-main);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: settingsSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-modal-header {
+  padding: 2rem 2rem 1rem;
+  text-align: center;
+}
+
+.settings-modal-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 1rem;
+}
+
+.settings-modal-header p {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+
+.icon-circle, .danger-icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.icon-circle {
+  background: var(--accent-soft);
+  color: var(--accent-primary);
+}
+
+.danger-icon-circle {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.settings-modal-body {
+  padding: 1rem 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.settings-modal-footer {
+  padding: 1.5rem 2rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  background: var(--bg-app);
+}
+
+.modal-btn {
+  padding: 0.875rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.modal-btn.cancel {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-main);
+}
+
+.modal-btn.cancel:hover {
+  background: var(--border-subtle);
+}
+
+.modal-btn.primary {
+  background: var(--accent-primary);
+  color: white;
+}
+
+.modal-btn.primary:hover {
+  background: var(--accent-hover);
+}
+
+.modal-btn.delete {
+  background: #ef4444;
+  color: white;
+}
+
+.modal-btn.delete:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.modal-btn.delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-status-msg {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.modal-status-msg.error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.modal-status-msg.success {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.modal-status-msg.loading {
+  background: var(--bg-app);
+  color: var(--text-secondary);
+}
+
+@keyframes settingsFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes settingsSlideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
