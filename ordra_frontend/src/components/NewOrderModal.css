@@ -35,7 +35,8 @@
   /* ↓ KEY FIX: explicit height contract so flex children stay inside */
   display: flex;
   flex-direction: column;
-  min-height: 0;            /* lets flex shrink below content size */
+  min-height: 0;
+  /* lets flex shrink below content size */
 
   /* Mobile: bottom-sheet, capped at 92dvh so nothing escapes the chrome */
   height: 92dvh;
@@ -55,10 +56,12 @@
 }
 
 @media (min-width: 640px) {
+
   /* Tablet / Desktop: centred dialog — fills the full allowed height
      so the scrollable body + pinned footer always work correctly */
   .nom-sheet {
-    height: min(88vh, 740px);   /* fill, don't just shrink-to-content */
+    height: min(88vh, 740px);
+    /* fill, don't just shrink-to-content */
     max-height: min(88vh, 740px);
     border-radius: 20px;
     box-shadow: 0 24px 60px -10px rgba(0, 0, 0, 0.18);
@@ -119,15 +122,24 @@
   cursor: pointer;
   transition: all 0.18s;
 }
-.nom-close:hover { background: var(--border-main); color: var(--text-primary); }
 
-.nom-close:hover { background: var(--border-main); color: var(--text-primary); }
+.nom-close:hover {
+  background: var(--border-main);
+  color: var(--text-primary);
+}
+
+.nom-close:hover {
+  background: var(--border-main);
+  color: var(--text-primary);
+}
 
 /* ── Scrollable Body ─────────────────────────── */
 .nom-body {
   /* Takes all remaining height between the fixed header + footer */
-  flex: 1 1 0;            /* grow, shrink, don't base on content */
-  min-height: 0;          /* essential for overflow to kick in */
+  flex: 1 1 0;
+  /* grow, shrink, don't base on content */
+  min-height: 0;
+  /* essential for overflow to kick in */
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
@@ -281,7 +293,10 @@
   border-top: 1px solid var(--border-subtle);
   transition: background 0.15s;
 }
-.nom-dropdown-add:hover { background: var(--bg-app); }
+
+.nom-dropdown-add:hover {
+  background: var(--bg-app);
+}
 
 /* ── Product Catalog Suggestions ─────────────── */
 .nom-item-row-wrapper {
@@ -296,7 +311,8 @@
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  right: -160px; /* Expand to cover qty and price areas if needed */
+  right: -160px;
+  /* Expand to cover qty and price areas if needed */
   background: var(--bg-panel);
   border: 1px solid var(--border-main);
   border-radius: 12px;
@@ -393,13 +409,17 @@
   flex-shrink: 0;
 }
 
-.nom-chip-info { flex: 1; }
+.nom-chip-info {
+  flex: 1;
+}
+
 .nom-chip-name {
   display: block;
   font-weight: 700;
   font-size: 0.9rem;
   color: var(--text-primary);
 }
+
 .nom-chip-phone {
   display: block;
   font-size: 0.78rem;
@@ -420,7 +440,10 @@
   transition: all 0.18s;
   flex-shrink: 0;
 }
-.nom-chip-clear:hover { background: #d8b4fe; }
+
+.nom-chip-clear:hover {
+  background: #d8b4fe;
+}
 
 /* ── New Customer Inline Form ────────────────── */
 .nom-new-cust-form {
@@ -449,7 +472,10 @@
   cursor: pointer;
   padding: 0;
 }
-.nom-link-btn:hover { text-decoration: underline; }
+
+.nom-link-btn:hover {
+  text-decoration: underline;
+}
 
 /* ── Generic inputs ──────────────────────────── */
 .nom-input {
@@ -473,7 +499,9 @@
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-.nom-input.error { border-color: #ef4444; }
+.nom-input.error {
+  border-color: #ef4444;
+}
 
 .nom-textarea {
   resize: vertical;
@@ -554,10 +582,16 @@
 }
 
 @media (min-width: 480px) {
-  .nom-form-row { grid-template-columns: 1fr 1fr; }
+  .nom-form-row {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.nom-form-group { display: flex; flex-direction: column; gap: 0; }
+.nom-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
 
 .nom-two-col {
   display: grid;
@@ -566,7 +600,9 @@
 }
 
 @media (min-width: 480px) {
-  .nom-two-col { grid-template-columns: 1fr 1fr; }
+  .nom-two-col {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 /* ── Item Rows ───────────────────────────────── */
@@ -580,12 +616,26 @@
 /* ── Desktop / Tablet (≥ 480px): single-line row ─── */
 .nom-item-row {
   display: grid;
-  grid-template-columns: 1fr 58px 100px 30px;
-  gap: 0.4rem;
+  grid-template-columns: 1fr 64px 110px;
+  gap: 0.65rem;
   align-items: center;
+  padding: 0.75rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  transition: all 0.2s;
+  position: relative; /* For absolute remove button */
 }
 
-.nom-item-desc-wrap { min-width: 0; }
+.nom-item-row:focus-within {
+  border-color: var(--accent-soft);
+  background: var(--bg-panel);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.nom-item-desc-wrap {
+  min-width: 0;
+}
 
 .nom-qty {
   padding-left: 0.5rem;
@@ -613,55 +663,67 @@
 }
 
 .nom-remove-item {
-  background: #fee2e2;
-  border: none;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: white;
+  border: 1px solid #fecaca;
   color: #ef4444;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.18s;
+  transition: all 0.2s;
   flex-shrink: 0;
-  justify-self: center;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
 }
-.nom-remove-item:hover { background: #fecaca; }
+
+.nom-remove-item:hover {
+  background: #fee2e2;
+  transform: scale(1.1);
+}
 
 /* ── Mobile (≤ 520px wide modal = roughly phones): 2-line card layout ───
    Using a wide-enough max-width so it fires on real phones even when the
    modal's padding makes the inner content wider than 479px.             */
 @media (max-width: 520px) {
   .nom-item-row {
-    grid-template-columns: 1fr 52px 1fr 30px;
+    grid-template-columns: 80px 1fr;
     grid-template-rows: auto auto;
     grid-template-areas:
-      "desc desc desc desc"
-      "qty  price price del";
-    gap: 0.35rem 0.4rem;
-    background: var(--input-bg);
-    border: 1px solid var(--border-main);
-    border-radius: 10px;
-    padding: 0.6rem 0.65rem;
+      "desc desc"
+      "qty  price";
+    gap: 0.5rem 0.75rem;
+    padding: 0.875rem;
   }
 
-  .nom-item-row .nom-item-desc-wrap  { grid-area: desc; }
-  .nom-item-row .nom-qty             { grid-area: qty; text-align: left; }
-  .nom-item-row .nom-price-wrap      { grid-area: price; }
+  .nom-item-row .nom-item-desc-wrap {
+    grid-area: desc;
+  }
+
+  .nom-item-row .nom-qty {
+    grid-area: qty;
+    text-align: left;
+  }
+
+  .nom-item-row .nom-price-wrap {
+    grid-area: price;
+  }
+
   .nom-item-row .nom-remove-item {
-    grid-area: del;
-    justify-self: end;
-    align-self: center;
-    width: 28px;
-    height: 28px;
+    top: -10px;
+    right: -10px;
   }
 
   /* Tighten inputs inside the card */
   .nom-item-row .nom-input {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    font-size: 0.85rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    font-size: 0.875rem;
     background: var(--bg-surface);
   }
 }
@@ -670,21 +732,26 @@
 .nom-add-item-btn {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  font-size: 0.875rem;
+  font-weight: 700;
   color: var(--accent-primary);
-  background: none;
-  border: 1.5px dashed var(--border-main);
-  border-radius: 8px;
-  padding: 0.5rem 0.875rem;
+  background: var(--bg-surface);
+  border: 1px dashed var(--accent-soft);
+  border-radius: 12px;
+  padding: 0.75rem;
   cursor: pointer;
-  transition: all 0.18s;
-  margin-bottom: 0.25rem;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
 }
+
 .nom-add-item-btn:hover {
-  background: var(--input-bg);
+  background: var(--accent-soft);
+  border-style: solid;
   border-color: var(--accent-primary);
+  transform: translateY(-1px);
 }
 
 /* ── Subtotal ────────────────────────────────── */
@@ -734,11 +801,25 @@
   white-space: nowrap;
 }
 
-.nom-toggle:hover { color: var(--text-primary); background: var(--border-main); }
+.nom-toggle:hover {
+  color: var(--text-primary);
+  background: var(--border-main);
+}
 
-.nom-toggle.active.unpaid  { background: #fef3c7; color: #d97706; }
-.nom-toggle.active.partial { background: #dbeafe; color: #2563eb; }
-.nom-toggle.active.paid    { background: #dcfce7; color: #16a34a; }
+.nom-toggle.active.unpaid {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.nom-toggle.active.partial {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.nom-toggle.active.paid {
+  background: #dcfce7;
+  color: #16a34a;
+}
 
 /* ── Status Select ───────────────────────────── */
 .nom-select-wrap {
@@ -807,14 +888,31 @@
   font-weight: 600;
   border: 1px solid #fee2e2;
   margin-top: 0.5rem;
-  animation: nomShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+  animation: nomShake 0.4s cubic-bezier(.36, .07, .19, .97) both;
 }
 
 @keyframes nomShake {
-  10%, 90% { transform: translate3d(-1px, 0, 0); }
-  20%, 80% { transform: translate3d(2px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-  40%, 60% { transform: translate3d(4px, 0, 0); }
+
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
 }
 
 /* ── Footer ──────────────────────────────────── */
@@ -844,8 +942,14 @@
     flex-direction: column;
     align-items: stretch;
   }
-  .nom-wa-btn     { justify-content: center; }
-  .nom-footer-right { justify-content: flex-end; }
+
+  .nom-wa-btn {
+    justify-content: center;
+  }
+
+  .nom-footer-right {
+    justify-content: flex-end;
+  }
 }
 
 .nom-footer-right {
@@ -868,8 +972,15 @@
   cursor: pointer;
   transition: all 0.18s;
 }
-.nom-wa-btn:hover:not(:disabled) { background: #bbf7d0; }
-.nom-wa-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.nom-wa-btn:hover:not(:disabled) {
+  background: #bbf7d0;
+}
+
+.nom-wa-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 .nom-submit {
   padding: 0.625rem 1.25rem;
@@ -877,9 +988,13 @@
 
 /* ── Animations ──────────────────────────────── */
 @keyframes nomFadeIn {
-  to { opacity: 1; }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes nomSlideUp {
-  to { transform: translateY(0); }
+  to {
+    transform: translateY(0);
+  }
 }
