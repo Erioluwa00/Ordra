@@ -1,5 +1,5 @@
-import React, { createContext, useContext } from 'react';
-import { useConvexAuth, useQuery } from "convex/react";
+import React, { createContext, useContext, useEffect } from 'react';
+import { useConvexAuth, useQuery, useMutation } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "../../convex/_generated/api";
 
@@ -11,6 +11,15 @@ export function AuthProvider({ children }) {
 
   // Fetch the current user's profile from Convex
   const userProfile = useQuery(api.users.getUserProfile);
+  const settings = useQuery(api.settings.getSettings);
+  const activateTrial = useMutation(api.settings.activateTrial);
+
+  // Auto-start the 14-day Pro trial for new users (no card required)
+  useEffect(() => {
+    if (isAuthenticated && settings !== undefined && !settings?.plan) {
+      activateTrial().catch(() => {});
+    }
+  }, [isAuthenticated, settings]);
 
   // While Convex is still deciding if we are logged in, show the branded splash
   if (isLoading) {

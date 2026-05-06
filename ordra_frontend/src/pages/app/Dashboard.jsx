@@ -4,11 +4,13 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
   Plus, Users, Wallet, ShoppingBag,
-  TrendingUp, TrendingDown, Clock, ArrowUpRight, Package, Flag, Trophy, CheckCheck
+  TrendingUp, TrendingDown, Clock, ArrowUpRight, Package, Flag, Trophy, CheckCheck, Zap, X
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import usePlan from '../../hooks/usePlan';
 import NewOrderModal from '../../components/NewOrderModal';
 import ActionCenter from '../../components/ActionCenter';
+import UpgradeModal from '../../components/UpgradeModal';
 import './Dashboard.css';
 
 const getInitials = (name) => {
@@ -34,6 +36,25 @@ const isUpcoming = (isoDate, days = 2) => {
 export default function Dashboard() {
   const { user } = useAuth();
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [upgradeModal, setUpgradeModal] = useState(null); // null | feature string
+  const [bannerDismissed, setBannerDismissed] = useState(
+    () => sessionStorage.getItem('ordra_banner_dismissed') === '1'
+  );
+
+  const plan = usePlan();
+
+  const handleNewOrder = () => {
+    if (plan.orderLimitReached) {
+      setUpgradeModal('orders');
+      return;
+    }
+    setIsOrderModalOpen(true);
+  };
+
+  const dismissBanner = () => {
+    sessionStorage.setItem('ordra_banner_dismissed', '1');
+    setBannerDismissed(true);
+  };
 
   // Mutations
   const updatePayment = useMutation(api.orders.updateOrderPaymentStatus);
@@ -131,11 +152,44 @@ export default function Dashboard() {
           <Link to="/app/customers" className="action-btn secondary" style={{ textDecoration: 'none' }}>
             <Users size={18} /> Customers
           </Link>
-          <button className="action-btn primary" onClick={() => setIsOrderModalOpen(true)}>
+          <button className="action-btn primary" onClick={handleNewOrder}>
             <Plus size={18} /> New Order
           </button>
         </div>
       </div>
+
+      {/* ── Plan Banner ───────────────────────────────────────────────────── */}
+      {!bannerDismissed && (
+        <>
+          {/* Free plan banner */}
+          {plan.isFree && !plan.isTrial && (
+            <div className="plan-banner free">
+              <Zap size={15} fill="currentColor" />
+              <span>
+                You're on the <strong>Free plan</strong> · {plan.monthlyOrderCount}/50 orders used this month
+              </span>
+              <button className="plan-banner-cta" onClick={() => setUpgradeModal('orders')}>
+                Upgrade to Pro — ₦5,000/mo
+              </button>
+              <button className="plan-banner-dismiss" onClick={dismissBanner} aria-label="Dismiss"><X size={14} /></button>
+            </div>
+          )}
+
+          {/* Trial countdown banner */}
+          {plan.isTrial && plan.trialDaysLeft !== null && plan.trialDaysLeft <= 4 && (
+            <div className="plan-banner trial">
+              <Zap size={15} fill="currentColor" />
+              <span>
+                Your <strong>Pro Trial</strong> ends in <strong>{plan.trialDaysLeft} day{plan.trialDaysLeft !== 1 ? 's' : ''}</strong>. Upgrade to keep all Pro features.
+              </span>
+              <button className="plan-banner-cta" onClick={() => setUpgradeModal('orders')}>
+                Upgrade — ₦5,000/mo
+              </button>
+              <button className="plan-banner-dismiss" onClick={dismissBanner} aria-label="Dismiss"><X size={14} /></button>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Metrics */}
       <div className="metrics-grid">
@@ -253,6 +307,13 @@ export default function Dashboard() {
         isOpen={isOrderModalOpen}
         onClose={() => setIsOrderModalOpen(false)}
       />
+
+      {upgradeModal && (
+        <UpgradeModal
+          feature={upgradeModal}
+          onClose={() => setUpgradeModal(null)}
+        />
+      )}
 
     </div>
   );

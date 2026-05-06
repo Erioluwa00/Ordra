@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import NewOrderModal from '../../components/NewOrderModal';
 import StockpileNoticeModal from '../../components/StockpileNoticeModal';
+import usePlan from '../../hooks/usePlan';
+import UpgradeModal from '../../components/UpgradeModal';
 import OrderDrawer, {
   StatusBadge,
   PaymentBadge,
@@ -126,7 +128,19 @@ export default function Orders() {
   const [duplicateOrderData, setDuplicateOrderData] = useState(null);
   const [flashedId, setFlashedId] = useState(null);
   const [filterUrgent, setFilterUrgent] = useState(false);
+  const [upgradeModal, setUpgradeModal] = useState(null); // null | feature string
   const bulkUpdate = useMutation(api.orders.bulkUpdateOrders);
+
+  const plan = usePlan();
+  const isLocked = plan.isFree && !plan.isTrial;
+
+  const handleNewOrder = () => {
+    if (plan.orderLimitReached) {
+      setUpgradeModal('orders');
+      return;
+    }
+    setIsModalOpen(true);
+  };
 
   const location = useLocation();
 
@@ -271,7 +285,7 @@ export default function Orders() {
           <p className="page-subtitle">{stats.total} total · {stats.active} active</p>
         </div>
         <div className="page-actions">
-          <button className="action-btn primary" onClick={() => setIsModalOpen(true)}>
+          <button className="action-btn primary" onClick={handleNewOrder}>
             <Plus size={18} /> New Order
           </button>
         </div>
@@ -411,7 +425,13 @@ export default function Orders() {
                     type="checkbox" 
                     className="custom-checkbox"
                     checked={displayed.length > 0 && selectedOrderIds.size === displayed.length}
-                    onChange={toggleSelectAll}
+                    onChange={() => {
+                      if (isLocked) {
+                        setUpgradeModal('bulk');
+                        return;
+                      }
+                      toggleSelectAll();
+                    }}
                   />
                 </th>
                 <th>Order</th>
@@ -471,7 +491,13 @@ export default function Orders() {
                       type="checkbox" 
                       className="custom-checkbox"
                       checked={selectedOrderIds.has(order._id)}
-                      onChange={(e) => toggleSelectOrder(e, order._id)}
+                      onChange={(e) => {
+                        if (isLocked) {
+                          setUpgradeModal('bulk');
+                          return;
+                        }
+                        toggleSelectOrder(e, order._id);
+                      }}
                     />
                   </td>
                   <td><span className="ord-id">{order.orderId}</span></td>
@@ -668,6 +694,10 @@ export default function Orders() {
             <button
               className="ord-bulk-btn notify"
               onClick={() => {
+                if (isLocked) {
+                  setUpgradeModal('whatsapp');
+                  return;
+                }
                 const selectedStockpiling = displayed.filter(
                   o => selectedOrderIds.has(o._id) && isStockpiling(o)
                 );
@@ -693,6 +723,14 @@ export default function Orders() {
           onNotified={async (ids) => {
             await markNotifiedMutation({ orderIds: ids });
           }}
+        />
+      )}
+
+      {/* ── Upgrade Modal */}
+      {upgradeModal && (
+        <UpgradeModal
+          feature={upgradeModal}
+          onClose={() => setUpgradeModal(null)}
         />
       )}
     </div>

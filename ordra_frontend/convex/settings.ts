@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, action } from "./_generated/server";
 import { auth } from "./auth";
 
 const DEFAULT_SETTINGS = {
@@ -67,5 +67,162 @@ export const updateSettings = mutation({
         ...args,
       });
     }
+  },
+});
+
+// ── PLAN MUTATIONS ────────────────────────────────────────────────────────────
+
+/**
+ * Called on signup — gives the user a 14-day card-free Pro trial.
+ * Safe to call multiple times (idempotent — won't overwrite an existing plan).
+ */
+export const activateTrial = mutation({
+  handler: async (ctx) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const existing = await ctx.db
+      .query("settings")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+
+    const now = new Date();
+    const trialEnd = new Date(now);
+    trialEnd.setDate(trialEnd.getDate() + 14);
+
+    const planFields = {
+      plan: "trial",
+      planStartDate: now.toISOString(),
+      planExpiresAt: trialEnd.toISOString(),
+    };
+
+    if (existing) {
+      // Only set if no plan exists yet (don't overwrite a paid plan)
+      if (!existing.plan || existing.plan === "free") {
+        await ctx.db.patch(existing._id, planFields);
+      }
+    } else {
+      await ctx.db.insert("settings", {
+        userId,
+        ...DEFAULT_SETTINGS,
+        ...planFields,
+      });
+    }
+  },
+});
+
+/**
+ * Called by Paystack webhook on successful payment.
+ * Upgrades the user to Pro for 30 days.
+ */
+export const upgradeToPro = mutation({
+  args: {
+    userId: v.id("users"),
+    paystackSubscriptionCode: v.optional(v.string()),
+  },
+  handler: async (ctx, { userId, paystackSubscriptionCode }) => {
+    const existing = await ctx.db
+      .query("settings")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+
+    const now = new Date();
+    const proEnd = new Date(now);
+    proEnd.setDate(proEnd.getDate() + 30);
+
+    const planFields = {
+      plan: "pro",
+      planStartDate: now.toISOString(),
+      planExpiresAt: proEnd.toISOString(),
+      ...(paystackSubscriptionCode ? { paystackSubscriptionCode } : {}),
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, planFields);
+    } else {
+      await ctx.db.insert("settings", {
+        userId,
+        ...DEFAULT_SETTINGS,
+        ...planFields,
+      });
+    }
+  },
+});
+
+/**
+ * Called when trial ends or Paystack subscription is cancelled.
+ * Reverts user to free plan.
+ */
+export const downgradeToFree = mutation({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, { userId }) => {
+    const existing = await ctx.db
+      .query("settings")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+
+    const planFields = {
+      plan: "free",
+      planStartDate: undefined,
+      planExpiresAt: undefined,
+      paystackSubscriptionCode: undefined,
+    };
+
+    if (existing) {
+      await ctx.db.patch(existing._id, planFields);
+    }
+  },
+});
+
+/**
+ * Helper used by createOrder — returns the user's active plan status.
+ * Returns: { plan, isPro, isTrial, isExpired, monthlyOrderCount }
+ */
+export const getPlanStatus = query({
+  handler: async (ctx) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) return null;
+
+    const settings = await ctx.db
+      .query("settings")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+
+    const plan = settings?.plan ?? "free";
+    const planExpiresAt = settings?.planExpiresAt;
+    const now = new Date();
+
+    const isExpired = planExpiresAt ? new Date(planExpiresAt) < now : false;
+    const isPro = (plan === "pro" || plan === "trial") && !isExpired;
+    const isTrial = plan === "trial" && !isExpired;
+
+    // Count orders this calendar month for free-tier limit check
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const monthlyOrders = await ctx.db
+      .query("orders")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    const monthlyOrderCount = monthlyOrders.filter(
+      (o) => o.createdAt >= monthStart
+    ).length;
+
+    // Days remaining in trial
+    let trialDaysLeft: number | null = null;
+    if (isTrial && planExpiresAt) {
+      const diff = new Date(planExpiresAt).getTime() - now.getTime();
+      trialDaysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    }
+
+    return {
+      plan,
+      isPro,
+      isTrial,
+      isExpired,
+      trialDaysLeft,
+      monthlyOrderCount,
+      planExpiresAt,
+    };
   },
 });

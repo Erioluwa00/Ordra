@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import usePlan from '../../hooks/usePlan';
+import UpgradeModal from '../../components/UpgradeModal';
 import { 
   CreditCard, Search, MessageCircle, AlertCircle, 
-  ChevronRight, Calendar, User, Phone, ShoppingCart
+  ChevronRight, Calendar, User, Phone, ShoppingCart, Zap
 } from 'lucide-react';
 import './Debts.css';
 
@@ -25,7 +27,11 @@ const relativeDate = (dateStr) => {
 };
 
 export default function Debts() {
+  const plan = usePlan();
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const debtors = useQuery(api.orders.getDebtors);
+
+  const isLocked = plan.isFree && !plan.isTrial;
 
   const totalOwed = debtors?.reduce((sum, d) => sum + d.totalOwed, 0) || 0;
   const totalDebtors = debtors?.length || 0;
@@ -34,6 +40,10 @@ export default function Debts() {
     : null;
 
   const handleWhatsAppRemind = (debtor) => {
+    if (isLocked) {
+      setIsUpgradeModalOpen(true);
+      return;
+    }
     const message = `Hello ${debtor.name}, this is a friendly reminder regarding your outstanding balance of ${formatCurrency(debtor.totalOwed)} for your recent orders with us. Please let us know when you'd like to settle this. Thank you!`;
     window.open(`https://wa.me/${debtor.phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
   };
@@ -61,7 +71,29 @@ export default function Debts() {
   );
 
   return (
-    <div className="debts-page">
+    <div className={`debts-page ${isLocked ? 'is-locked' : ''}`}>
+      {isLocked && (
+        <div className="pro-overlay">
+          <div className="pro-overlay-content">
+            <div className="pro-zap-badge">
+              <Zap size={14} fill="currentColor" /> Pro Feature
+            </div>
+            <h2>Recover Your Money Faster</h2>
+            <p>Track exactly who owes you and send automated WhatsApp payment reminders with one tap.</p>
+            <button className="pro-upgrade-btn" onClick={() => setIsUpgradeModalOpen(true)}>
+              Upgrade to Pro — ₦5,000/mo
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isUpgradeModalOpen && (
+        <UpgradeModal 
+          feature="debts" 
+          onClose={() => setIsUpgradeModalOpen(false)} 
+        />
+      )}
+
       <header className="page-header">
         <div>
           <h1 className="page-title">Debt Manager</h1>

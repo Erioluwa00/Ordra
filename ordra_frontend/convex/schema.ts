@@ -72,6 +72,11 @@ export default defineSchema({
     lowStockThreshold: v.optional(v.number()), // default 5 if not set
     stockpileDays: v.optional(v.number()),      // days before order is stockpiling, default 7
     templateStockpile: v.optional(v.string()),  // pickup-reminder message template
+    // ── PLAN / BILLING ──────────────────────────────────────────────────────
+    plan: v.optional(v.string()),                     // "free" | "trial" | "pro"
+    planStartDate: v.optional(v.string()),            // ISO — when plan began
+    planExpiresAt: v.optional(v.string()),            // ISO — when trial/plan expires
+    paystackSubscriptionCode: v.optional(v.string()), // for managing Paystack subscription
   }).index("by_user", ["userId"]),
 
   inventoryLogs: defineTable({

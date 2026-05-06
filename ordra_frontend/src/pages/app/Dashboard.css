@@ -492,3 +492,54 @@
 .metric-card.red .metric-trend.down {
   color: #ef4444;
 }
+
+/* ── PLAN UPGRADE BANNER ─────────────────────── */
+.plan-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.125rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+.plan-banner.free {
+  background: rgba(147, 51, 234, 0.06);
+  border: 1px solid rgba(147, 51, 234, 0.18);
+  color: var(--text-secondary);
+}
+.plan-banner.free svg { color: #9333ea; flex-shrink: 0; }
+.plan-banner.trial {
+  background: rgba(245, 158, 11, 0.07);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  color: var(--text-secondary);
+}
+.plan-banner.trial svg { color: #d97706; flex-shrink: 0; }
+.plan-banner span { flex: 1; min-width: 0; }
+.plan-banner-cta {
+  background: linear-gradient(135deg, #9333ea, #7e22ce);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 0.875rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+.plan-banner-cta:hover { opacity: 0.88; }
+.plan-banner-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  padding: 0.2rem;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.plan-banner-dismiss:hover { color: var(--text-primary); }

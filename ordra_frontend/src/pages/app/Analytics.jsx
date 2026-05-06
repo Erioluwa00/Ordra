@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import RevenueChart from '../../components/RevenueChart';
+import usePlan from '../../hooks/usePlan';
+import UpgradeModal from '../../components/UpgradeModal';
 import { 
   BarChart3, TrendingUp, Wallet, ShoppingBag, Users,
-  Trophy, AlertTriangle, TrendingDown, Package, ArrowUpRight 
+  Trophy, AlertTriangle, TrendingDown, Package, ArrowUpRight, Zap 
 } from 'lucide-react';
 import './Analytics.css';
 import './ProductPerformance.css';
@@ -18,6 +20,9 @@ const formatCurrency = (amt) => {
 };
 
 export default function Analytics() {
+  const plan = usePlan();
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+
   const stats = useQuery(api.orders.getDashboardStats);
   const customers = useQuery(api.orders.getCustomers);
   const performance = useQuery(api.products.getProductPerformance);
@@ -25,6 +30,8 @@ export default function Analytics() {
   const isLoadingStats = stats === undefined;
   const isLoadingCust  = customers === undefined;
   const isLoadingPerf  = performance === undefined;
+
+  const isLocked = plan.isFree && !plan.isTrial;
 
   const analyticsMetrics = [
     {
@@ -54,7 +61,29 @@ export default function Analytics() {
   ];
 
   return (
-    <div className="analytics-container">
+    <div className={`analytics-container ${isLocked ? 'is-locked' : ''}`}>
+      {isLocked && (
+        <div className="pro-overlay">
+          <div className="pro-overlay-content">
+            <div className="pro-zap-badge">
+              <Zap size={14} fill="currentColor" /> Pro Feature
+            </div>
+            <h2>Unlock Business Insights</h2>
+            <p>See your revenue trends, best selling products, and detailed performance analytics.</p>
+            <button className="pro-upgrade-btn" onClick={() => setIsUpgradeModalOpen(true)}>
+              Upgrade to Pro — ₦5,000/mo
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isUpgradeModalOpen && (
+        <UpgradeModal 
+          feature="analytics" 
+          onClose={() => setIsUpgradeModalOpen(false)} 
+        />
+      )}
+
       <div className="analytics-header">
         <div>
           <h1 className="analytics-title">Analytics</h1>

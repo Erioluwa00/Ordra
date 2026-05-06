@@ -1,23 +1,25 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { LayoutDashboard, Users, ShoppingBag, LogOut, X, Settings, PackageOpen, BarChart3, CreditCard } from 'lucide-react';
+import { LayoutDashboard, Users, ShoppingBag, LogOut, X, Settings, PackageOpen, BarChart3, CreditCard, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import usePlan from '../hooks/usePlan';
 import logo from '../assets/logo.png';
 import './Sidebar.css';
 
 export default function Sidebar({ isOpen, closeSidebar }) {
   const { logout } = useAuth();
   const settings = useQuery(api.settings.getSettings);
+  const plan = usePlan();
 
   const navLinks = [
     { to: '/app', label: 'Dashboard', icon: <LayoutDashboard size={20} />, exact: true },
     { to: '/app/customers', label: 'Customers', icon: <Users size={20} /> },
     { to: '/app/orders', label: 'Orders', icon: <ShoppingBag size={20} /> },
     { to: '/app/products', label: 'Products', icon: <PackageOpen size={20} /> },
-    { to: '/app/debts', label: 'Debt Manager', icon: <CreditCard size={20} /> },
-    { to: '/app/analytics', label: 'Analytics', icon: <BarChart3 size={20} /> },
+    { to: '/app/debts', label: 'Debt Manager', icon: <CreditCard size={20} />, isPro: true },
+    { to: '/app/analytics', label: 'Analytics', icon: <BarChart3 size={20} />, isPro: true },
     { to: '/app/settings', label: 'Settings', icon: <Settings size={20} /> },
   ];
 
@@ -45,7 +47,7 @@ export default function Sidebar({ isOpen, closeSidebar }) {
         </div>
 
         <nav className="sidebar-nav">
-          {navLinks.map(({ to, label, icon, exact }) => (
+          {navLinks.map(({ to, label, icon, exact, isPro }) => (
             <NavLink
               key={to}
               to={to}
@@ -53,8 +55,13 @@ export default function Sidebar({ isOpen, closeSidebar }) {
               className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
               onClick={closeSidebar}
             >
-              <span className="sidebar-link-icon">{icon}</span>
-              {label}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', width: '100%' }}>
+                <span className="sidebar-link-icon">{icon}</span>
+                <span style={{ flex: 1 }}>{label}</span>
+                {isPro && plan.isFree && !plan.isTrial && (
+                  <Lock size={12} className="sidebar-lock-icon" />
+                )}
+              </div>
             </NavLink>
           ))}
         </nav>
