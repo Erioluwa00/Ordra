@@ -4,9 +4,9 @@ import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
   ...authTables,
-  
+
   // ── BUSINESS COLLECTIONS ──────────────────────────────────────────────────
-  
+
   orders: defineTable({
     userId: v.id("users"),
     orderId: v.string(), // e.g. ORD-1234
@@ -53,7 +53,7 @@ export default defineSchema({
     sku: v.optional(v.string()),
     inStock: v.boolean(),
   }).index("by_user", ["userId"]),
-  
+
   categories: defineTable({
     userId: v.id("users"),
     name: v.string(),
