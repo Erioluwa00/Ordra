@@ -28,7 +28,7 @@ export const webhook = httpAction(async (ctx, request) => {
         userId,
         // Paystack subscription code if we're doing recurring, 
         // otherwise just the transaction reference
-        subscriptionCode: data.reference, 
+        paystackSubscriptionCode: data.reference, 
       });
     }
   }

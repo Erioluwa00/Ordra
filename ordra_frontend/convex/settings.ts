@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query, action } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 import { auth } from "./auth";
 
 const DEFAULT_SETTINGS = {
@@ -74,7 +74,6 @@ export const updateSettings = mutation({
 
 /**
  * Called on signup — gives the user a 14-day card-free Pro trial.
- * Safe to call multiple times (idempotent — won't overwrite an existing plan).
  */
 export const activateTrial = mutation({
   handler: async (ctx) => {
@@ -97,7 +96,6 @@ export const activateTrial = mutation({
     };
 
     if (existing) {
-      // Only set if no plan exists yet (don't overwrite a paid plan)
       if (!existing.plan || existing.plan === "free") {
         await ctx.db.patch(existing._id, planFields);
       }
@@ -113,7 +111,6 @@ export const activateTrial = mutation({
 
 /**
  * Called by Paystack webhook on successful payment.
- * Upgrades the user to Pro for 30 days.
  */
 export const upgradeToPro = mutation({
   args: {
@@ -150,35 +147,7 @@ export const upgradeToPro = mutation({
 });
 
 /**
- * Called when trial ends or Paystack subscription is cancelled.
- * Reverts user to free plan.
- */
-export const downgradeToFree = mutation({
-  args: {
-    userId: v.id("users"),
-  },
-  handler: async (ctx, { userId }) => {
-    const existing = await ctx.db
-      .query("settings")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .unique();
-
-    const planFields = {
-      plan: "free",
-      planStartDate: undefined,
-      planExpiresAt: undefined,
-      paystackSubscriptionCode: undefined,
-    };
-
-    if (existing) {
-      await ctx.db.patch(existing._id, planFields);
-    }
-  },
-});
-
-/**
  * Helper used by createOrder — returns the user's active plan status.
- * Returns: { plan, isPro, isTrial, isExpired, monthlyOrderCount }
  */
 export const getPlanStatus = query({
   handler: async (ctx) => {
@@ -198,7 +167,6 @@ export const getPlanStatus = query({
     const isPro = (plan === "pro" || plan === "trial") && !isExpired;
     const isTrial = plan === "trial" && !isExpired;
 
-    // Count orders this calendar month for free-tier limit check
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
     const monthlyOrders = await ctx.db
       .query("orders")
@@ -208,7 +176,6 @@ export const getPlanStatus = query({
       (o) => o.createdAt >= monthStart
     ).length;
 
-    // Days remaining in trial
     let trialDaysLeft: number | null = null;
     if (isTrial && planExpiresAt) {
       const diff = new Date(planExpiresAt).getTime() - now.getTime();
@@ -217,12 +184,44 @@ export const getPlanStatus = query({
 
     return {
       plan,
+      userId,
       isPro,
       isTrial,
       isExpired,
       trialDaysLeft,
       monthlyOrderCount,
       planExpiresAt,
+      orderLimitReached: !isPro && monthlyOrderCount >= 50,
     };
+  },
+});
+
+/**
+ * BACKGROUND JANITOR
+ * finds all users with expired plans and downgrades them.
+ */
+export const checkExpiredPlans = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = new Date().toISOString();
+    
+    const expiredSettings = await ctx.db
+      .query("settings")
+      .withIndex("by_expiry", (q) => q.lt("planExpiresAt", now))
+      .collect();
+
+    let count = 0;
+    for (const setting of expiredSettings) {
+      if (setting.plan !== "free") {
+        console.log(`Downgrading user ${setting.userId} (plan: ${setting.plan})`);
+        await ctx.db.patch(setting._id, {
+          plan: "free",
+          planExpiresAt: undefined,
+          paystackSubscriptionCode: undefined,
+        });
+        count++;
+      }
+    }
+    console.log(`Janitor finished: Downgraded ${count} expired plans.`);
   },
 });

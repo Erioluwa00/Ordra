@@ -77,7 +77,8 @@ export default defineSchema({
     planStartDate: v.optional(v.string()),            // ISO — when plan began
     planExpiresAt: v.optional(v.string()),            // ISO — when trial/plan expires
     paystackSubscriptionCode: v.optional(v.string()), // for managing Paystack subscription
-  }).index("by_user", ["userId"]),
+  }).index("by_user", ["userId"])
+    .index("by_expiry", ["planExpiresAt"]),
 
   inventoryLogs: defineTable({
     userId: v.id("users"),
