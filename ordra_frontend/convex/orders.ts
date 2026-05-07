@@ -21,6 +21,7 @@ export const createOrder = mutation({
     notes: v.string(),
     deliveryDate: v.optional(v.string()),
     isUrgent: v.optional(v.boolean()),
+    source: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await auth.getUserId(ctx);
@@ -72,6 +73,7 @@ export const createOrder = mutation({
       notes: args.notes,
       deliveryDate: args.deliveryDate,
       isUrgent: args.isUrgent,
+      source: args.source,
       createdAt: new Date().toISOString(),
     });
     
@@ -153,11 +155,32 @@ export const getDashboardStats = query({
 
     const activeOrders = allOrders.filter(o => o.status !== "Delivered").length;
 
+    const revenueBySource: Record<string, number> = {
+      whatsapp: 0,
+      instagram: 0,
+      tiktok: 0,
+      facebook: 0,
+      physical: 0,
+      other: 0,
+    };
+
+    allOrders.forEach(o => {
+      if (o.paymentStatus === "paid") {
+        const source = o.source || 'whatsapp'; // Default to whatsapp for legacy orders
+        if (revenueBySource[source] !== undefined) {
+          revenueBySource[source] += o.total;
+        } else {
+          revenueBySource.other += o.total;
+        }
+      }
+    });
+
     return {
       totalRevenue,
       pendingPayments,
       activeOrders,
       totalOrders: allOrders.length,
+      revenueBySource,
     };
   },
 });

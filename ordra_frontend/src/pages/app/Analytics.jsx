@@ -5,7 +5,7 @@ import RevenueChart from '../../components/RevenueChart';
 import usePlan from '../../hooks/usePlan';
 import { 
   BarChart3, TrendingUp, Wallet, ShoppingBag, Users,
-  Trophy, AlertTriangle, TrendingDown, Package, ArrowUpRight, Zap, Lock 
+  Trophy, AlertTriangle, TrendingDown, Package, ArrowUpRight, Zap, Lock, Globe 
 } from 'lucide-react';
 import './Analytics.css';
 import './ProductPerformance.css';
@@ -107,6 +107,35 @@ export default function Analytics() {
 
       <div className="analytics-grid">
          <div className="performance-grid">
+            {/* Revenue by Source */}
+            <div className="performance-card">
+              <div className="perf-header">
+                <h3 className="perf-title"><Globe size={18} color="#8b5cf6" /> Sales by Channel</h3>
+                <span className="a-trend-text">Revenue per platform</span>
+              </div>
+              {isLoadingStats ? (
+                <div className="perf-empty">Analyzing sales channels...</div>
+              ) : !stats?.revenueBySource || Object.values(stats.revenueBySource).reduce((a, b) => a + b, 0) === 0 ? (
+                <div className="perf-empty">No channel data yet. Complete paid orders to see insights!</div>
+              ) : (
+                <div className="best-seller-list">
+                  {Object.entries(stats.revenueBySource)
+                    .sort(([, a], [, b]) => Number(b) - Number(a))
+                    .filter(([, val]) => val > 0)
+                    .map(([source, val]) => (
+                      <div key={source} className="best-seller-item" style={{ padding: '0.75rem' }}>
+                        <div className="bs-info">
+                          <span className="bs-name" style={{ textTransform: 'capitalize' }}>{source === 'whatsapp' ? 'WhatsApp' : source === 'tiktok' ? 'TikTok' : source}</span>
+                        </div>
+                        <div className="bs-stats">
+                          <div className="bs-revenue" style={{ color: 'var(--text-main)', fontWeight: 600 }}>{formatCurrency(val)}</div>
+                        </div>
+                      </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Best Sellers */}
             <div className="performance-card">
               <div className="perf-header">

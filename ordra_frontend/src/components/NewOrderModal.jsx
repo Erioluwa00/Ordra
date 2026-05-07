@@ -4,7 +4,7 @@ import { api } from "../../convex/_generated/api";
 import {
   X, Plus, Trash2, MessageCircle,
   ChevronDown, CheckCircle2, AlertCircle, Package,
-  User, MapPin, CreditCard, Zap, Tag, Calendar, Flag
+  User, MapPin, CreditCard, Zap, Tag, Calendar, Flag, Globe
 } from 'lucide-react';
 import './NewOrderModal.css';
 import { useProducts } from '../context/ProductContext';
@@ -49,6 +49,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
   const [items, setItems] = useState([{ id: Date.now(), desc: '', qty: 1, price: '' }]);
   const [activeCatalogRow, setActiveCatalogRow] = useState(null);
   const [deliveryAddr, setDeliveryAddr] = useState('');
+  const [orderSource, setOrderSource] = useState('whatsapp');
   const [orderStatus, setOrderStatus] = useState('new');
   const [paymentStatus, setPaymentStatus] = useState('unpaid');
   const [amountPaid, setAmountPaid] = useState('');
@@ -118,6 +119,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
         setItems([{ id: Date.now(), desc: '', qty: 1, price: '' }]);
         setDeliveryAddr('');
       }
+      setOrderSource('whatsapp');
       setOrderStatus('new');
       setPaymentStatus('unpaid');
       setAmountPaid('');
@@ -190,6 +192,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
         notes,
         deliveryDate: deliveryDate || undefined,
         isUrgent: isUrgent || undefined,
+        source: orderSource,
       });
       onClose();
     } catch (err) {
@@ -280,17 +283,39 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
                 <div className="nom-form-group">
                   <input
                     ref={phoneRef}
-                    type="tel"
-                    className={`nom-input${errors.custPhone ? ' error' : ''}`}
-                    placeholder="Phone number *"
+                    type="text"
+                    className={`nom-input${errors.custPhone ? ' error' : ''}${selectedCustId ? ' nom-input--linked' : ''}`}
+                    placeholder="080... or @handle *"
                     value={custPhone}
                     autoComplete="off"
                     onChange={e => {
                       setCustPhone(e.target.value);
-                      setSelectedCustId(null); // Break link if they edit
+                      setSelectedCustId(null);
+                      if (submitted) setErrors(e => ({ ...e, custPhone: null }));
                     }}
                   />
                   {errors.custPhone && <p className="nom-error">{errors.custPhone}</p>}
+                </div>
+              </div>
+              
+              <div className="nom-form-group" style={{ marginTop: '0.8rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+                  <Globe size={12} /><span>Order Source</span>
+                </div>
+                <div className="nom-select-wrap">
+                  <select 
+                    className="nom-input nom-select" 
+                    value={orderSource} 
+                    onChange={e => setOrderSource(e.target.value)}
+                  >
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="physical">Physical Store</option>
+                    <option value="other">Other</option>
+                  </select>
+                  <ChevronDown size={14} className="nom-select-chevron" />
                 </div>
               </div>
             </section>

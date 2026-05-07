@@ -27,6 +27,7 @@ export default defineSchema({
     notes: v.string(),
     deliveryDate: v.optional(v.string()), // ISO string or YYYY-MM-DD
     isUrgent: v.optional(v.boolean()),
+    source: v.optional(v.string()), // whatsapp, instagram, tiktok, etc.
     createdAt: v.string(), // ISO string
     notifiedAt: v.optional(v.string()), // ISO string — last stockpile notice sent
   }).index("by_user", ["userId"]),

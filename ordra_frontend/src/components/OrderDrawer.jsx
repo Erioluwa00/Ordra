@@ -87,6 +87,7 @@ import usePlan from '../hooks/usePlan';
 
 export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid, onDuplicate }) {
   if (!order) return null;
+  const [copied, setCopied] = React.useState(false);
   const plan = usePlan();
   const balance = order.total - (order.amountPaid || 0);
   const updatePriority = useMutation(api.orders.updateOrderPriority);
@@ -106,17 +107,28 @@ export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid
     });
   };
 
-  const whatsapp = () => {
-    const clean = order.customerPhone?.replace(/\D/g, '') || '';
-    const intl = clean.startsWith('0') ? '234' + clean.slice(1) : clean;
+  const getReceiptMessage = () => {
     const itemLines = (order.items || [])
       .map(it => `• ${it.desc} × ${it.qty} — ${formatCurrency(it.price * it.qty)}`)
       .join('\n');
-    const msg = encodeURIComponent(
-      `Hello ${order.customer}! 👋 Here's your order update:\n\nOrder ID: ${order.orderId || order.id}\n\n${itemLines}\n\nTotal: ${formatCurrency(order.total)}\nPaid: ${formatCurrency(order.amountPaid)}\nBalance: ${formatCurrency(balance)}\nStatus: ${order.status}\n\nThank you for your order!`
-    );
+    return `Hello ${order.customer}! 👋 Here's your order update:\n\nOrder ID: ${order.orderId || order.id}\n\n${itemLines}\n\nTotal: ${formatCurrency(order.total)}\nPaid: ${formatCurrency(order.amountPaid)}\nBalance: ${formatCurrency(balance)}\nStatus: ${order.status}\n\nThank you for your order!`;
+  };
+
+  const whatsapp = () => {
+    const clean = order.customerPhone?.replace(/\D/g, '') || '';
+    const intl = clean.startsWith('0') ? '234' + clean.slice(1) : clean;
+    const msg = encodeURIComponent(getReceiptMessage());
     window.open(`https://wa.me/${intl}?text=${msg}`, '_blank');
   };
+
+  const copyReceipt = () => {
+    navigator.clipboard.writeText(getReceiptMessage());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const isSocialHandle = order.customerPhone && (order.customerPhone.startsWith('@') || /[a-zA-Z]/.test(order.customerPhone));
+
 
   const nextStatuses = STATUS_TRANSITIONS[order.status] || [];
 
@@ -133,6 +145,11 @@ export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid
         </div>
 
         <div className="ord-drawer-body">
+          {order.source && order.source !== 'whatsapp' && (
+            <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+               <span style={{ padding: '2px 6px', background: 'var(--bg-elevated)', borderRadius: '4px', border: '1px solid var(--border-subtle)' }}>Source: {order.source}</span>
+            </div>
+          )}
           {/* Status + payment badges */}
           <div className="ord-drawer-status-row">
             <StatusBadge status={order.status} />
@@ -262,8 +279,13 @@ export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid
           <div className="ord-drawer-section">
             <p className="ord-drawer-section-title"><Zap size={14} /> Actions</p>
             <div className="ord-drawer-tool-grid">
-              <button className="ord-tool-btn wa" onClick={whatsapp}>
-                <MessageCircle size={15} /> WhatsApp
+              {!isSocialHandle && (
+                <button className="ord-tool-btn wa" onClick={whatsapp}>
+                  <MessageCircle size={15} /> WhatsApp
+                </button>
+              )}
+              <button className="ord-tool-btn copy" onClick={copyReceipt} style={{ background: copied ? '#16a34a' : 'var(--bg-elevated)', color: copied ? 'white' : 'var(--text-main)', borderColor: copied ? '#16a34a' : 'var(--border-subtle)' }}>
+                {copied ? <CheckCheck size={15} /> : <Copy size={15} />} {copied ? 'Copied!' : 'Copy Receipt'}
               </button>
               <button className="ord-tool-btn duplicate" onClick={() => onDuplicate(order)}>
                 <Copy size={15} /> Duplicate
