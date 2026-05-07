@@ -67,7 +67,7 @@ export default function Sidebar({ isOpen, closeSidebar }) {
         </nav>
 
         <div className="sidebar-footer">
-          {plan.isTrial && (
+          {plan.isTrial ? (
             <div className="sidebar-trial-card">
               <div className="trial-card-header">
                 <Zap size={14} fill="currentColor" />
@@ -86,7 +86,26 @@ export default function Sidebar({ isOpen, closeSidebar }) {
                 Upgrade Now
               </button>
             </div>
-          )}
+          ) : plan.isFree ? (
+            <div className="sidebar-trial-card upgrade">
+              <div className="trial-card-header">
+                <Zap size={14} fill="currentColor" />
+                <span>Go Pro</span>
+              </div>
+              <div className="trial-card-content">
+                <strong>Unlock all features</strong>
+              </div>
+              <button 
+                className="trial-card-btn" 
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'orders' } }));
+                  closeSidebar();
+                }}
+              >
+                Upgrade Now
+              </button>
+            </div>
+          ) : null}
           <button onClick={logout} className="logout-btn">
             <LogOut size={20} />
             Log Out

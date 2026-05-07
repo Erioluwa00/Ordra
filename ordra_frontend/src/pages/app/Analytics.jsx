@@ -3,7 +3,6 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import RevenueChart from '../../components/RevenueChart';
 import usePlan from '../../hooks/usePlan';
-import UpgradeModal from '../../components/UpgradeModal';
 import { 
   BarChart3, TrendingUp, Wallet, ShoppingBag, Users,
   Trophy, AlertTriangle, TrendingDown, Package, ArrowUpRight, Zap 
@@ -21,7 +20,6 @@ const formatCurrency = (amt) => {
 
 export default function Analytics() {
   const plan = usePlan();
-  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
   const stats = useQuery(api.orders.getDashboardStats);
   const customers = useQuery(api.orders.getCustomers);
@@ -70,19 +68,13 @@ export default function Analytics() {
             </div>
             <h2>Unlock Business Insights</h2>
             <p>See your revenue trends, best selling products, and detailed performance analytics.</p>
-            <button className="pro-upgrade-btn" onClick={() => setIsUpgradeModalOpen(true)}>
+            <button className="pro-upgrade-btn" onClick={() => window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'analytics' } }))}>
               Upgrade to Pro — ₦5,000/mo
             </button>
           </div>
         </div>
       )}
 
-      {isUpgradeModalOpen && (
-        <UpgradeModal 
-          feature="analytics" 
-          onClose={() => setIsUpgradeModalOpen(false)} 
-        />
-      )}
 
       <div className="analytics-header">
         <div>

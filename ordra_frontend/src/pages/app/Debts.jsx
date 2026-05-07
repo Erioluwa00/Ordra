@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import usePlan from '../../hooks/usePlan';
-import UpgradeModal from '../../components/UpgradeModal';
 import { 
   CreditCard, Search, MessageCircle, AlertCircle, 
   ChevronRight, Calendar, User, Phone, ShoppingCart, Zap
@@ -28,7 +27,6 @@ const relativeDate = (dateStr) => {
 
 export default function Debts() {
   const plan = usePlan();
-  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const debtors = useQuery(api.orders.getDebtors);
 
   const isLocked = plan.isFree && !plan.isTrial;
@@ -41,7 +39,7 @@ export default function Debts() {
 
   const handleWhatsAppRemind = (debtor) => {
     if (isLocked) {
-      setIsUpgradeModalOpen(true);
+      window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'debts' } }));
       return;
     }
     const message = `Hello ${debtor.name}, this is a friendly reminder regarding your outstanding balance of ${formatCurrency(debtor.totalOwed)} for your recent orders with us. Please let us know when you'd like to settle this. Thank you!`;
@@ -80,18 +78,11 @@ export default function Debts() {
             </div>
             <h2>Recover Your Money Faster</h2>
             <p>Track exactly who owes you and send automated WhatsApp payment reminders with one tap.</p>
-            <button className="pro-upgrade-btn" onClick={() => setIsUpgradeModalOpen(true)}>
+            <button className="pro-upgrade-btn" onClick={() => window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'debts' } }))}>
               Upgrade to Pro — ₦5,000/mo
             </button>
           </div>
         </div>
-      )}
-
-      {isUpgradeModalOpen && (
-        <UpgradeModal 
-          feature="debts" 
-          onClose={() => setIsUpgradeModalOpen(false)} 
-        />
       )}
 
       <header className="page-header">

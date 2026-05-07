@@ -186,6 +186,18 @@
   box-shadow: 0 4px 12px rgba(147, 51, 234, 0.2);
 }
 
-.sidebar-footer {
-  padding-top: 1.5rem !important;
+.sidebar-trial-card.upgrade {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.15), rgba(79, 70, 229, 0.15));
+  border: 1px dashed rgba(147, 51, 234, 0.4);
+}
+
+.sidebar-trial-card.upgrade .trial-card-btn {
+  background: #9333ea;
+  color: white;
+  border: none;
+}
+
+.sidebar-trial-card.upgrade .trial-card-btn:hover {
+  background: #7c3aed;
+  transform: translateY(-2px);
 }

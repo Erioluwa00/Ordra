@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import usePlan from '../../hooks/usePlan';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import './Settings.css';
@@ -15,6 +16,7 @@ export default function Settings() {
   
   const liveSettings = useQuery(api.settings.getSettings);
   const updateSettings = useMutation(api.settings.updateSettings);
+  const plan = usePlan();
 
   const [activeTab, setActiveTab] = useState('profile');
   const [settings, setSettings] = useState(null); // Local state for form editing
@@ -87,6 +89,7 @@ export default function Settings() {
 
   const navItems = [
     { id: 'profile',   label: 'Profile',    icon: <User size={18} /> },
+    { id: 'billing',   label: 'Billing & Plan', icon: <CreditCard size={18} /> },
     { id: 'appearance', label: 'Appearance', icon: <Palette size={18} /> },
     { id: 'templates',  label: 'Templates',  icon: <MessageSquare size={18} /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell size={18} /> },

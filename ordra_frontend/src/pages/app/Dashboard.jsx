@@ -10,7 +10,6 @@ import { useAuth } from '../../context/AuthContext';
 import usePlan from '../../hooks/usePlan';
 import NewOrderModal from '../../components/NewOrderModal';
 import ActionCenter from '../../components/ActionCenter';
-import UpgradeModal from '../../components/UpgradeModal';
 import TrialWelcomeModal from '../../components/TrialWelcomeModal';
 import './Dashboard.css';
 
@@ -38,7 +37,6 @@ export default function Dashboard() {
   const { user } = useAuth();
   const location = useLocation();
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
-  const [upgradeModal, setUpgradeModal] = useState(null); // null | feature string
   const [bannerDismissed, setBannerDismissed] = useState(
     () => sessionStorage.getItem('ordra_banner_dismissed') === '1'
   );
@@ -62,30 +60,10 @@ export default function Dashboard() {
     setShowTrialWelcome(false);
   };
 
-  // Listen for the "Get Pro" flag from Landing Page or other sources
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const hasUpgradeParam = params.get('upgrade') === 'true';
-    const hasPendingIntent = localStorage.getItem('ordra_pending_upgrade') === 'true';
-
-    if (hasUpgradeParam || hasPendingIntent) {
-      setUpgradeModal('orders');
-      
-      // Clear both so they don't pop up again
-      localStorage.removeItem('ordra_pending_upgrade');
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-    }
-
-    // Also listen for global upgrade events (e.g. from OrderDrawer)
-    const handleUpgradeEvent = (e) => setUpgradeModal(e.detail?.feature || 'orders');
-    window.addEventListener('ordra:upgrade', handleUpgradeEvent);
-    return () => window.removeEventListener('ordra:upgrade', handleUpgradeEvent);
-  }, [location.search]);
-
+  // Handlers
   const handleNewOrder = () => {
     if (plan.orderLimitReached) {
-      setUpgradeModal('orders');
+      window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'orders' } }));
       return;
     }
     setIsOrderModalOpen(true);
@@ -208,7 +186,7 @@ export default function Dashboard() {
               <span>
                 You're on the <strong>Free plan</strong> · {plan.monthlyOrderCount}/50 orders used this month
               </span>
-              <button className="plan-banner-cta" onClick={() => setUpgradeModal('orders')}>
+              <button className="plan-banner-cta" onClick={() => window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'orders' } }))}>
                 Upgrade to Pro — ₦5,000/mo
               </button>
               <button className="plan-banner-dismiss" onClick={dismissBanner} aria-label="Dismiss"><X size={14} /></button>
@@ -222,7 +200,7 @@ export default function Dashboard() {
               <span>
                 Your <strong>Pro Trial</strong> ends in <strong>{plan.trialDaysLeft} day{plan.trialDaysLeft !== 1 ? 's' : ''}</strong>. Upgrade to keep all Pro features.
               </span>
-              <button className="plan-banner-cta" onClick={() => setUpgradeModal('orders')}>
+              <button className="plan-banner-cta" onClick={() => window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'orders' } }))}>
                 Upgrade — ₦5,000/mo
               </button>
               <button className="plan-banner-dismiss" onClick={dismissBanner} aria-label="Dismiss"><X size={14} /></button>
@@ -347,13 +325,6 @@ export default function Dashboard() {
         isOpen={isOrderModalOpen}
         onClose={() => setIsOrderModalOpen(false)}
       />
-
-      {upgradeModal && (
-        <UpgradeModal
-          feature={upgradeModal}
-          onClose={() => setUpgradeModal(null)}
-        />
-      )}
 
       {showTrialWelcome && (
         <TrialWelcomeModal

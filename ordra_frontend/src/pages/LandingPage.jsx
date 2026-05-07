@@ -338,14 +338,17 @@ export default function LandingPage() {
                 <li><Check size={16} color="#ffffff" /> WhatsApp Integration</li>
                 <li><Check size={16} color="#ffffff" /> Advanced sales analytics</li>
                 <li><Check size={16} color="#ffffff" /> Priority support</li>
-                <li style={{ opacity: 0.9, marginTop: '0.25rem', fontSize: '0.75rem' }}>✨ Includes 14-day free trial</li>
               </ul>
+              <div className="pricing-trial-notice">
+                <Sparkles size={14} fill="currentColor" />
+                <span>14-day free trial included</span>
+              </div>
               <Link 
-                to="/app?upgrade=true" 
+                to="/auth/signup" 
                 className="btn pricing-btn pro-btn"
                 onClick={() => localStorage.setItem('ordra_pending_upgrade', 'true')}
               >
-                Get Pro
+                Try Pro for Free
               </Link>
             </div>
           </RevealWrapper>

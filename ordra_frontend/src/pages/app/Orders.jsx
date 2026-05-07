@@ -12,7 +12,6 @@ import {
 import NewOrderModal from '../../components/NewOrderModal';
 import StockpileNoticeModal from '../../components/StockpileNoticeModal';
 import usePlan from '../../hooks/usePlan';
-import UpgradeModal from '../../components/UpgradeModal';
 import OrderDrawer, {
   StatusBadge,
   PaymentBadge,
@@ -128,7 +127,6 @@ export default function Orders() {
   const [duplicateOrderData, setDuplicateOrderData] = useState(null);
   const [flashedId, setFlashedId] = useState(null);
   const [filterUrgent, setFilterUrgent] = useState(false);
-  const [upgradeModal, setUpgradeModal] = useState(null); // null | feature string
   const bulkUpdate = useMutation(api.orders.bulkUpdateOrders);
 
   const plan = usePlan();
@@ -136,7 +134,7 @@ export default function Orders() {
 
   const handleNewOrder = () => {
     if (plan.orderLimitReached) {
-      setUpgradeModal('orders');
+      window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'orders' } }));
       return;
     }
     setIsModalOpen(true);
@@ -427,7 +425,7 @@ export default function Orders() {
                     checked={displayed.length > 0 && selectedOrderIds.size === displayed.length}
                     onChange={() => {
                       if (isLocked) {
-                        setUpgradeModal('bulk');
+                        window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'bulk' } }));
                         return;
                       }
                       toggleSelectAll();
@@ -493,7 +491,7 @@ export default function Orders() {
                       checked={selectedOrderIds.has(order._id)}
                       onChange={(e) => {
                         if (isLocked) {
-                          setUpgradeModal('bulk');
+                          window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'bulk' } }));
                           return;
                         }
                         toggleSelectOrder(e, order._id);
@@ -695,7 +693,7 @@ export default function Orders() {
               className="ord-bulk-btn notify"
               onClick={() => {
                 if (isLocked) {
-                  setUpgradeModal('whatsapp');
+                  window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'whatsapp' } }));
                   return;
                 }
                 const selectedStockpiling = displayed.filter(
@@ -726,13 +724,6 @@ export default function Orders() {
         />
       )}
 
-      {/* ── Upgrade Modal */}
-      {upgradeModal && (
-        <UpgradeModal
-          feature={upgradeModal}
-          onClose={() => setUpgradeModal(null)}
-        />
-      )}
     </div>
   );
 }

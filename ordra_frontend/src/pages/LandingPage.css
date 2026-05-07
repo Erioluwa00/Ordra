@@ -986,3 +986,24 @@ label { font-size: 0.75rem; font-weight: 600; color: #374151; display: block; ma
   color: #4b5563;
   line-height: 1.7;
 }
+
+.pricing-trial-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1.25rem 0;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: white;
+  animation: pulse-trial 2s infinite;
+}
+
+@keyframes pulse-trial {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 0.8; }
+}

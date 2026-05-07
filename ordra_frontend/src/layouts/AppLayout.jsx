@@ -3,19 +3,42 @@ import { Outlet, Link } from 'react-router-dom';
 import { Menu, Search, Bell, X } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import NotificationsPanel from '../components/NotificationsPanel';
+import UpgradeModal from '../components/UpgradeModal';
 import { useAuth } from '../context/AuthContext';
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useLocation } from 'react-router-dom';
 import './AppLayout.css';
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [upgradeModal, setUpgradeModal] = useState(null);
+  
   const { user } = useAuth();
+  const location = useLocation();
   const settings = useQuery(api.settings.getSettings);
   const notifications = useQuery(api.notifications.getNotifications);
   const unreadCount = notifications ? notifications.filter(n => !n.read).length : 0;
+
+  // Listen for global upgrade events
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const hasUpgradeParam = params.get('upgrade') === 'true';
+    const hasPendingIntent = localStorage.getItem('ordra_pending_upgrade') === 'true';
+
+    if (hasUpgradeParam || hasPendingIntent) {
+      setUpgradeModal('orders');
+      localStorage.removeItem('ordra_pending_upgrade');
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+
+    const handleUpgradeEvent = (e) => setUpgradeModal(e.detail?.feature || 'orders');
+    window.addEventListener('ordra:upgrade', handleUpgradeEvent);
+    return () => window.removeEventListener('ordra:upgrade', handleUpgradeEvent);
+  }, [location.search]);
   
   // Create initials for avatar (e.g., "John Doe" -> "JD", or email format)
   const getInitials = (name) => {
@@ -105,6 +128,13 @@ export default function AppLayout() {
         <div className="app-content">
           <Outlet />
         </div>
+
+        {upgradeModal && (
+          <UpgradeModal
+            feature={upgradeModal}
+            onClose={() => setUpgradeModal(null)}
+          />
+        )}
       </main>
     </div>
   );
