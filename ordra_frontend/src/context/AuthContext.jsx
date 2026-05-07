@@ -14,8 +14,12 @@ export function AuthProvider({ children }) {
   const settings = useQuery(api.settings.getSettings);
   const activateTrial = useMutation(api.settings.activateTrial);
 
-  // Users now start on the Free plan by default. 
-  // Trial is only activated when they explicitly click "Try Pro".
+  // Clear any stale upgrade intent when authentication state changes (e.g. login/logout)
+  useEffect(() => {
+    if (isAuthenticated) {
+      localStorage.removeItem('ordra_pending_upgrade');
+    }
+  }, [isAuthenticated]);
 
   // While Convex is still deciding if we are logged in, show the branded splash
   if (isLoading) {
@@ -52,13 +56,6 @@ export function AuthProvider({ children }) {
       </div>
     );
   }
-
-  // Clear any stale upgrade intent when authentication state changes (e.g. login/logout)
-  useEffect(() => {
-    if (isAuthenticated) {
-      localStorage.removeItem('ordra_pending_upgrade');
-    }
-  }, [isAuthenticated]);
 
   const logout = async () => {
     localStorage.removeItem('ordra_pending_upgrade');
