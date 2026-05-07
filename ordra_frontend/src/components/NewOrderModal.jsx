@@ -32,6 +32,17 @@ const STATUS_OPTIONS = [
   { value: 'cancelled', label: 'Cancelled', color: '#ef4444' },
 ];
 
+const COUNTRY_CODES = [
+  { code: '234', label: '🇳🇬 +234' },
+  { code: '233', label: '🇬🇭 +233' },
+  { code: '44', label: '🇬🇧 +44' },
+  { code: '1', label: '🇺🇸 +1' },
+  { code: '27', label: '🇿🇦 +27' },
+  { code: '254', label: '🇰🇪 +254' },
+  { code: '971', label: '🇦🇪 +971' },
+  { code: '256', label: '🇺🇬 +256' },
+];
+
 export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
   const nameRef = useRef(null);
   const phoneRef = useRef(null);
@@ -43,6 +54,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
 
   const [custName, setCustName] = useState('');
   const [custPhone, setCustPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('234');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedCustId, setSelectedCustId] = useState(null); // Tracks if we've "locked in" an existing customer
 
@@ -173,11 +185,23 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
 
     const capitalizedName = custName.trim().split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
 
+    let finalPhone = custPhone.trim();
+    const isSocialHandle = finalPhone.startsWith('@') || /[a-zA-Z]/.test(finalPhone);
+    
+    // International formatting for phone numbers
+    if (!isSocialHandle && /^\d+$/.test(finalPhone)) {
+      if (finalPhone.startsWith('0')) {
+        finalPhone = countryCode + finalPhone.slice(1);
+      } else if (!finalPhone.startsWith(countryCode)) {
+        finalPhone = countryCode + finalPhone;
+      }
+    }
+
     setSaving(true);
     try {
       await createOrder({
         customerName: capitalizedName,
-        customerPhone: custPhone.trim(),
+        customerPhone: finalPhone,
         items: items.filter(it => it.desc.trim()).map(it => ({
           productId: it.productId,
           desc: it.desc,
@@ -206,7 +230,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
   const openWhatsApp = () => {
     if (!custPhone) return;
     const clean = custPhone.replace(/\D/g, '');
-    const intl = clean.startsWith('0') ? '234' + clean.slice(1) : clean;
+    const intl = clean.startsWith('0') ? countryCode + clean.slice(1) : clean;
     const itemLines = items.filter(it => it.desc.trim())
       .map(it => `• ${it.desc} × ${it.qty} — ${formatCurrency(Number(it.price || 0) * Number(it.qty))}`)
       .join('\n');
@@ -238,84 +262,96 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
           <div className="nom-body">
             <section className="nom-section">
               <div className="nom-section-label">
-                <User size={14} /><span>Customer</span>
+                <User size={14} /><span>Customer & Source</span>
               </div>
-              <div className="nom-form-row">
-                <div className="nom-form-group nom-name-wrap" ref={suggestionRef}>
-                  <input
-                    ref={nameRef}
-                    type="text"
-                    className={`nom-input${errors.custName ? ' error' : ''}${selectedCustId ? ' nom-input--linked' : ''}`}
-                    placeholder="Customer name *"
-                    value={custName}
-                    autoComplete="off"
-                    onFocus={() => !selectedCustId && setShowSuggestions(true)}
-                    onChange={e => {
-                      setCustName(e.target.value);
-                      setSelectedCustId(null); // Break link if they edit
-                      setShowSuggestions(true);
-                    }}
-                  />
-                  {selectedCustId && (
-                    <div className="nom-linked-badge">
-                      <CheckCircle2 size={12} /> Returning
-                    </div>
-                  )}
-                  {showSuggestions && suggestions.length > 0 && (
-                    <div className="nom-suggestions">
-                      {suggestions.map(c => (
-                        <div
-                          key={c._id}
-                          className="nom-suggestion-item"
-                          onClick={() => selectCustomer(c)}
-                        >
-                          <div className="nom-suggestion-avatar">{getInitials(c.name)}</div>
-                          <div className="nom-suggestion-info">
-                            <span className="nom-suggestion-name">{c.name}</span>
-                            <span className="nom-suggestion-phone">{c.phone}</span>
-                          </div>
+              <div className="nom-form-group nom-name-wrap" ref={suggestionRef}>
+                <input
+                  ref={nameRef}
+                  type="text"
+                  className={`nom-input${errors.custName ? ' error' : ''}${selectedCustId ? ' nom-input--linked' : ''}`}
+                  placeholder="Customer name *"
+                  value={custName}
+                  autoComplete="off"
+                  onFocus={() => !selectedCustId && setShowSuggestions(true)}
+                  onChange={e => {
+                    setCustName(e.target.value);
+                    setSelectedCustId(null);
+                    setShowSuggestions(true);
+                  }}
+                />
+                {selectedCustId && (
+                  <div className="nom-linked-badge">
+                    <CheckCircle2 size={12} /> Returning
+                  </div>
+                )}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="nom-suggestions">
+                    {suggestions.map(c => (
+                      <div key={c._id} className="nom-suggestion-item" onClick={() => selectCustomer(c)}>
+                        <div className="nom-suggestion-avatar">{getInitials(c.name)}</div>
+                        <div className="nom-suggestion-info">
+                          <span className="nom-suggestion-name">{c.name}</span>
+                          <span className="nom-suggestion-phone">{c.phone}</span>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                  {errors.custName && <p className="nom-error">{errors.custName}</p>}
-                </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {errors.custName && <p className="nom-error">{errors.custName}</p>}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
                 <div className="nom-form-group">
-                  <input
-                    ref={phoneRef}
-                    type="text"
-                    className={`nom-input${errors.custPhone ? ' error' : ''}${selectedCustId ? ' nom-input--linked' : ''}`}
-                    placeholder="080... or @handle *"
-                    value={custPhone}
-                    autoComplete="off"
-                    onChange={e => {
-                      setCustPhone(e.target.value);
-                      setSelectedCustId(null);
-                      if (submitted) setErrors(e => ({ ...e, custPhone: null }));
-                    }}
-                  />
+                  <div className="nom-phone-wrap">
+                    {!custPhone.startsWith('@') && !/[a-zA-Z]/.test(custPhone) && (
+                      <div className="nom-country-picker">
+                        <select 
+                          value={countryCode} 
+                          onChange={e => setCountryCode(e.target.value)}
+                          className="nom-country-select"
+                        >
+                          {COUNTRY_CODES.map(c => (
+                            <option key={c.code} value={c.code}>{c.label}</option>
+                          ))}
+                        </select>
+                        <ChevronDown size={12} className="nom-country-chevron" />
+                      </div>
+                    )}
+                    <input
+                      ref={phoneRef}
+                      type="text"
+                      className={`nom-input${errors.custPhone ? ' error' : ''}${selectedCustId ? ' nom-input--linked' : ''}`}
+                      placeholder={custPhone.startsWith('@') ? "@handle" : "Phone or @handle *"}
+                      value={custPhone}
+                      autoComplete="off"
+                      onChange={e => {
+                        setCustPhone(e.target.value);
+                        setSelectedCustId(null);
+                        if (submitted) setErrors(e => ({ ...e, custPhone: null }));
+                      }}
+                    />
+                  </div>
                   {errors.custPhone && <p className="nom-error">{errors.custPhone}</p>}
                 </div>
-              </div>
-              
-              <div className="nom-form-group" style={{ marginTop: '0.8rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '0.4rem' }}>
-                  <Globe size={12} /><span>Order Source</span>
-                </div>
-                <div className="nom-select-wrap">
-                  <select 
-                    className="nom-input nom-select" 
-                    value={orderSource} 
-                    onChange={e => setOrderSource(e.target.value)}
-                  >
-                    <option value="whatsapp">WhatsApp</option>
-                    <option value="instagram">Instagram</option>
-                    <option value="tiktok">TikTok</option>
-                    <option value="facebook">Facebook</option>
-                    <option value="physical">Physical Store</option>
-                    <option value="other">Other</option>
-                  </select>
-                  <ChevronDown size={14} className="nom-select-chevron" />
+
+                <div className="nom-form-group">
+                  <div className="nom-select-wrap">
+                    <select 
+                      className="nom-input nom-select" 
+                      value={orderSource} 
+                      onChange={e => setOrderSource(e.target.value)}
+                      style={{ paddingLeft: '32px' }}
+                    >
+                      <option value="whatsapp">WhatsApp</option>
+                      <option value="instagram">Instagram</option>
+                      <option value="tiktok">TikTok</option>
+                      <option value="facebook">Facebook</option>
+                      <option value="physical">In-Store</option>
+                      <option value="other">Other</option>
+                    </select>
+                    <Globe size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <ChevronDown size={14} className="nom-select-chevron" />
+                  </div>
                 </div>
               </div>
             </section>
