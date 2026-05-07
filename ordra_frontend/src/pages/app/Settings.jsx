@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   User, Palette, CreditCard, Bell, MessageSquare, 
-  Shield, Save, Trash2, Check, Globe, Zap, Clock, Archive
+  Shield, Save, Trash2, Check, Globe, Zap, Clock, Archive, Lock
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -402,7 +402,13 @@ export default function Settings() {
                 <div style={{ height: '1px', background: 'var(--border-subtle)', margin: '1rem 0' }} />
 
                 {/* Payment Reminder */}
-                <div className="template-editor-group">
+                <div className={`template-editor-group ${plan.isFree && !plan.isTrial ? 'is-locked' : ''}`} style={{ position: 'relative' }}>
+                  {plan.isFree && !plan.isTrial && (
+                    <div className="metric-card-lock-overlay" style={{ borderRadius: '8px', zIndex: 10 }}>
+                      <div className="lock-badge"><Lock size={12} fill="currentColor" /> Locked</div>
+                      <span className="lock-text">Upgrade to Customize</span>
+                    </div>
+                  )}
                   <div className="template-edit-pane">
                     <label className="form-label">Payment Reminder</label>
                     <textarea 
@@ -560,7 +566,13 @@ export default function Settings() {
                     <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>days after order is placed</span>
                   </div>
                 </div>
-                <div className="form-group">
+                <div className={`form-group ${plan.isFree && !plan.isTrial ? 'is-locked' : ''}`} style={{ position: 'relative' }}>
+                  {plan.isFree && !plan.isTrial && (
+                    <div className="metric-card-lock-overlay" style={{ borderRadius: '8px', zIndex: 10 }}>
+                      <div className="lock-badge"><Lock size={12} fill="currentColor" /> Locked</div>
+                      <span className="lock-text">Upgrade to Customize</span>
+                    </div>
+                  )}
                   <label className="form-label">Pickup Reminder Template</label>
                   <textarea
                     className="settings-input settings-textarea"

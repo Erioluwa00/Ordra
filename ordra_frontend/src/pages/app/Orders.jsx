@@ -7,7 +7,7 @@ import {
   ChevronDown, Clock, CheckCircle2, XCircle,
   Package, Truck, RotateCcw, ArrowUpDown,
   MapPin, CreditCard, FileText, X, ChevronRight,
-  AlertCircle, Zap, CheckCheck, Copy, Flag, Calendar, Bell, Archive
+  AlertCircle, Zap, CheckCheck, Copy, Flag, Calendar, Bell, Archive, Lock
 } from 'lucide-react';
 import NewOrderModal from '../../components/NewOrderModal';
 import StockpileNoticeModal from '../../components/StockpileNoticeModal';
@@ -704,6 +704,7 @@ export default function Orders() {
               }}
             >
               <Bell size={16} /> <span className="bulk-btn-text">Notify</span>
+              {isLocked && <Lock size={12} style={{ marginLeft: '6px', color: '#a78bfa' }} />}
             </button>
             <button className="ord-bulk-btn cancel" onClick={() => setSelectedOrderIds(new Set())}>
               <X size={16} />

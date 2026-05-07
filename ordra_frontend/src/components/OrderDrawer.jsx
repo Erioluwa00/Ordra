@@ -107,14 +107,6 @@ export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid
   };
 
   const whatsapp = () => {
-    if (plan.isFree && !plan.isTrial) {
-      if (typeof onStatusChange === 'function') {
-        // We use a custom event or a prop to trigger the modal from the parent
-        const event = new CustomEvent('ordra:upgrade', { detail: { feature: 'whatsapp' } });
-        window.dispatchEvent(event);
-      }
-      return;
-    }
     const clean = order.customerPhone?.replace(/\D/g, '') || '';
     const intl = clean.startsWith('0') ? '234' + clean.slice(1) : clean;
     const itemLines = (order.items || [])
