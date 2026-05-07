@@ -19,9 +19,9 @@ export default function usePlan() {
     return {
       isPro: false,
       isTrial: false,
-      isFree: false, // Don't assume free while loading to avoid flickering locks
+      isFree: false,
       isExpired: false,
-      plan: "",
+      plan: "loading",
       trialDaysLeft: null,
       monthlyOrderCount: 0,
       orderLimitReached: false,
@@ -33,9 +33,11 @@ export default function usePlan() {
     return {
       isPro: false,
       isTrial: false,
-      isFree: false,
+      isFree: true,
       isExpired: false,
-      plan: "none",
+      plan: "free",
+      monthlyOrderCount: 0,
+      orderLimitReached: false,
       isLoading: false,
     };
   }
@@ -52,6 +54,6 @@ export default function usePlan() {
     monthlyOrderCount: status.monthlyOrderCount,
     orderLimitReached: !status.isPro && status.monthlyOrderCount >= FREE_ORDER_LIMIT,
     planExpiresAt: status.planExpiresAt,
-    loading: false,
+    isLoading: false,
   };
 }

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   ArrowRight, Check, CheckCircle2, MessageSquare, ClipboardList,
   Wallet, Truck, Menu, X, ChevronUp, ChevronDown, Package, Users, Zap,
-  AlertCircle, CreditCard, MapPin, HelpCircle, BarChart3, ShieldCheck
+  AlertCircle, CreditCard, MapPin, HelpCircle, BarChart3, ShieldCheck, Sparkles
 } from 'lucide-react';
 import { RevealWrapper } from '../hooks/useScrollReveal';
 import logo from '../assets/logo.png';
@@ -51,12 +51,12 @@ export default function LandingPage() {
             <a href="#pricing" onClick={() => setMenuOpen(false)}>Pricing</a>
             <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
             <Link to="/auth/login" className="mobile-cta-link" onClick={() => setMenuOpen(false)} style={{ background: 'none', color: '#9333ea', border: '1.5px solid #9333ea' }}>Log In</Link>
-            <Link to="/auth/signup" className="mobile-cta-link" onClick={() => setMenuOpen(false)}>Get Started</Link>
+            <Link to="/auth/signup" className="mobile-cta-link" onClick={() => { setMenuOpen(false); localStorage.removeItem('ordra_pending_upgrade'); }}>Get Started</Link>
           </div>
 
           <div className="nav-right">
             <Link to="/auth/login" style={{ fontSize: '0.875rem', fontWeight: 600, color: '#6b7280', marginRight: '0.5rem' }}>Log In</Link>
-            <Link to="/auth/signup" className="nav-button">Get Started</Link>
+            <Link to="/auth/signup" className="nav-button" onClick={() => localStorage.removeItem('ordra_pending_upgrade')}>Get Started</Link>
             <button
               className="hamburger"
               onClick={() => setMenuOpen(o => !o)}
@@ -81,7 +81,7 @@ export default function LandingPage() {
             track payments, monitor inventory, and keep your customers happy — all from one dashboard.
           </p>
           <div className="hero-buttons">
-            <Link to="/auth/signup" className="btn btn-primary">
+            <Link to="/auth/signup" className="btn btn-primary" onClick={() => localStorage.removeItem('ordra_pending_upgrade')}>
               Get Started Free <ArrowRight size={18} />
             </Link>
             <a href="#how-it-works" className="btn btn-secondary">
@@ -175,7 +175,7 @@ export default function LandingPage() {
               payments, and deliveries in one centralized place. Automatically save customer
               info for future sales and never drop a conversation again.
             </p>
-            <Link to="/auth/signup" className="btn btn-primary">
+            <Link to="/auth/signup" className="btn btn-primary" onClick={() => localStorage.removeItem('ordra_pending_upgrade')}>
               Experience the Workflow <ArrowRight size={18} />
             </Link>
           </RevealWrapper>
@@ -324,7 +324,7 @@ export default function LandingPage() {
                 <li><Check size={16} color="#9333ea" /> Basic customer list</li>
                 <li><Check size={16} color="#9333ea" /> Order status tracking</li>
               </ul>
-              <Link to="/auth/signup" className="btn pricing-btn">Start for Free</Link>
+              <Link to="/auth/signup" className="btn pricing-btn" onClick={() => localStorage.removeItem('ordra_pending_upgrade')}>Start for Free</Link>
             </div>
           </RevealWrapper>
           <RevealWrapper direction="up" delay={0.12}>
@@ -412,7 +412,7 @@ export default function LandingPage() {
             <div className="cta-inner">
               <h2>Ready to clear the chaos?</h2>
               <p>Join hundreds of sellers who have upgraded their business from WhatsApp chats to a professional dashboard.</p>
-              <Link to="/auth/signup" className="btn cta-btn">
+              <Link to="/auth/signup" className="btn cta-btn" onClick={() => localStorage.removeItem('ordra_pending_upgrade')}>
                 Get Started Free <ArrowRight size={18} />
               </Link>
             </div>

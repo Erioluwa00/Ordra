@@ -4,7 +4,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
   Plus, Users, Wallet, ShoppingBag,
-  TrendingUp, TrendingDown, Clock, ArrowUpRight, Package, Flag, Trophy, CheckCheck, Zap, X
+  TrendingUp, TrendingDown, Clock, ArrowUpRight, Package, Flag, Trophy, CheckCheck, Zap, X, Lock
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import usePlan from '../../hooks/usePlan';
@@ -85,6 +85,25 @@ export default function Dashboard() {
   const allProducts = useQuery(api.products.getProducts);
   const performance = useQuery(api.products.getProductPerformance);
 
+  // Loading State - MOVED AFTER HOOKS TO COMPLY WITH RULES OF HOOKS
+  if (plan.isLoading) {
+    return (
+      <div className="dashboard-container">
+        <div className="dashboard-header">
+          <div className="skeleton" style={{ width: '200px', height: '32px' }} />
+          <div className="quick-actions">
+            <div className="skeleton" style={{ width: '120px', height: '40px', borderRadius: '8px' }} />
+            <div className="skeleton" style={{ width: '120px', height: '40px', borderRadius: '8px' }} />
+          </div>
+        </div>
+        <div className="metrics-grid">
+          {[1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: '140px', borderRadius: '16px' }} />)}
+        </div>
+        <div className="skeleton" style={{ height: '300px', borderRadius: '16px' }} />
+      </div>
+    );
+  }
+
   const lowStockProducts = allProducts?.filter(p => p.inStock && p.quantity < 5) || [];
   const priorityCount = (allOrders || []).filter(
     o => (o.isUrgent || isUpcoming(o.deliveryDate)) && o.status !== 'Delivered' && o.status !== 'Cancelled'
@@ -150,9 +169,60 @@ export default function Dashboard() {
       icon: <Flag size={20} />,
       colorClass: 'red',
       link: '/app/orders',
-      linkState: { filterUrgent: true }
+      linkState: { filterUrgent: true },
+      isPro: true
     }
   ];
+
+  const renderMetric = (metric, i) => {
+    const isLocked = plan.isFree && !plan.isTrial && (metric.title === 'Total Revenue' || metric.title === 'Money Pending' || metric.title === 'Top Sellers' || metric.title === 'Priority Orders');
+
+    const content = (
+      <div className={`metric-card ${metric.colorClass} ${isLocked ? 'is-locked' : ''}`}>
+        <div className="metric-header">
+          <span className="metric-title">{metric.title}</span>
+          <div className={`metric-icon-wrap ${metric.colorClass}`}>
+            {metric.icon}
+          </div>
+        </div>
+        <div className="metric-value">{metric.value}</div>
+        <div className={`metric-trend ${metric.trendDir}`}>
+          {metric.trendDir === 'up' ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+          {metric.trend} <span className="trend-text">{metric.trendText}</span>
+        </div>
+        
+        {isLocked && (
+          <div className="metric-card-lock-overlay">
+            <div className="lock-badge"><Lock size={12} fill="currentColor" /> Locked</div>
+            <span className="lock-text">Upgrade to See</span>
+          </div>
+        )}
+      </div>
+    );
+
+    if (isLocked) {
+      return (
+        <div 
+          key={i} 
+          onClick={() => window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'analytics' } }))}
+          style={{ cursor: 'pointer' }}
+        >
+          {content}
+        </div>
+      );
+    }
+
+    return (
+      <Link 
+        key={i} 
+        to={metric.link || "/app/analytics"} 
+        state={metric.linkState}
+        style={{ textDecoration: 'none' }}
+      >
+        {content}
+      </Link>
+    );
+  };
 
   return (
     <div className="dashboard-container">
@@ -211,31 +281,15 @@ export default function Dashboard() {
 
       {/* Metrics */}
       <div className="metrics-grid">
-        {metrics.map((metric, i) => (
-          <Link 
-            key={i} 
-            to={metric.link || "/app/analytics"} 
-            state={metric.linkState}
-            className="metric-card" 
-            style={{ textDecoration: 'none', cursor: 'pointer' }}
-          >
-            <div className="metric-header">
-              <span className="metric-title">{metric.title}</span>
-              <div className={`metric-icon-wrap ${metric.colorClass}`}>
-                {metric.icon}
-              </div>
-            </div>
-            <div className="metric-value">{metric.value}</div>
-            <div className={`metric-trend ${metric.trendDir}`}>
-              {metric.trendDir === 'up' ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-              {metric.trend} <span className="trend-text">{metric.trendText}</span>
-            </div>
-          </Link>
-        ))}
+        {metrics.map((metric, i) => renderMetric(metric, i))}
       </div>
 
       {/* Action Centre - Now uses real orders if available */}
-      <ActionCenter orders={allOrders || []} products={allProducts || []} />
+      <ActionCenter 
+        orders={allOrders || []} 
+        products={allProducts || []} 
+        plan={plan}
+      />
 
       {/* Recent Orders Table */}
       <div className="dashboard-panel">

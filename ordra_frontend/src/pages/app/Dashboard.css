@@ -466,6 +466,7 @@
     margin-top: 0.5rem;
     padding-top: 1rem !important;
     border-top: 1px solid var(--border-subtle) !important;
+    display: block !important;
   }
 
   .ordra-table td:nth-child(6) .flex {
@@ -542,4 +543,58 @@
   flex-shrink: 0;
   transition: color 0.2s;
 }
-.plan-banner-dismiss:hover { color: var(--text-primary); }
+.plan-banner-dismiss:hover { color: var(--text-primary); }
+
+/* ── DASHBOARD GATING ────────────────────────── */
+.metric-card.is-locked {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.metric-card.is-locked .metric-value,
+.metric-card.is-locked .metric-trend {
+  filter: blur(6px);
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.metric-card-lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(1px);
+  z-index: 5;
+  border-radius: 16px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.lock-badge {
+  background: linear-gradient(135deg, #9333ea, #7e22ce);
+  color: white;
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+}
+
+.lock-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--bg-panel);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}

@@ -5,7 +5,7 @@ import RevenueChart from '../../components/RevenueChart';
 import usePlan from '../../hooks/usePlan';
 import { 
   BarChart3, TrendingUp, Wallet, ShoppingBag, Users,
-  Trophy, AlertTriangle, TrendingDown, Package, ArrowUpRight, Zap 
+  Trophy, AlertTriangle, TrendingDown, Package, ArrowUpRight, Zap, Lock 
 } from 'lucide-react';
 import './Analytics.css';
 import './ProductPerformance.css';
@@ -64,7 +64,7 @@ export default function Analytics() {
         <div className="pro-overlay">
           <div className="pro-overlay-content">
             <div className="pro-zap-badge">
-              <Zap size={14} fill="currentColor" /> Pro Feature
+              <Lock size={14} fill="currentColor" /> Locked
             </div>
             <h2>Unlock Business Insights</h2>
             <p>See your revenue trends, best selling products, and detailed performance analytics.</p>

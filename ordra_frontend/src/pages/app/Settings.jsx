@@ -226,6 +226,77 @@ export default function Settings() {
             </div>
           )}
 
+          {/* BILLING SECTION */}
+          {activeTab === 'billing' && (
+            <div className="settings-card">
+              <div className="settings-card-header">
+                <h2 className="settings-card-title"><CreditCard size={20} /> Subscription & Plan</h2>
+                <p className="settings-card-subtitle">Manage your current plan and billing details</p>
+              </div>
+              <div className="form-section">
+                <div className="current-plan-card">
+                  <div className="plan-badge-row">
+                    <span className={`plan-status-badge ${plan.plan}`}>
+                      {plan.plan === 'trial' ? 'Pro Trial' : plan.plan.toUpperCase()}
+                    </span>
+                    {plan.isTrial && (
+                      <span className="plan-days-left">
+                        <Clock size={14} /> {plan.trialDaysLeft} days left
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="plan-info-grid">
+                    <div className="plan-info-item">
+                      <span className="p-info-label">Monthly Orders</span>
+                      <span className="p-info-val">{plan.monthlyOrderCount} / {plan.isPro ? 'Unlimited' : '50'}</span>
+                      <div className="p-progress-bar">
+                        <div 
+                          className="p-progress-fill" 
+                          style={{ width: `${Math.min(100, (plan.monthlyOrderCount / (plan.isPro ? 1000 : 50)) * 100)}%` }} 
+                        />
+                      </div>
+                    </div>
+                    <div className="plan-info-item">
+                      <span className="p-info-label">Advanced Analytics</span>
+                      <span className="p-info-val">{plan.isPro ? 'Enabled' : 'Disabled'}</span>
+                    </div>
+                  </div>
+
+                  {plan.isFree && !plan.isTrial && (
+                    <div className="plan-upgrade-cta">
+                      <div className="upgrade-cta-text">
+                        <h4>Upgrade to Pro</h4>
+                        <p>Unlock unlimited orders, WhatsApp integration, and professional analytics.</p>
+                      </div>
+                      <button 
+                        className="action-btn primary"
+                        onClick={() => window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'settings' } }))}
+                      >
+                        <Zap size={16} fill="currentColor" /> Upgrade Now
+                      </button>
+                    </div>
+                  )}
+
+                  {plan.isTrial && (
+                    <div className="plan-upgrade-cta trial">
+                      <div className="upgrade-cta-text">
+                        <h4>Enjoying the Pro Features?</h4>
+                        <p>Your trial will end in {plan.trialDaysLeft} days. Upgrade now to avoid any interruption.</p>
+                      </div>
+                      <button 
+                        className="action-btn primary"
+                        onClick={() => window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'settings' } }))}
+                      >
+                        <Zap size={16} fill="currentColor" /> Activate Full Pro
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* APPEARANCE SECTION */}
           {activeTab === 'appearance' && (
             <div className="settings-card">

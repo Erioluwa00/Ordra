@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   AlertCircle, Package, Zap, Clock, CheckCircle2,
-  ArrowRight, Sparkles, Truck, Flag
+  ArrowRight, Sparkles, Truck, Flag, Lock
 } from 'lucide-react';
 import './ActionCenter.css';
 
@@ -147,8 +147,9 @@ function buildActions(orders, products = []) {
 // ─────────────────────────────────────────────
 // ActionCenter component
 // ─────────────────────────────────────────────
-export default function ActionCenter({ orders = [], products = [] }) {
+export default function ActionCenter({ orders = [], products = [], plan = {} }) {
   const actions = useMemo(() => buildActions(orders, products), [orders, products]);
+  const isFreeUser = plan.isFree && !plan.isTrial;
 
   // All clear state
   if (actions.length === 0) {
@@ -180,35 +181,66 @@ export default function ActionCenter({ orders = [], products = [] }) {
 
       {/* Action list */}
       <div className="ac-list">
-        {actions.map((action, i) => (
-          <Link
-            key={action.id}
-            to={action.linkTo}
-            state={action.linkState}
-            className="ac-item"
-            style={{ '--ac-accent': action.accent, '--ac-bg': action.bg }}
-          >
-            {/* Priority indicator */}
-            <div className="ac-priority-bar" style={{ background: action.accent }} />
+        {actions.map((action, i) => {
+          const isLockedAction = isFreeUser && (action.id === 'priority' || action.id === 'backorder' || action.id === 'unpaid' || action.id === 'overdue');
+          
+          const itemContent = (
+            <div 
+              className={`ac-item ${isLockedAction ? 'is-locked' : ''}`}
+              style={{ '--ac-accent': action.accent, '--ac-bg': action.bg }}
+            >
+              {/* Priority indicator */}
+              <div className="ac-priority-bar" style={{ background: action.accent }} />
 
-            {/* Icon */}
-            <div className="ac-icon-wrap" style={{ background: action.bg, color: action.accent }}>
-              {action.icon}
-            </div>
+              {/* Icon */}
+              <div className="ac-icon-wrap" style={{ background: action.bg, color: action.accent }}>
+                {action.icon}
+              </div>
 
-            {/* Text */}
-            <div className="ac-text">
-              <span className="ac-title">{action.title}</span>
-              <span className="ac-sub">{action.sub}</span>
-            </div>
+              {/* Text */}
+              <div className="ac-text">
+                <span className="ac-title">{action.title}</span>
+                <span className="ac-sub">{action.sub}</span>
+              </div>
 
-            {/* CTA */}
-            <div className="ac-cta">
-              <span className="ac-cta-text">{action.cta}</span>
-              <ArrowRight size={14} className="ac-arrow" />
+              {/* CTA */}
+              <div className="ac-cta">
+                {isLockedAction ? (
+                   <div className="ac-lock-badge"><Lock size={12} fill="currentColor" /> Locked</div>
+                ) : (
+                  <>
+                    <span className="ac-cta-text">{action.cta}</span>
+                    <ArrowRight size={14} className="ac-arrow" />
+                  </>
+                )}
+              </div>
             </div>
-          </Link>
-        ))}
+          );
+
+          if (isLockedAction) {
+            return (
+              <div 
+                key={action.id} 
+                onClick={() => window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'analytics' } }))}
+                style={{ cursor: 'pointer' }}
+              >
+                {itemContent}
+              </div>
+            );
+          }
+
+          return (
+            <Link
+              key={action.id}
+              to={action.linkTo}
+              state={action.linkState}
+              className="ac-link-wrapper"
+              style={{ textDecoration: 'none' }}
+            >
+              {itemContent}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

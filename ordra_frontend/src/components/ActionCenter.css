@@ -177,3 +177,29 @@
   .ac-icon-wrap { width: 36px; height: 36px; border-radius: 10px; }
   .ac-cta-text { display: none; }
 }
+
+/* ── GATING ────────────────────────────── */
+.ac-item.is-locked {
+  cursor: pointer;
+}
+
+.ac-item.is-locked .ac-text,
+.ac-item.is-locked .ac-icon-wrap {
+  filter: blur(4px);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.ac-lock-badge {
+  background: linear-gradient(135deg, #9333ea, #7e22ce);
+  color: white;
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+}

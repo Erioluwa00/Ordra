@@ -15,11 +15,7 @@ export function AuthProvider({ children }) {
   const activateTrial = useMutation(api.settings.activateTrial);
 
   // Clear any stale upgrade intent when authentication state changes (e.g. login/logout)
-  useEffect(() => {
-    if (isAuthenticated) {
-      localStorage.removeItem('ordra_pending_upgrade');
-    }
-  }, [isAuthenticated]);
+  // MOVED TO APPLAYOUT FOR MORE RELIABLE HANDLING
 
   // While Convex is still deciding if we are logged in, show the branded splash
   if (isLoading) {

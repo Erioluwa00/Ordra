@@ -53,7 +53,14 @@ export default function Sidebar({ isOpen, closeSidebar }) {
               to={to}
               end={exact}
               className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-              onClick={closeSidebar}
+              onClick={(e) => {
+                if (isPro && plan.isFree && !plan.isTrial) {
+                  e.preventDefault();
+                  const featureName = to.includes('debts') ? 'debts' : 'analytics';
+                  window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: featureName } }));
+                }
+                closeSidebar();
+              }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', width: '100%' }}>
                 <span className="sidebar-link-icon">{icon}</span>
