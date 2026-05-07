@@ -11,6 +11,7 @@ import usePlan from '../../hooks/usePlan';
 import NewOrderModal from '../../components/NewOrderModal';
 import ActionCenter from '../../components/ActionCenter';
 import UpgradeModal from '../../components/UpgradeModal';
+import TrialWelcomeModal from '../../components/TrialWelcomeModal';
 import './Dashboard.css';
 
 const getInitials = (name) => {
@@ -41,8 +42,21 @@ export default function Dashboard() {
   const [bannerDismissed, setBannerDismissed] = useState(
     () => sessionStorage.getItem('ordra_banner_dismissed') === '1'
   );
+  const [showTrialWelcome, setShowTrialWelcome] = useState(false);
 
   const plan = usePlan();
+
+  // Show Trial Welcome if it's their first time seeing the trial
+  useEffect(() => {
+    if (plan.isTrial && !localStorage.getItem(`ordra_trial_welcome_${user?._id}`)) {
+      setShowTrialWelcome(true);
+    }
+  }, [plan.isTrial, user?._id]);
+
+  const handleCloseWelcome = () => {
+    localStorage.setItem(`ordra_trial_welcome_${user?._id}`, 'true');
+    setShowTrialWelcome(false);
+  };
 
   // Listen for the "Get Pro" flag from Landing Page or other sources
   useEffect(() => {
@@ -334,6 +348,13 @@ export default function Dashboard() {
         <UpgradeModal
           feature={upgradeModal}
           onClose={() => setUpgradeModal(null)}
+        />
+      )}
+
+      {showTrialWelcome && (
+        <TrialWelcomeModal
+          days={14}
+          onClose={handleCloseWelcome}
         />
       )}
 

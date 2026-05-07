@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { LayoutDashboard, Users, ShoppingBag, LogOut, X, Settings, PackageOpen, BarChart3, CreditCard, Lock } from 'lucide-react';
+import { LayoutDashboard, Users, ShoppingBag, LogOut, X, Settings, PackageOpen, BarChart3, CreditCard, Lock, Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -67,6 +67,26 @@ export default function Sidebar({ isOpen, closeSidebar }) {
         </nav>
 
         <div className="sidebar-footer">
+          {plan.isTrial && (
+            <div className="sidebar-trial-card">
+              <div className="trial-card-header">
+                <Zap size={14} fill="currentColor" />
+                <span>Pro Trial</span>
+              </div>
+              <div className="trial-card-content">
+                <strong>{plan.trialDaysLeft} days left</strong>
+              </div>
+              <button 
+                className="trial-card-btn" 
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'orders' } }));
+                  closeSidebar();
+                }}
+              >
+                Upgrade Now
+              </button>
+            </div>
+          )}
           <button onClick={logout} className="logout-btn">
             <LogOut size={20} />
             Log Out
