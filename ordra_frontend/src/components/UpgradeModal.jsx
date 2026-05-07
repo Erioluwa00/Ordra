@@ -120,6 +120,7 @@ export default function UpgradeModal({ feature = 'orders', onClose }) {
 
   const handleTrial = async () => {
     try {
+      sessionStorage.setItem('ordra_just_started_trial', 'true');
       await activateTrial();
       onClose();
     } catch (err) {

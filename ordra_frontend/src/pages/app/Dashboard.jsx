@@ -46,22 +46,19 @@ export default function Dashboard() {
 
   const plan = usePlan();
 
-  // Show Trial Welcome if it's their first time seeing the trial
+  // Show Trial Welcome ONLY if they just clicked the button in this session
   useEffect(() => {
-    console.log("DEBUG: Plan Status", { 
-      isTrial: plan.isTrial, 
-      planName: plan.plan,
-      userId: user?._id,
-      seenBefore: localStorage.getItem(`ordra_trial_welcome_${user?._id}`)
-    });
-    
-    if (plan.isTrial && !localStorage.getItem(`ordra_trial_welcome_${user?._id}`)) {
+    const justStarted = sessionStorage.getItem('ordra_just_started_trial') === 'true';
+    const seenBefore = localStorage.getItem(`ordra_trial_welcome_${user?._id}`);
+
+    if (plan.isTrial && justStarted && !seenBefore) {
       setShowTrialWelcome(true);
     }
   }, [plan.isTrial, user?._id]);
 
   const handleCloseWelcome = () => {
     localStorage.setItem(`ordra_trial_welcome_${user?._id}`, 'true');
+    sessionStorage.removeItem('ordra_just_started_trial');
     setShowTrialWelcome(false);
   };
 

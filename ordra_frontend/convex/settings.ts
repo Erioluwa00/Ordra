@@ -166,11 +166,13 @@ export const getPlanStatus = query({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .unique();
 
-    const plan = settings?.plan ?? "free";
+    const plan = (settings?.plan === "pro" || settings?.plan === "trial") ? settings.plan : "free";
     const planExpiresAt = settings?.planExpiresAt;
     const now = new Date();
 
     const isExpired = planExpiresAt ? new Date(planExpiresAt) < now : false;
+    
+    // STRICT CHECK: isPro is only true if they have a non-expired pro/trial plan
     const isPro = (plan === "pro" || plan === "trial") && !isExpired;
     const isTrial = plan === "trial" && !isExpired;
 
@@ -194,6 +196,7 @@ export const getPlanStatus = query({
       userId,
       isPro,
       isTrial,
+      isFree: !isPro, // Add explicit isFree for clarity
       isExpired,
       trialDaysLeft,
       monthlyOrderCount,
