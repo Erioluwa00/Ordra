@@ -1031,7 +1031,7 @@
   padding: 0 0.25rem 0 0.75rem;
   background: rgba(0, 0, 0, 0.03);
   border-right: 1px solid var(--border-subtle);
-  min-width: 90px;
+  min-width: 84px;
 }
 
 [data-theme="dark"] .nom-country-picker {
@@ -1039,16 +1039,29 @@
 }
 
 .nom-country-select {
- appearance: none;
- background: transparent;
- border: none;
- color: var(--text-main);
- font-size: 0.875rem;
- font-weight: 500;
- padding-right: 1.25rem;
- cursor: pointer;
- width: 100%;
- outline: none;
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding-right: 1.25rem;
+  cursor: pointer;
+  width: 100%;
+  outline: none;
+}
+
+.nom-country-select option,
+.nom-select option {
+  background-color: #162032 !important; /* Dark slate matching dark mode panel */
+  color: #ffffff !important;
+  padding: 10px;
+}
+
+[data-theme="light"] .nom-country-select option,
+[data-theme="light"] .nom-select option {
+  background-color: #ffffff !important;
+  color: #111827 !important;
 }
 
 .nom-country-chevron {
