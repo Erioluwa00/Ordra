@@ -14,12 +14,8 @@ export function AuthProvider({ children }) {
   const settings = useQuery(api.settings.getSettings);
   const activateTrial = useMutation(api.settings.activateTrial);
 
-  // Auto-start the 14-day Pro trial for new users (no card required)
-  useEffect(() => {
-    if (isAuthenticated && settings !== undefined && !settings?.plan) {
-      activateTrial().catch(() => {});
-    }
-  }, [isAuthenticated, settings]);
+  // Users now start on the Free plan by default. 
+  // Trial is only activated when they explicitly click "Try Pro".
 
   // While Convex is still deciding if we are logged in, show the branded splash
   if (isLoading) {
@@ -57,7 +53,15 @@ export function AuthProvider({ children }) {
     );
   }
 
+  // Clear any stale upgrade intent when authentication state changes (e.g. login/logout)
+  useEffect(() => {
+    if (isAuthenticated) {
+      localStorage.removeItem('ordra_pending_upgrade');
+    }
+  }, [isAuthenticated]);
+
   const logout = async () => {
+    localStorage.removeItem('ordra_pending_upgrade');
     await signOut();
   };
 

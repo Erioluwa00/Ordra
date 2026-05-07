@@ -80,10 +80,18 @@ export const activateTrial = mutation({
     const userId = await auth.getUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
+    console.log(`STRICT: Trial activation requested for user ${userId}`);
+
     const existing = await ctx.db
       .query("settings")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .unique();
+
+    // If they already have a plan (pro or trial), don't let them re-activate
+    if (existing?.plan && existing.plan !== "free") {
+      console.log(`STRICT: User ${userId} already has plan: ${existing.plan}. Ignoring request.`);
+      return;
+    }
 
     const now = new Date();
     const trialEnd = new Date(now);
@@ -96,9 +104,7 @@ export const activateTrial = mutation({
     };
 
     if (existing) {
-      if (!existing.plan || existing.plan === "free") {
-        await ctx.db.patch(existing._id, planFields);
-      }
+      await ctx.db.patch(existing._id, planFields);
     } else {
       await ctx.db.insert("settings", {
         userId,
@@ -106,6 +112,7 @@ export const activateTrial = mutation({
         ...planFields,
       });
     }
+    console.log(`STRICT: Trial activated successfully for user ${userId}`);
   },
 });
 

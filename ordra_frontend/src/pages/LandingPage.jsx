@@ -338,6 +338,7 @@ export default function LandingPage() {
                 <li><Check size={16} color="#ffffff" /> WhatsApp Integration</li>
                 <li><Check size={16} color="#ffffff" /> Advanced sales analytics</li>
                 <li><Check size={16} color="#ffffff" /> Priority support</li>
+                <li style={{ opacity: 0.9, marginTop: '0.25rem', fontSize: '0.75rem' }}>✨ Includes 14-day free trial</li>
               </ul>
               <Link 
                 to="/app?upgrade=true" 

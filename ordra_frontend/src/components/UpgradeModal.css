@@ -195,7 +195,6 @@
 }
 .upgrade-dismiss:hover { color: var(--text-secondary); }
 
-/* Responsive */
 @media (max-width: 480px) {
   .upgrade-modal {
     border-radius: 20px 20px 0 0;
@@ -203,4 +202,35 @@
     padding: 1.75rem 1.5rem 2rem;
   }
   .upgrade-overlay { align-items: flex-end; }
+}
+
+.upgrade-cta-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.upgrade-trial-btn {
+  width: 100%;
+  padding: 0.8125rem;
+  border-radius: 12px;
+  border: 1px solid var(--accent-soft);
+  background: var(--bg-app);
+  color: var(--accent-primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upgrade-trial-btn:hover {
+  background: var(--bg-surface);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.1);
+}
+
+.upgrade-cta-btn {
+  margin-bottom: 0 !important; /* Reset old margin */
 }

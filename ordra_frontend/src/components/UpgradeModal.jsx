@@ -63,11 +63,14 @@ const FEATURE_CONFIG = {
 
 import usePlan from '../hooks/usePlan';
 import { useAuth } from '../context/AuthContext';
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 export default function UpgradeModal({ feature = 'orders', onClose }) {
   const config = FEATURE_CONFIG[feature] || FEATURE_CONFIG.orders;
   const plan = usePlan();
   const { user } = useAuth();
+  const activateTrial = useMutation(api.settings.activateTrial);
 
   // Load Paystack script
   useEffect(() => {
@@ -113,6 +116,16 @@ export default function UpgradeModal({ feature = 'orders', onClose }) {
     });
 
     handler.openIframe();
+  };
+
+  const handleTrial = async () => {
+    try {
+      await activateTrial();
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to start trial. Please try again.");
+    }
   };
 
   return (
@@ -161,10 +174,19 @@ export default function UpgradeModal({ feature = 'orders', onClose }) {
         </div>
 
         {/* CTAs */}
-        <button className="upgrade-cta-btn" onClick={handlePaystack}>
-          <Zap size={16} fill="currentColor" />
-          {config.cta}
-        </button>
+        <div className="upgrade-cta-stack">
+          <button className="upgrade-cta-btn" onClick={handlePaystack}>
+            <Zap size={16} fill="currentColor" />
+            {config.cta}
+          </button>
+          
+          {plan.plan === 'free' && (
+            <button className="upgrade-trial-btn" onClick={handleTrial}>
+              Try Pro Free for 14 Days
+            </button>
+          )}
+        </div>
+
         {config.secondaryCta && (
           <p className="upgrade-secondary">{config.secondaryCta}</p>
         )}

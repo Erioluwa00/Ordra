@@ -48,6 +48,13 @@ export default function Dashboard() {
 
   // Show Trial Welcome if it's their first time seeing the trial
   useEffect(() => {
+    console.log("DEBUG: Plan Status", { 
+      isTrial: plan.isTrial, 
+      planName: plan.plan,
+      userId: user?._id,
+      seenBefore: localStorage.getItem(`ordra_trial_welcome_${user?._id}`)
+    });
+    
     if (plan.isTrial && !localStorage.getItem(`ordra_trial_welcome_${user?._id}`)) {
       setShowTrialWelcome(true);
     }
