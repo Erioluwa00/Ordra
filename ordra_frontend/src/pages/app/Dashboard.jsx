@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
@@ -16,7 +16,7 @@ import './Dashboard.css';
 const getInitials = (name) => {
   if (!name) return '??';
   const parts = name.split(' ');
-  return parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.substring(0, 2).toUpperCase();
+  return parts.length > 1 ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() : name.substring(0, 2).toUpperCase();
 };
 
 const formatCurrency = (amt) => {
@@ -35,6 +35,7 @@ const isUpcoming = (isoDate, days = 2) => {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const location = useLocation();
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [upgradeModal, setUpgradeModal] = useState(null); // null | feature string
   const [bannerDismissed, setBannerDismissed] = useState(
@@ -42,6 +43,27 @@ export default function Dashboard() {
   );
 
   const plan = usePlan();
+
+  // Listen for the "Get Pro" flag from Landing Page or other sources
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const hasUpgradeParam = params.get('upgrade') === 'true';
+    const hasPendingIntent = localStorage.getItem('ordra_pending_upgrade') === 'true';
+
+    if (hasUpgradeParam || hasPendingIntent) {
+      setUpgradeModal('orders');
+      
+      // Clear both so they don't pop up again
+      localStorage.removeItem('ordra_pending_upgrade');
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+
+    // Also listen for global upgrade events (e.g. from OrderDrawer)
+    const handleUpgradeEvent = (e) => setUpgradeModal(e.detail?.feature || 'orders');
+    window.addEventListener('ordra:upgrade', handleUpgradeEvent);
+    return () => window.removeEventListener('ordra:upgrade', handleUpgradeEvent);
+  }, [location.search]);
 
   const handleNewOrder = () => {
     if (plan.orderLimitReached) {

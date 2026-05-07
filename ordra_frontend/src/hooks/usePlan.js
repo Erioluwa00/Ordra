@@ -15,17 +15,28 @@ import { api } from "../../convex/_generated/api";
 export default function usePlan() {
   const status = useQuery(api.settings.getPlanStatus);
 
-  if (!status) {
+  if (status === undefined) {
     return {
       isPro: false,
       isTrial: false,
-      isFree: true,
+      isFree: false, // Don't assume free while loading to avoid flickering locks
       isExpired: false,
-      plan: "free",
+      plan: "",
       trialDaysLeft: null,
       monthlyOrderCount: 0,
       orderLimitReached: false,
-      loading: status === undefined,
+      isLoading: true,
+    };
+  }
+
+  if (status === null) {
+    return {
+      isPro: false,
+      isTrial: false,
+      isFree: false,
+      isExpired: false,
+      plan: "none",
+      isLoading: false,
     };
   }
 

@@ -339,7 +339,13 @@ export default function LandingPage() {
                 <li><Check size={16} color="#ffffff" /> Advanced sales analytics</li>
                 <li><Check size={16} color="#ffffff" /> Priority support</li>
               </ul>
-              <Link to="/auth/signup" className="btn pricing-btn pro-btn">Get Pro</Link>
+              <Link 
+                to="/app?upgrade=true" 
+                className="btn pricing-btn pro-btn"
+                onClick={() => localStorage.setItem('ordra_pending_upgrade', 'true')}
+              >
+                Get Pro
+              </Link>
             </div>
           </RevealWrapper>
         </div>
