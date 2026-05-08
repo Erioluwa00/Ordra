@@ -155,23 +155,29 @@ export const getDashboardStats = query({
 
     const activeOrders = allOrders.filter(o => o.status !== "Delivered").length;
 
-    const revenueBySource: Record<string, number> = {
-      whatsapp: 0,
-      instagram: 0,
-      tiktok: 0,
-      facebook: 0,
-      physical: 0,
-      other: 0,
+    const revenueBySource: Record<string, { revenue: number, orders: number, pending: number }> = {
+      whatsapp: { revenue: 0, orders: 0, pending: 0 },
+      instagram: { revenue: 0, orders: 0, pending: 0 },
+      tiktok: { revenue: 0, orders: 0, pending: 0 },
+      facebook: { revenue: 0, orders: 0, pending: 0 },
+      physical: { revenue: 0, orders: 0, pending: 0 },
+      other: { revenue: 0, orders: 0, pending: 0 },
     };
 
     allOrders.forEach(o => {
+      if (o.status === "Cancelled") return; // Ignore cancelled orders
+
+      const source = o.source || 'whatsapp'; // Default to whatsapp for legacy orders
+      const targetSource = revenueBySource[source] ? source : 'other';
+
+      revenueBySource[targetSource].orders += 1;
+
       if (o.paymentStatus === "paid") {
-        const source = o.source || 'whatsapp'; // Default to whatsapp for legacy orders
-        if (revenueBySource[source] !== undefined) {
-          revenueBySource[source] += o.total;
-        } else {
-          revenueBySource.other += o.total;
-        }
+        revenueBySource[targetSource].revenue += o.total;
+      } else {
+        const paid = o.amountPaid || 0;
+        revenueBySource[targetSource].revenue += paid;
+        revenueBySource[targetSource].pending += (o.total - paid);
       }
     });
 

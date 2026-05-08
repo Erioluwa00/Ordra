@@ -115,20 +115,26 @@ export default function Analytics() {
               </div>
               {isLoadingStats ? (
                 <div className="perf-empty">Analyzing sales channels...</div>
-              ) : !stats?.revenueBySource || Object.values(stats.revenueBySource).reduce((a, b) => a + b, 0) === 0 ? (
-                <div className="perf-empty">No channel data yet. Complete paid orders to see insights!</div>
+              ) : !stats?.revenueBySource || Object.values(stats.revenueBySource).reduce((a, b) => a + b.revenue + b.pending, 0) === 0 ? (
+                <div className="perf-empty">No channel data yet. Complete orders to see insights!</div>
               ) : (
                 <div className="best-seller-list">
                   {Object.entries(stats.revenueBySource)
-                    .sort(([, a], [, b]) => Number(b) - Number(a))
-                    .filter(([, val]) => val > 0)
+                    .sort(([, a], [, b]) => Number(b.revenue + b.pending) - Number(a.revenue + a.pending))
+                    .filter(([, val]) => val.orders > 0)
                     .map(([source, val]) => (
                       <div key={source} className="best-seller-item" style={{ padding: '0.75rem' }}>
                         <div className="bs-info">
                           <span className="bs-name" style={{ textTransform: 'capitalize' }}>{source === 'whatsapp' ? 'WhatsApp' : source === 'tiktok' ? 'TikTok' : source}</span>
+                          <span className="bs-category">{val.orders} order{val.orders !== 1 ? 's' : ''}</span>
                         </div>
-                        <div className="bs-stats">
-                          <div className="bs-revenue" style={{ color: 'var(--text-main)', fontWeight: 600 }}>{formatCurrency(val)}</div>
+                        <div className="bs-stats" style={{ textAlign: 'right' }}>
+                          <div className="bs-revenue" style={{ color: 'var(--text-main)', fontWeight: 600 }}>{formatCurrency(val.revenue)}</div>
+                          {val.pending > 0 && (
+                            <div style={{ fontSize: '0.7rem', color: '#d97706', marginTop: '2px' }}>
+                              +{formatCurrency(val.pending)} pending
+                            </div>
+                          )}
                         </div>
                       </div>
                   ))}
