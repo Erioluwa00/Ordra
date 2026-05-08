@@ -377,10 +377,10 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
                             setActiveCatalogRow(item.id);
                           }}
                         />
-                        {activeCatalogRow === item.id && item.desc.length > 0 && (
+                        {activeCatalogRow === item.id && item.desc.length > 0 && products?.filter(p => p.name.toLowerCase().includes(item.desc.toLowerCase())).length > 0 && (
                           <div className="nom-catalog-suggestions">
                             {products
-                              ?.filter(p => p.name.toLowerCase().includes(item.desc.toLowerCase()))
+                              .filter(p => p.name.toLowerCase().includes(item.desc.toLowerCase()))
                               .slice(0, 5)
                               .map(p => (
                                 <div key={p._id} className="nom-catalog-item" onClick={() => selectProduct(item.id, p)}>

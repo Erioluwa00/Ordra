@@ -999,6 +999,7 @@
     transform: translateY(0);
   }
 }
+
 /* -- Country Picker -- */
 .nom-phone-wrap {
   display: flex !important;
@@ -1035,7 +1036,7 @@
 }
 
 [data-theme="dark"] .nom-country-picker {
- background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .nom-country-select {
@@ -1053,7 +1054,8 @@
 
 .nom-country-select option,
 .nom-select option {
-  background-color: #162032 !important; /* Dark slate matching dark mode panel */
+  background-color: #162032 !important;
+  /* Dark slate matching dark mode panel */
   color: #ffffff !important;
   padding: 10px;
 }
@@ -1065,10 +1067,10 @@
 }
 
 .nom-country-chevron {
- position: absolute;
- right: 0.5rem;
- pointer-events: none;
- color: var(--text-muted);
+  position: absolute;
+  right: 0.5rem;
+  pointer-events: none;
+  color: var(--text-muted);
 }
 
 .nom-select-wrap {
@@ -1095,3 +1097,17 @@
   }
 }
 
+}
+
+.nom-source-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+@media (min-width: 600px) {
+  .nom-source-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
