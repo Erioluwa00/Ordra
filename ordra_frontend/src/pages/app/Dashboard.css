@@ -504,6 +504,7 @@
   font-size: 0.875rem;
   margin-bottom: 1.75rem;
   flex-wrap: wrap;
+  position: relative;
 }
 .plan-banner.free {
   background: rgba(147, 51, 234, 0.06);
@@ -544,6 +545,35 @@
   transition: color 0.2s;
 }
 .plan-banner-dismiss:hover { color: var(--text-primary); }
+
+@media (max-width: 639px) {
+  .plan-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem 1rem;
+  }
+  
+  .plan-banner span {
+    width: 100%;
+    line-height: 1.5;
+    padding-right: 1.5rem;
+    font-size: 0.8125rem;
+  }
+  
+  .plan-banner-cta {
+    width: 100%;
+    text-align: center;
+    padding: 0.625rem;
+    font-size: 0.8125rem;
+  }
+  
+  .plan-banner-dismiss {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+}
 
 /* ── DASHBOARD GATING ────────────────────────── */
 .metric-card.is-locked {

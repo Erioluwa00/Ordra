@@ -1082,8 +1082,16 @@
   cursor: pointer;
 }
 
-@media (max-width: 480px) {
-  .nom-body section div[style*="gridTemplateColumns"] {
-    grid-template-columns: 1fr !important;
+.nom-source-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+@media (min-width: 600px) {
+  .nom-source-row {
+    grid-template-columns: 1fr 1fr;
   }
 }
+

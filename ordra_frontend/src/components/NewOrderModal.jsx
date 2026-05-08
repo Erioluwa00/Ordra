@@ -300,7 +300,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
                 {errors.custName && <p className="nom-error">{errors.custName}</p>}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' }}>
+              <div className="nom-source-row">
                 <div className="nom-form-group">
                   <div className="nom-phone-wrap">
                     {!custPhone.startsWith('@') && !/[a-zA-Z]/.test(custPhone) && (
