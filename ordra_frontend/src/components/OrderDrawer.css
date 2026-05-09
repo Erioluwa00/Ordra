@@ -389,6 +389,52 @@
 }
 
 /* ── Animations */
+.ord-drawer-header-btn {
+  background: var(--input-bg);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.ord-drawer-header-btn:hover {
+  background: var(--border-main);
+  color: var(--text-primary);
+}
+
+.ord-drawer-header-btn.edit:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+}
+
+.ord-tool-btn.delete {
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.1);
+}
+
+.ord-tool-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.ord-tool-btn.delete.confirming {
+  background: #ef4444;
+  color: white !important;
+  border-color: #ef4444;
+  animation: ordPulse 1.5s infinite;
+}
+
+@keyframes ordPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
 @keyframes ordFadeIn {
   from {
     opacity: 0;

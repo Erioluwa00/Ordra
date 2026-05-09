@@ -628,4 +628,155 @@ export const markNotified = mutation({
     }
   },
 });
+// Update an existing order
+export const updateOrder = mutation({
+  args: {
+    orderId: v.id("orders"),
+    customerName: v.string(),
+    customerPhone: v.string(),
+    items: v.array(v.object({
+      productId: v.optional(v.id("products")),
+      desc: v.string(),
+      qty: v.number(),
+      price: v.number()
+    })),
+    total: v.number(),
+    amountPaid: v.number(),
+    paymentStatus: v.string(),
+    status: v.string(),
+    deliveryAddress: v.string(),
+    notes: v.string(),
+    deliveryDate: v.optional(v.string()),
+    isUrgent: v.optional(v.boolean()),
+    source: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
 
+    const oldOrder = await ctx.db.get(args.orderId);
+    if (!oldOrder || oldOrder.userId !== userId) throw new Error("Order not found");
+
+    // 1. Revert stock for OLD items
+    for (const item of (oldOrder.items || [])) {
+      if (item.productId) {
+        const product = await ctx.db.get(item.productId);
+        if (product) {
+          const newQty = (product.quantity || 0) + item.qty;
+          await ctx.db.patch(item.productId, { quantity: newQty, inStock: newQty > 0 });
+        }
+      }
+    }
+
+    // 2. Apply stock for NEW items
+    for (const item of args.items) {
+      if (item.productId) {
+        const product = await ctx.db.get(item.productId);
+        if (product) {
+          const newQty = (product.quantity || 0) - item.qty;
+          await ctx.db.patch(item.productId, { quantity: newQty, inStock: newQty > 0 });
+        }
+      }
+    }
+
+    // 3. Adjust customer lifetime value
+    // If the phone number changed, we need to handle both old and new customers
+    if (oldOrder.customerPhone !== args.customerPhone) {
+      // Decrement old customer
+      const oldCust = await ctx.db
+        .query("customers")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .filter((q) => q.eq(q.field("phone"), oldOrder.customerPhone))
+        .first();
+      if (oldCust) {
+        await ctx.db.patch(oldCust._id, {
+          totalOrders: Math.max(0, oldCust.totalOrders - 1),
+          lifetimeValue: Math.max(0, oldCust.lifetimeValue - oldOrder.amountPaid),
+        });
+      }
+      // Increment new customer
+      const newCust = await ctx.db
+        .query("customers")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .filter((q) => q.eq(q.field("phone"), args.customerPhone))
+        .first();
+      if (newCust) {
+        await ctx.db.patch(newCust._id, {
+          totalOrders: newCust.totalOrders + 1,
+          lifetimeValue: newCust.lifetimeValue + args.amountPaid,
+        });
+      }
+    } else {
+      // Same customer, just adjust the difference
+      const cust = await ctx.db
+        .query("customers")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .filter((q) => q.eq(q.field("phone"), args.customerPhone))
+        .first();
+      if (cust) {
+        await ctx.db.patch(cust._id, {
+          lifetimeValue: cust.lifetimeValue - oldOrder.amountPaid + args.amountPaid,
+        });
+      }
+    }
+
+    // 4. Update the order
+    await ctx.db.patch(args.orderId, {
+      customer: args.customerName,
+      customerPhone: args.customerPhone,
+      item: args.items[0]?.desc || "Updated Order",
+      items: args.items,
+      total: args.total,
+      amountPaid: args.amountPaid,
+      paymentStatus: args.paymentStatus,
+      status: args.status,
+      deliveryAddress: args.deliveryAddress,
+      notes: args.notes,
+      deliveryDate: args.deliveryDate,
+      isUrgent: args.isUrgent,
+      source: args.source,
+    });
+
+    return args.orderId;
+  },
+});
+
+// Delete an order permanently
+export const deleteOrder = mutation({
+  args: { orderId: v.id("orders") },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const order = await ctx.db.get(args.orderId);
+    if (!order || order.userId !== userId) throw new Error("Order not found");
+
+    // 1. Revert stock
+    for (const item of (order.items || [])) {
+      if (item.productId) {
+        const product = await ctx.db.get(item.productId);
+        if (product) {
+          const newQty = (product.quantity || 0) + item.qty;
+          await ctx.db.patch(item.productId, { quantity: newQty, inStock: newQty > 0 });
+        }
+      }
+    }
+
+    // 2. Adjust customer stats
+    const customer = await ctx.db
+      .query("customers")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) => q.eq(q.field("phone"), order.customerPhone))
+      .first();
+    if (customer) {
+      await ctx.db.patch(customer._id, {
+        totalOrders: Math.max(0, customer.totalOrders - 1),
+        lifetimeValue: Math.max(0, customer.lifetimeValue - order.amountPaid),
+      });
+    }
+
+    // 3. Delete the order
+    await ctx.db.delete(args.orderId);
+    return true;
+  },
+});

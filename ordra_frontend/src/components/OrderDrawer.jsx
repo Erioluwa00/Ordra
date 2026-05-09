@@ -2,7 +2,8 @@ import React from 'react';
 import {
   X, MessageCircle, Package, MapPin,
   CreditCard, FileText, Zap, CheckCheck, Copy,
-  Clock, RotateCcw, Truck, XCircle, Flag, Calendar
+  Clock, RotateCcw, Truck, XCircle, Flag, Calendar,
+  Pencil, Trash2
 } from 'lucide-react';
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -85,9 +86,10 @@ export function PaymentBadge({ status }) {
 
 import usePlan from '../hooks/usePlan';
 
-export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid, onDuplicate }) {
+export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid, onDuplicate, onEdit, onDelete }) {
   if (!order) return null;
   const [copied, setCopied] = React.useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
   const plan = usePlan();
   const balance = order.total - (order.amountPaid || 0);
   const updatePriority = useMutation(api.orders.updateOrderPriority);
@@ -127,6 +129,16 @@ export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDelete = () => {
+    if (isConfirmingDelete) {
+      onDelete(order._id);
+      setIsConfirmingDelete(false);
+    } else {
+      setIsConfirmingDelete(true);
+      setTimeout(() => setIsConfirmingDelete(false), 3000);
+    }
+  };
+
   const isSocialHandle = order.customerPhone && (order.customerPhone.startsWith('@') || /[a-zA-Z]/.test(order.customerPhone));
 
 
@@ -141,7 +153,12 @@ export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid
             <p className="ord-drawer-id">{order.orderId || order.id}</p>
             <h2 className="ord-drawer-name">{order.customer}</h2>
           </div>
-          <button className="ord-drawer-close" onClick={onClose}><X size={18} /></button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button className="ord-drawer-header-btn edit" onClick={() => onEdit(order)} title="Edit Order">
+              <Pencil size={16} />
+            </button>
+            <button className="ord-drawer-close" onClick={onClose}><X size={18} /></button>
+          </div>
         </div>
 
         <div className="ord-drawer-body">
@@ -289,6 +306,13 @@ export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid
               </button>
               <button className="ord-tool-btn duplicate" onClick={() => onDuplicate(order)}>
                 <Copy size={15} /> Duplicate
+              </button>
+              <button 
+                className={`ord-tool-btn delete ${isConfirmingDelete ? 'confirming' : ''}`} 
+                onClick={handleDelete}
+                style={{ color: '#ef4444' }}
+              >
+                <Trash2 size={15} /> {isConfirmingDelete ? 'Confirm Delete?' : 'Delete Order'}
               </button>
             </div>
           </div>

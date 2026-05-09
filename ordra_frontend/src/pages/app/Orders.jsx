@@ -147,10 +147,11 @@ export default function Orders() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [stockpileModalOrders, setStockpileModalOrders] = useState(null); // null = closed
   const [selectedOrderIds, setSelectedOrderIds] = useState(new Set());
-  const [duplicateOrderData, setDuplicateOrderData] = useState(null);
+  const [modalData, setModalData] = useState(null);
   const [flashedId, setFlashedId] = useState(null);
   const [filterUrgent, setFilterUrgent] = useState(false);
   const bulkUpdate = useMutation(api.orders.bulkUpdateOrders);
+  const deleteOrder = useMutation(api.orders.deleteOrder);
 
   const plan = usePlan();
   const isLocked = plan.isFree && !plan.isTrial;
@@ -160,6 +161,7 @@ export default function Orders() {
       window.dispatchEvent(new CustomEvent('ordra:upgrade', { detail: { feature: 'orders' } }));
       return;
     }
+    setModalData(null);
     setIsModalOpen(true);
   };
 
@@ -195,9 +197,22 @@ export default function Orders() {
 
   // ── Handlers
   const handleDuplicate = (order) => {
-    setDuplicateOrderData(order);
+    setModalData({ ...order, isDuplicate: true });
     setIsModalOpen(true);
     setSelectedOrder(null);
+  };
+
+  const handleEdit = (order) => {
+    setModalData(order);
+    setIsModalOpen(true);
+    setSelectedOrder(null);
+  };
+
+  const handleDelete = async (orderId) => {
+    if (confirm("Are you sure you want to PERMANENTLY delete this order? This will also restore the stock for any items in this order.")) {
+      await deleteOrder({ orderId });
+      setSelectedOrder(null);
+    }
   };
 
   // ── Derived stats
@@ -687,6 +702,8 @@ export default function Orders() {
         onStatusChange={handleStatusChange}
         onMarkPaid={handleMarkPaid}
         onDuplicate={handleDuplicate}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
 
       {/* ── New Order Modal */}
@@ -694,9 +711,9 @@ export default function Orders() {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
-          setDuplicateOrderData(null);
+          setModalData(null);
         }}
-        initialData={duplicateOrderData}
+        initialData={modalData}
       />
 
       {/* ── Bulk Action Bar */}

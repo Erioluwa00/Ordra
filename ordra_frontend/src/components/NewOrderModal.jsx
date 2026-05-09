@@ -50,6 +50,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
 
   // ── Mutations & Queries
   const createOrder = useMutation(api.orders.createOrder);
+  const updateOrder = useMutation(api.orders.updateOrder);
   const customers = useQuery(api.orders.getCustomers);
 
   const [custName, setCustName] = useState('');
@@ -71,6 +72,8 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const isEditing = initialData && initialData._id && !initialData.isDuplicate;
 
   const suggestionRef = useRef(null);
 
@@ -114,14 +117,23 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
         setCustName(initialData.customer || '');
         setCustPhone(initialData.customerPhone || '');
         setDeliveryAddr(initialData.deliveryAddress || '');
+        setOrderSource(initialData.source || 'whatsapp');
+        setOrderStatus((initialData.status || 'new').toLowerCase());
+        setPaymentStatus(initialData.paymentStatus || 'unpaid');
+        setAmountPaid(String(initialData.amountPaid || ''));
+        setNotes(initialData.notes || '');
+        setDeliveryDate(initialData.deliveryDate || '');
+        setIsUrgent(!!initialData.isUrgent);
+        
         // For duplicates/edits, we don't necessarily lock the ID unless we match it
         setSelectedCustId(null);
         if (initialData.items) {
           setItems(initialData.items.map((it, idx) => ({
             id: Date.now() + idx,
+            productId: it.productId,
             desc: it.desc || '',
             qty: it.qty || 1,
-            price: it.price || ''
+            price: String(it.price || '')
           })));
         }
       } else {
@@ -130,14 +142,14 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
         setSelectedCustId(null);
         setItems([{ id: Date.now(), desc: '', qty: 1, price: '' }]);
         setDeliveryAddr('');
+        setOrderSource('whatsapp');
+        setOrderStatus('new');
+        setPaymentStatus('unpaid');
+        setAmountPaid('');
+        setDeliveryDate('');
+        setIsUrgent(false);
+        setNotes('');
       }
-      setOrderSource('whatsapp');
-      setOrderStatus('new');
-      setPaymentStatus('unpaid');
-      setAmountPaid('');
-      setDeliveryDate('');
-      setIsUrgent(false);
-      setNotes('');
       setErrors({});
       setSubmitted(false);
       setSaving(false);
@@ -199,7 +211,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
 
     setSaving(true);
     try {
-      await createOrder({
+      const orderPayload = {
         customerName: capitalizedName,
         customerPhone: finalPhone,
         items: items.filter(it => it.desc.trim()).map(it => ({
@@ -217,7 +229,16 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
         deliveryDate: deliveryDate || undefined,
         isUrgent: isUrgent || undefined,
         source: orderSource,
-      });
+      };
+
+      if (isEditing) {
+        await updateOrder({
+          orderId: initialData._id,
+          ...orderPayload
+        });
+      } else {
+        await createOrder(orderPayload);
+      }
       onClose();
     } catch (err) {
       console.error(err);
@@ -251,8 +272,8 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
           <div className="nom-header-left">
             <div className="nom-header-icon"><Zap size={18} /></div>
             <div>
-              <h2 className="nom-title">New Order</h2>
-              <p className="nom-subtitle">Fill in the details below</p>
+              <h2 className="nom-title">{isEditing ? 'Edit Order' : 'New Order'}</h2>
+              <p className="nom-subtitle">{isEditing ? `Updating ${initialData.orderId}` : 'Fill in the details below'}</p>
             </div>
           </div>
           <button className="nom-close" onClick={onClose} aria-label="Close"><X size={18} /></button>
@@ -536,7 +557,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
             <div className="nom-footer-right">
               <button type="button" className="action-btn secondary" onClick={onClose}>Cancel</button>
               <button type="submit" className="action-btn primary nom-submit" disabled={saving}>
-                {saving ? <div className="spinner" /> : <><Plus size={16} /> Create Order</>}
+                {saving ? <div className="spinner" /> : <>{isEditing ? <><CheckCircle2 size={16} /> Save Changes</> : <><Plus size={16} /> Create Order</>}</>}
               </button>
             </div>
           </div>
