@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
@@ -238,7 +238,13 @@ function CustomerDrawer({ customer, onClose, onEdit, onOrderClick }) {
 // Main Customers Page
 // ─────────────────────────────────────────────────
 
+import { db, saveCustomerToCache, addToSyncQueue } from '../../lib/db';
+import { useOffline } from '../../context/OfflineContext';
+
 export default function Customers() {
+  const { isOnline, refreshPending } = useOffline();
+  const [localCustomers, setLocalCustomers] = useState([]);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const liveCustomers = useQuery(api.orders.getCustomers);
   const createCust = useMutation(api.orders.createCustomer);
   const updateCust = useMutation(api.orders.updateCustomer);
@@ -247,8 +253,23 @@ export default function Customers() {
   const updateOrderStatus = useMutation(api.orders.updateOrderStatus);
   const updateOrderPayment = useMutation(api.orders.updateOrderPaymentStatus);
 
-  const isLoading = liveCustomers === undefined;
-  const customers = liveCustomers || [];
+  useEffect(() => {
+    if (liveCustomers) {
+      setLocalCustomers(liveCustomers);
+      setIsInitialLoad(false);
+      // Background cache update
+      liveCustomers.forEach(c => saveCustomerToCache(c));
+    } else if (!isOnline) {
+      // Load from IndexedDB if offline and Convex is loading/unavailable
+      db.customers.toArray().then(cached => {
+        setLocalCustomers(cached || []);
+        setIsInitialLoad(false);
+      });
+    }
+  }, [liveCustomers, isOnline]);
+
+  const isLoading = isInitialLoad;
+  const customers = localCustomers;
 
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -290,20 +311,41 @@ export default function Customers() {
 
   const handleSaveCustomer = async (formData) => {
     try {
-      if (editingCustomer) {
-        await updateCust({
-          customerId: editingCustomer._id,
-          email: formData.email,
-          notes: formData.notes
-        });
+      if (isOnline) {
+        if (editingCustomer) {
+          await updateCust({
+            customerId: editingCustomer._id,
+            email: formData.email,
+            notes: formData.notes
+          });
+        } else {
+          await createCust({
+            name: formData.name,
+            phone: formData.phone,
+            email: formData.email,
+            address: formData.address,
+            notes: formData.notes
+          });
+        }
       } else {
-        await createCust({
-          name: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          address: formData.address,
-          notes: formData.notes
-        });
+        // OFFLINE
+        const tempId = `OFFLINE-CUST-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+        const offlineCust = {
+          ...formData,
+          _id: tempId,
+          totalOrders: 0,
+          lifetimeValue: 0,
+          isOffline: true
+        };
+        
+        // Optimistic UI
+        setLocalCustomers(p => [offlineCust, ...p]);
+        await saveCustomerToCache(offlineCust);
+        
+        await addToSyncQueue(editingCustomer ? 'UPDATE_CUSTOMER' : 'CREATE_CUSTOMER', 
+          editingCustomer ? { customerId: editingCustomer._id, ...formData } : formData
+        );
+        refreshPending();
       }
       handleCloseModal();
     } catch (err) {

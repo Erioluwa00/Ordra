@@ -13,15 +13,9 @@ import {
 import NewOrderModal from '../../components/NewOrderModal';
 import StockpileNoticeModal from '../../components/StockpileNoticeModal';
 import usePlan from '../../hooks/usePlan';
-import OrderDrawer, {
-  StatusBadge,
-  PaymentBadge,
-  STATUS_CONFIG,
-  PAYMENT_CONFIG,
-  STATUS_TRANSITIONS,
-  formatCurrency,
-  relativeDate
-} from '../../components/OrderDrawer';
+import OrderDrawer, { StatusBadge, PaymentBadge, STATUS_CONFIG, PAYMENT_CONFIG, STATUS_TRANSITIONS, formatCurrency, relativeDate } from '../../components/OrderDrawer';
+import { useOffline } from '../../context/OfflineContext';
+import { db, saveOrderToCache, addToSyncQueue } from '../../lib/db';
 import './Orders.css';
 
 // ─────────────────────────────────────────────────
@@ -126,15 +120,33 @@ function StatusChanger({ orderId, current, onChange }) {
 // ─────────────────────────────────────────────────
 // Main Orders Page
 // ─────────────────────────────────────────────────
-export default function Orders() {
+  const { isOnline, refreshPending } = useOffline();
+  const [localOrders, setLocalOrders] = useState([]);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const liveOrders = useQuery(api.orders.getAllOrders);
   const liveSettings = useQuery(api.settings.getSettings);
+  
+  useEffect(() => {
+    if (liveOrders) {
+      setLocalOrders(liveOrders);
+      setIsInitialLoad(false);
+      // Background cache update
+      liveOrders.forEach(o => saveOrderToCache(o));
+    } else if (!isOnline) {
+      // Load from IndexedDB if offline and Convex is loading/unavailable
+      db.orders.reverse().sortBy('createdAt').then(cached => {
+        setLocalOrders(cached || []);
+        setIsInitialLoad(false);
+      });
+    }
+  }, [liveOrders, isOnline]);
+
   const updateStatus = useMutation(api.orders.updateOrderStatus);
   const updatePayment = useMutation(api.orders.updateOrderPaymentStatus);
   const markNotifiedMutation = useMutation(api.orders.markNotified);
   
-  const isLoading = liveOrders === undefined;
-  const orders = liveOrders || [];
+  const isLoading = isInitialLoad;
+  const orders = localOrders;
   const stockpileDays = liveSettings?.stockpileDays ?? 7;
   const stockpileTemplate = liveSettings?.templateStockpile ?? '';
 
@@ -263,9 +275,17 @@ export default function Orders() {
 
   // ── Handlers
   const handleStatusChange = async (orderId, newStatus) => {
-    // Optimistic UI for drawer
+    // Optimistic UI for list and drawer
+    const updateLocal = (list) => list.map(o => o._id === orderId ? { ...o, status: newStatus } : o);
+    setLocalOrders(updateLocal);
     setSelectedOrder(prev => prev?._id === orderId ? { ...prev, status: newStatus } : prev);
-    await updateStatus({ orderId, status: newStatus });
+
+    if (isOnline) {
+      await updateStatus({ orderId, status: newStatus });
+    } else {
+      await addToSyncQueue('UPDATE_STATUS', { orderId, status: newStatus });
+      refreshPending();
+    }
   };
 
   const handleMarkPaid = useCallback(async (orderId) => {

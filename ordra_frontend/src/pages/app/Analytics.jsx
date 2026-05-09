@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import RevenueChart from '../../components/RevenueChart';
 import usePlan from '../../hooks/usePlan';
+import { useOffline } from '../../context/OfflineContext';
+import { getMetadata, setMetadata } from '../../lib/db';
 import { 
   BarChart3, TrendingUp, Wallet, ShoppingBag, Users,
-  Trophy, AlertTriangle, TrendingDown, Package, ArrowUpRight, Zap, Lock, Globe 
+  Trophy, AlertTriangle, TrendingDown, Package, ArrowUpRight, Zap, Lock, Globe, Clock 
 } from 'lucide-react';
 import './Analytics.css';
 import './ProductPerformance.css';
@@ -20,14 +22,50 @@ const formatCurrency = (amt) => {
 
 export default function Analytics() {
   const plan = usePlan();
+  const { isOnline } = useOffline();
 
-  const stats = useQuery(api.orders.getDashboardStats);
-  const customers = useQuery(api.orders.getCustomers);
-  const performance = useQuery(api.products.getProductPerformance);
+  const liveStats = useQuery(api.orders.getDashboardStats);
+  const liveCustomers = useQuery(api.orders.getCustomers);
+  const livePerformance = useQuery(api.products.getProductPerformance);
 
-  const isLoadingStats = stats === undefined;
-  const isLoadingCust  = customers === undefined;
-  const isLoadingPerf  = performance === undefined;
+  const [stats, setStats] = useState(null);
+  const [customers, setCustomers] = useState([]);
+  const [performance, setPerformance] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  useEffect(() => {
+    if (liveStats && liveCustomers && livePerformance) {
+      setStats(liveStats);
+      setCustomers(liveCustomers);
+      setPerformance(livePerformance);
+      const now = new Date();
+      setLastUpdated(now);
+      setIsInitialLoad(false);
+      
+      // Cache it
+      setMetadata('analytics_snapshot', {
+        stats: liveStats,
+        customers: liveCustomers,
+        performance: livePerformance,
+        timestamp: now.toISOString()
+      });
+    } else if (!isOnline) {
+      getMetadata('analytics_snapshot').then(cached => {
+        if (cached) {
+          setStats(cached.stats);
+          setCustomers(cached.customers);
+          setPerformance(cached.performance);
+          setLastUpdated(new Date(cached.timestamp));
+        }
+        setIsInitialLoad(false);
+      });
+    }
+  }, [liveStats, liveCustomers, livePerformance, isOnline]);
+
+  const isLoadingStats = isInitialLoad;
+  const isLoadingCust  = isInitialLoad;
+  const isLoadingPerf  = isInitialLoad;
 
   const isLocked = plan.isFree && !plan.isTrial;
 

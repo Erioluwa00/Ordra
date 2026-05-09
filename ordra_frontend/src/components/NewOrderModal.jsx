@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import './NewOrderModal.css';
 import { useProducts } from '../context/ProductContext';
+import { useOffline } from '../context/OfflineContext';
+import { db, saveOrderToCache, addToSyncQueue } from '../lib/db';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 const getInitials = (name) => {
@@ -44,6 +46,7 @@ const COUNTRY_CODES = [
 ];
 
 export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
+  const { isOnline, refreshPending } = useOffline();
   const nameRef = useRef(null);
   const phoneRef = useRef(null);
   const { products } = useProducts();
@@ -231,13 +234,40 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
         source: orderSource,
       };
 
-      if (isEditing) {
-        await updateOrder({
-          orderId: initialData._id,
-          ...orderPayload
-        });
+      if (isOnline) {
+        if (isEditing) {
+          await updateOrder({
+            orderId: initialData._id,
+            ...orderPayload
+          });
+        } else {
+          await createOrder(orderPayload);
+        }
       } else {
-        await createOrder(orderPayload);
+        // OFFLINE MODE
+        const tempId = `OFFLINE-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+        const offlineOrder = {
+          ...orderPayload,
+          _id: tempId,
+          orderId: tempId,
+          customer: capitalizedName,
+          item: orderPayload.items[0]?.desc || 'Multiple items',
+          createdAt: new Date().toISOString(),
+          isOffline: true
+        };
+
+        // 1. Save to local cache so it appears in the list immediately
+        await saveOrderToCache(offlineOrder);
+        
+        // 2. Add to sync queue
+        await addToSyncQueue(isEditing ? 'UPDATE_ORDER' : 'CREATE_ORDER', 
+          isEditing ? { orderId: initialData._id, ...orderPayload } : orderPayload
+        );
+
+        // 3. Trigger UI update for sync indicator
+        refreshPending();
+        
+        console.log('[Offline] Order saved locally and queued for sync.');
       }
       onClose();
     } catch (err) {

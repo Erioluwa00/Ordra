@@ -65,15 +65,19 @@ function AppRoutes() {
   );
 }
 
+import { OfflineProvider } from './context/OfflineContext';
+
 function App() {
   return (
     <ThemeProvider>
       <ProductProvider>
         <AuthProvider>
-          <Router>
-            <ScrollToTop />
-            <AppRoutes />
-          </Router>
+          <OfflineProvider>
+            <Router>
+              <ScrollToTop />
+              <AppRoutes />
+            </Router>
+          </OfflineProvider>
         </AuthProvider>
       </ProductProvider>
     </ThemeProvider>

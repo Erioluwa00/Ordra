@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { LayoutDashboard, Users, ShoppingBag, LogOut, X, Settings, PackageOpen, BarChart3, CreditCard, Lock, Zap } from 'lucide-react';
+import { LayoutDashboard, Users, ShoppingBag, LogOut, X, Settings, PackageOpen, BarChart3, CreditCard, Lock, Zap, Wifi, WifiOff, CloudSync } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useOffline } from '../context/OfflineContext';
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import usePlan from '../hooks/usePlan';
@@ -10,6 +11,7 @@ import './Sidebar.css';
 
 export default function Sidebar({ isOpen, closeSidebar }) {
   const { logout } = useAuth();
+  const { isOnline, pendingCount, syncing } = useOffline();
   const settings = useQuery(api.settings.getSettings);
   const plan = usePlan();
 
@@ -113,6 +115,29 @@ export default function Sidebar({ isOpen, closeSidebar }) {
               </button>
             </div>
           ) : null}
+          <div className="sidebar-sync-status">
+            {syncing ? (
+              <div className="sync-item syncing">
+                <CloudSync size={14} className="spin-slow" />
+                <span>Syncing {pendingCount}...</span>
+              </div>
+            ) : pendingCount > 0 ? (
+              <div className="sync-item pending">
+                <CloudSync size={14} />
+                <span>{pendingCount} waiting to sync</span>
+              </div>
+            ) : isOnline ? (
+              <div className="sync-item online">
+                <Wifi size={14} />
+                <span>Online & Synced</span>
+              </div>
+            ) : (
+              <div className="sync-item offline">
+                <WifiOff size={14} />
+                <span>Offline Mode</span>
+              </div>
+            )}
+          </div>
           <button onClick={logout} className="logout-btn">
             <LogOut size={20} />
             Log Out
