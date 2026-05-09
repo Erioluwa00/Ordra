@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useQuery, useMutation } from "convex/react";
+import { createPortal } from 'react-dom';
 import { api } from "../../../convex/_generated/api";
 import {
   Plus, Search, MessageCircle,
@@ -66,24 +67,45 @@ function QuickPayButton({ order, onMarkPaid, flashing }) {
 // Inline status changer dropdown
 function StatusChanger({ orderId, current, onChange }) {
   const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const triggerRef = React.useRef(null);
+
   const next = STATUS_TRANSITIONS[current] || [];
   if (next.length === 0) return <StatusBadge status={current} />;
+
+  const handleToggle = (e) => {
+    e.stopPropagation();
+    if (!open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setCoords({
+        top: rect.bottom + window.scrollY + 8,
+        left: rect.left + window.scrollX
+      });
+    }
+    setOpen(!open);
+  };
 
   return (
     <div className="ord-status-changer" onBlur={(e) => {
       if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false);
     }} tabIndex={-1}>
       <button
+        ref={triggerRef}
         className="ord-status-trigger"
         style={{ color: STATUS_CONFIG[current]?.color, background: STATUS_CONFIG[current]?.bg }}
-        onClick={() => setOpen(o => !o)}
+        onClick={handleToggle}
       >
         {STATUS_CONFIG[current]?.icon}
         {current}
         <ChevronDown size={12} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
       </button>
-      {open && (
-        <div className="ord-status-menu">
+      {open && createPortal(
+        <div className="ord-status-menu" style={{ 
+          position: 'absolute',
+          top: coords.top,
+          left: coords.left,
+          zIndex: 10000 
+        }}>
           <div style={{ padding: '4px 8px', fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Move to</div>
           {next.map(s => (
             <button key={s} className="ord-status-option"
@@ -93,7 +115,8 @@ function StatusChanger({ orderId, current, onChange }) {
               {STATUS_CONFIG[s]?.icon} {s}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

@@ -38,8 +38,15 @@
 .ord-table-wrapper {
   width: 100%;
   overflow-x: auto;
+  overflow-y: visible; /* Ensure dropdowns aren't clipped or cause expansion */
   -webkit-overflow-scrolling: touch;
   margin-bottom: 0.5rem;
+}
+
+@media (min-width: 1024px) {
+  .ord-table-wrapper {
+    overflow: visible; /* No clipping on desktop */
+  }
 }
 
 .ord-table-wrapper::-webkit-scrollbar {
@@ -462,12 +469,11 @@
 /* ── Table Container Overrides ── */
 .table-container {
   overflow: visible !important;
-  /* Allow dropdowns to break out of the container bounds */
-  background: var(--bg-panel);
-  border: 1px solid var(--border-main);
-  border-radius: 16px;
-  box-shadow: var(--shadow-sm);
   position: relative;
+  margin-top: 1rem;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .ord-table {
@@ -492,10 +498,15 @@
 .ord-row {
   cursor: pointer;
   transition: background 0.12s;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .ord-row:hover {
   background: var(--bg-app);
+}
+
+.ord-row:last-child {
+  border-bottom: none;
 }
 
 .ord-id {
