@@ -440,26 +440,48 @@
   margin-bottom: 1.75rem;
 }
 
+.auth-social-row.single {
+  display: flex;
+  justify-content: center;
+  grid-template-columns: none;
+}
+
 .auth-social-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  padding: 0.7rem;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   background: white;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   font-family: 'Inter', sans-serif;
   color: #374151;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.auth-social-row.single .auth-social-btn {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 99px; /* Pill style */
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .auth-social-btn:hover {
   border-color: #d1d5db;
   background: #f9fafb;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.auth-social-btn:active {
+  transform: translateY(0);
 }
 
 /* Bottom switch link */

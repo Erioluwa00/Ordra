@@ -50,7 +50,6 @@ export default function LandingPage() {
             <a href="#how-it-works" onClick={() => setMenuOpen(false)}>How It Works</a>
             <a href="#pricing" onClick={() => setMenuOpen(false)}>Pricing</a>
             <a href="#faq" onClick={() => setMenuOpen(false)}>FAQ</a>
-            <Link to="/auth/login" className="mobile-cta-link" onClick={() => setMenuOpen(false)} style={{ background: 'none', color: '#9333ea', border: '1.5px solid #9333ea' }}>Log In</Link>
             <Link to="/auth/signup" className="mobile-cta-link" onClick={() => { setMenuOpen(false); localStorage.removeItem('ordra_pending_upgrade'); }}>Get Started</Link>
           </div>
 
@@ -343,8 +342,8 @@ export default function LandingPage() {
                 <Sparkles size={14} fill="currentColor" />
                 <span>14-day free trial included</span>
               </div>
-              <Link 
-                to="/auth/signup" 
+              <Link
+                to="/auth/signup"
                 className="btn pricing-btn pro-btn"
                 onClick={() => localStorage.setItem('ordra_pending_upgrade', 'true')}
               >
