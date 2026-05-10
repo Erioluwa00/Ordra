@@ -7,7 +7,8 @@
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
-  padding-bottom: 70px; /* Space for the floating bulk bar */
+  padding-bottom: 70px;
+  /* Space for the floating bulk bar */
 }
 
 
@@ -38,14 +39,16 @@
 .ord-table-wrapper {
   width: 100%;
   overflow-x: auto;
-  overflow-y: visible; /* Ensure dropdowns aren't clipped or cause expansion */
+  overflow-y: visible;
+  /* Ensure dropdowns aren't clipped or cause expansion */
   -webkit-overflow-scrolling: touch;
   margin-bottom: 0.5rem;
 }
 
 @media (min-width: 1024px) {
   .ord-table-wrapper {
-    overflow: visible; /* No clipping on desktop */
+    overflow: visible;
+    /* No clipping on desktop */
   }
 }
 
@@ -324,11 +327,11 @@
   border-radius: 99px;
   font-size: 0.7rem;
   font-weight: 800;
-  background: rgba(0,0,0,0.15);
+  background: rgba(0, 0, 0, 0.15);
 }
 
 .ord-stockpile-tab.active .ord-stockpile-count {
-  background: rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* Notify bulk button */
@@ -538,8 +541,15 @@
 }
 
 @keyframes ord-sync-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .spin-slow {
@@ -547,8 +557,13 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .ord-item-text {
@@ -1402,11 +1417,11 @@
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
   }
-  
+
   .ord-bulk-btn .bulk-btn-text {
     display: none;
   }
-  
+
   .ord-bulk-btn {
     padding: 0.5rem;
     min-width: 40px;

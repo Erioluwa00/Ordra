@@ -469,20 +469,70 @@
     display: block !important;
   }
 
-  .ordra-table td:nth-child(6) .flex {
+  .recent-actions {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
     gap: 0.75rem;
   }
 
-  .ordra-table td:nth-child(6) button {
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .recent-pay-btn, .recent-view-btn {
+    height: 42px !important;
+    width: 100% !important;
     font-size: 0.875rem !important;
-    width: 100%;
   }
+}
+
+/* ── Recent Activity Actions (Desktop & Base) */
+.recent-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.recent-pay-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.875rem;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1.5px solid #16a34a;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.recent-pay-btn:hover {
+  background: #16a34a;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+}
+
+.recent-view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 1rem;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-main);
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.recent-view-btn:hover {
+  background: var(--border-main);
+  transform: translateY(-1px);
 }
 
 .metric-icon-wrap.red {

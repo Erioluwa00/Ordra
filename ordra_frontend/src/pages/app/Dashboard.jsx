@@ -348,19 +348,17 @@ export default function Dashboard() {
                       </div>
                     </td>
                     <td>
-                      <div className="flex" style={{ gap: '8px' }}>
+                      <div className="recent-actions">
                         {order.paymentStatus !== "paid" && (
                           <button 
-                            className="action-btn-sm" 
-                            style={{ background: '#ecfdf5', color: '#059669', border: '1px solid #10b981', padding: '4px 10px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                            className="recent-pay-btn" 
                             onClick={() => updatePayment({ orderId: order._id, paymentStatus: 'paid' })}
                           >
-                            <CheckCheck size={12} /> Mark Paid
+                            <CheckCheck size={14} /> Mark Paid
                           </button>
                         )}
                         <button 
-                          className="action-btn-sm" 
-                          style={{ background: 'var(--input-bg)', color: 'var(--text-primary)', border: '1px solid var(--border-main)', padding: '4px 12px', borderRadius: '99px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center' }}
+                          className="recent-view-btn" 
                           onClick={() => window.location.href = `/app/orders?id=${order._id}`}
                         >
                           View

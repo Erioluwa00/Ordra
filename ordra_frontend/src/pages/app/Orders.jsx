@@ -94,11 +94,11 @@ function StatusChanger({ orderId, current, onChange }) {
         <ChevronDown size={12} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
       </button>
       {open && createPortal(
-        <div className="ord-status-menu" style={{ 
+        <div className="ord-status-menu" style={{
           position: 'absolute',
           top: coords.top,
           left: coords.left,
-          zIndex: 10000 
+          zIndex: 10000
         }}>
           <div style={{ padding: '4px 8px', fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Move to</div>
           {next.map(s => (
@@ -142,7 +142,7 @@ export default function Orders() {
       cleanup();
     }
   }, [isOnline, liveOrders]);
-  
+
   useEffect(() => {
     const loadFromCache = () => {
       db.orders.reverse().sortBy('createdAt').then(cached => {
@@ -173,7 +173,7 @@ export default function Orders() {
   const updateStatus = useMutation(api.orders.updateOrderStatus);
   const updatePayment = useMutation(api.orders.updateOrderPaymentStatus);
   const markNotifiedMutation = useMutation(api.orders.markNotified);
-  
+
   const isLoading = isInitialLoad;
   const orders = localOrders;
   const stockpileDays = liveSettings?.stockpileDays ?? 7;
@@ -301,10 +301,10 @@ export default function Orders() {
 
   // ── Derived stats
   const stats = useMemo(() => ({
-    total:     orders.length,
-    active:    orders.filter(o => !['Delivered','Cancelled'].includes(o.status)).length,
-    revenue:   orders.filter(o => o.status !== 'Cancelled').reduce((s, o) => s + (o.total || 0), 0),
-    unpaid:    orders.filter(o => o.paymentStatus !== 'paid' && o.status !== 'Cancelled').reduce((s, o) => s + ((o.total || 0) - (o.amountPaid || 0)), 0),
+    total: orders.length,
+    active: orders.filter(o => !['Delivered', 'Cancelled'].includes(o.status)).length,
+    revenue: orders.filter(o => o.status !== 'Cancelled').reduce((s, o) => s + (o.total || 0), 0),
+    unpaid: orders.filter(o => o.paymentStatus !== 'paid' && o.status !== 'Cancelled').reduce((s, o) => s + ((o.total || 0) - (o.amountPaid || 0)), 0),
   }), [orders]);
 
   // ── Filtered + sorted list
@@ -337,9 +337,9 @@ export default function Orders() {
         if (!aUrgent && bUrgent) return 1;
       }
       if (sortBy === 'date_desc') return new Date(b.createdAt) - new Date(a.createdAt);
-      if (sortBy === 'date_asc')  return new Date(a.createdAt) - new Date(b.createdAt);
+      if (sortBy === 'date_asc') return new Date(a.createdAt) - new Date(b.createdAt);
       if (sortBy === 'amount_desc') return b.total - a.total;
-      if (sortBy === 'amount_asc')  return a.total - b.total;
+      if (sortBy === 'amount_asc') return a.total - b.total;
       return 0;
     });
     return list;
@@ -432,8 +432,8 @@ export default function Orders() {
     setSelectedOrderIds(new Set());
 
     // Optimistic UI
-    setLocalOrders(p => p.map(o => ids.includes(o._id) 
-      ? (type === 'status' ? { ...o, status: val } : { ...o, paymentStatus: val, amountPaid: o.total }) 
+    setLocalOrders(p => p.map(o => ids.includes(o._id)
+      ? (type === 'status' ? { ...o, status: val } : { ...o, paymentStatus: val, amountPaid: o.total })
       : o
     ));
 
@@ -459,7 +459,7 @@ export default function Orders() {
           }
           await db.orders.update(id, type === 'status' ? { status: val } : { paymentStatus: val, amountPaid: order.total });
         } else {
-          await addToSyncQueue(type === 'status' ? 'UPDATE_STATUS' : 'UPDATE_PAYMENT', 
+          await addToSyncQueue(type === 'status' ? 'UPDATE_STATUS' : 'UPDATE_PAYMENT',
             type === 'status' ? { orderId: id, status: val } : { orderId: id, paymentStatus: val, amountPaid: order?.total }
           );
           await db.orders.update(id, type === 'status' ? { status: val } : { paymentStatus: val, amountPaid: order?.total });
@@ -526,7 +526,7 @@ export default function Orders() {
 
         <div className="ord-filter-right">
           {/* Urgent filter toggle */}
-          <button 
+          <button
             className={`ord-priority-toggle ${filterUrgent ? 'active' : ''}`}
             onClick={() => setFilterUrgent(!filterUrgent)}
             title="Show high priority orders"
@@ -563,7 +563,7 @@ export default function Orders() {
       {/* ── Status Tab Pills */}
       <div className="ord-status-tabs">
         {ALL_STATUSES.map(s => {
-          const count    = s === 'All' ? orders.length : orders.filter(o => o.status === s).length;
+          const count = s === 'All' ? orders.length : orders.filter(o => o.status === s).length;
           const isActive = filterStatus === s;
           // Active: solid fill (purple for All, status colour for others) + white text
           // Inactive: transparent bg + subtle border
@@ -615,8 +615,8 @@ export default function Orders() {
             <thead>
               <tr>
                 <th style={{ width: '48px' }}>
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     className="custom-checkbox"
                     checked={displayed.length > 0 && selectedOrderIds.size === displayed.length}
                     onChange={() => {
@@ -663,9 +663,9 @@ export default function Orders() {
                     <div className="ord-empty-inner">
                       <Package size={32} />
                       <p>No orders match your filters</p>
-                      <button className="ord-empty-clear" onClick={() => { 
-                        setSearch(''); 
-                        setFilterStatus('All'); 
+                      <button className="ord-empty-clear" onClick={() => {
+                        setSearch('');
+                        setFilterStatus('All');
                         setFilterPayment('all');
                         setFilterUrgent(false);
                       }}>
@@ -681,8 +681,8 @@ export default function Orders() {
                   onClick={() => setSelectedOrder(order)}
                 >
                   <td onClick={e => e.stopPropagation()}>
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       className="custom-checkbox"
                       checked={selectedOrderIds.has(order._id)}
                       onChange={(e) => {
@@ -771,8 +771,8 @@ export default function Orders() {
         <div className="mobile-card-view">
           {displayed.length > 0 && (
             <div className="mobile-select-all-bar">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 className="custom-checkbox"
                 checked={displayed.length > 0 && selectedOrderIds.size === displayed.length}
                 onChange={toggleSelectAll}
@@ -799,9 +799,9 @@ export default function Orders() {
               <div className="ord-empty-inner">
                 <Package size={32} />
                 <p>No orders match your filters</p>
-                <button className="ord-empty-clear" onClick={() => { 
-                  setSearch(''); 
-                  setFilterStatus('All'); 
+                <button className="ord-empty-clear" onClick={() => {
+                  setSearch('');
+                  setFilterStatus('All');
                   setFilterPayment('all');
                   setFilterUrgent(false);
                 }}>
@@ -816,11 +816,11 @@ export default function Orders() {
               onClick={() => setSelectedOrder(order)}
             >
               <div className="ord-mobile-card-select" onClick={e => toggleSelectOrder(e, order._id)}>
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   className="custom-checkbox"
-                  checked={selectedOrderIds.has(order._id)} 
-                  readOnly 
+                  checked={selectedOrderIds.has(order._id)}
+                  readOnly
                 />
               </div>
               <div className="ord-mobile-card-content">
