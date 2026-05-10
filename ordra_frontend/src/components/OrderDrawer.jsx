@@ -86,27 +86,20 @@ export function PaymentBadge({ status }) {
 
 import usePlan from '../hooks/usePlan';
 
-export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid, onDuplicate, onEdit, onDelete }) {
+export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid, onPriorityChange, onDuplicate, onEdit, onDelete }) {
   if (!order) return null;
   const [copied, setCopied] = React.useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = React.useState(false);
   const plan = usePlan();
   const balance = order.total - (order.amountPaid || 0);
-  const updatePriority = useMutation(api.orders.updateOrderPriority);
 
-  const handleToggleUrgent = async (e) => {
+  const handleToggleUrgent = (e) => {
     e.stopPropagation();
-    await updatePriority({
-      orderId: order._id,
-      isUrgent: !order.isUrgent
-    });
+    onPriorityChange(order._id, { isUrgent: !order.isUrgent });
   };
 
-  const handleDateChange = async (e) => {
-    await updatePriority({
-      orderId: order._id,
-      deliveryDate: e.target.value || undefined
-    });
+  const handleDateChange = (e) => {
+    onPriorityChange(order._id, { deliveryDate: e.target.value || undefined });
   };
 
   const getReceiptMessage = () => {

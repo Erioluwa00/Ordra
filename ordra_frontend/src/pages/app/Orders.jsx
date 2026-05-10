@@ -8,7 +8,7 @@ import {
   ChevronDown, Clock, CheckCircle2, XCircle,
   Package, Truck, RotateCcw, ArrowUpDown,
   MapPin, CreditCard, FileText, X, ChevronRight,
-  AlertCircle, Zap, CheckCheck, Copy, Flag, Calendar, Bell, Archive, Lock
+  AlertCircle, Zap, CheckCheck, Copy, Flag, Calendar, Bell, Archive, Lock, CloudSync
 } from 'lucide-react';
 import NewOrderModal from '../../components/NewOrderModal';
 import StockpileNoticeModal from '../../components/StockpileNoticeModal';
@@ -119,26 +119,55 @@ function StatusChanger({ orderId, current, onChange }) {
 
 // ─────────────────────────────────────────────────
 // Main Orders Page
-// ─────────────────────────────────────────────────
+export default function Orders() {
   const { isOnline, refreshPending } = useOffline();
   const [localOrders, setLocalOrders] = useState([]);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const liveOrders = useQuery(api.orders.getAllOrders);
   const liveSettings = useQuery(api.settings.getSettings);
+
+  // Cleanup zombie offline orders (already synced or abandoned)
+  useEffect(() => {
+    if (isOnline && liveOrders) {
+      const cleanup = async () => {
+        const offline = await db.orders.where('isOffline').equals(true).toArray();
+        for (const off of offline) {
+          const inQueue = await db.sync_queue.toArray();
+          const item = inQueue.find(q => q.data.tempId === off._id);
+          if (!item) {
+            await db.orders.delete(off._id);
+          }
+        }
+      };
+      cleanup();
+    }
+  }, [isOnline, liveOrders]);
   
   useEffect(() => {
+    const loadFromCache = () => {
+      db.orders.reverse().sortBy('createdAt').then(cached => {
+        setLocalOrders(cached || []);
+        setIsInitialLoad(false);
+      });
+    };
+
     if (liveOrders) {
       setLocalOrders(liveOrders);
       setIsInitialLoad(false);
       // Background cache update
       liveOrders.forEach(o => saveOrderToCache(o));
     } else if (!isOnline) {
-      // Load from IndexedDB if offline and Convex is loading/unavailable
-      db.orders.reverse().sortBy('createdAt').then(cached => {
-        setLocalOrders(cached || []);
-        setIsInitialLoad(false);
-      });
+      loadFromCache();
     }
+
+    // Listen for manual cache updates (e.g. from NewOrderModal)
+    const handleCacheUpdate = (e) => {
+      if (e.detail?.type === 'orders' && !isOnline) {
+        loadFromCache();
+      }
+    };
+    window.addEventListener('ordra:cache-updated', handleCacheUpdate);
+    return () => window.removeEventListener('ordra:cache-updated', handleCacheUpdate);
   }, [liveOrders, isOnline]);
 
   const updateStatus = useMutation(api.orders.updateOrderStatus);
@@ -164,6 +193,7 @@ function StatusChanger({ orderId, current, onChange }) {
   const [filterUrgent, setFilterUrgent] = useState(false);
   const bulkUpdate = useMutation(api.orders.bulkUpdateOrders);
   const deleteOrder = useMutation(api.orders.deleteOrder);
+  const updatePriority = useMutation(api.orders.updateOrderPriority);
 
   const plan = usePlan();
   const isLocked = plan.isFree && !plan.isTrial;
@@ -222,10 +252,52 @@ function StatusChanger({ orderId, current, onChange }) {
 
   const handleDelete = async (orderId) => {
     if (confirm("Are you sure you want to PERMANENTLY delete this order? This will also restore the stock for any items in this order.")) {
-      await deleteOrder({ orderId });
+      // Optimistic UI
+      setLocalOrders(p => p.filter(o => o._id !== orderId));
       setSelectedOrder(null);
+
+      try {
+        if (isOnline) {
+          await deleteOrder({ orderId });
+        } else {
+          throw new Error('OFFLINE');
+        }
+      } catch (err) {
+        await addToSyncQueue('DELETE_ORDER', { orderId });
+        await db.orders.delete(orderId);
+        refreshPending();
+      }
     }
   };
+
+  const handlePriorityChange = useCallback(async (orderId, updates) => {
+    // Optimistic UI
+    setLocalOrders(p => p.map(o => o._id === orderId ? { ...o, ...updates } : o));
+    setSelectedOrder(prev => prev?._id === orderId ? { ...prev, ...updates } : prev);
+
+    try {
+      if (isOnline && !String(orderId).startsWith('OFFLINE-')) {
+        await updatePriority({ orderId, ...updates });
+      } else {
+        throw new Error('OFFLINE');
+      }
+    } catch (err) {
+      const order = localOrders.find(o => o._id === orderId);
+      if (order?.isOffline) {
+        const queue = await db.sync_queue.toArray();
+        const item = queue.find(q => q.data.tempId === orderId);
+        if (item) {
+          item.data = { ...item.data, ...updates };
+          await db.sync_queue.put(item);
+        }
+        await db.orders.update(orderId, updates);
+      } else {
+        await addToSyncQueue('UPDATE_PRIORITY', { orderId, ...updates });
+        await db.orders.update(orderId, updates);
+      }
+      refreshPending();
+    }
+  }, [isOnline, updatePriority, localOrders, refreshPending]);
 
   // ── Derived stats
   const stats = useMemo(() => ({
@@ -274,25 +346,42 @@ function StatusChanger({ orderId, current, onChange }) {
   }, [orders, search, filterStatus, filterPayment, sortBy, filterUrgent, filterStockpile, stockpileDays]);
 
   // ── Handlers
-  const handleStatusChange = async (orderId, newStatus) => {
-    // Optimistic UI for list and drawer
-    const updateLocal = (list) => list.map(o => o._id === orderId ? { ...o, status: newStatus } : o);
-    setLocalOrders(updateLocal);
+  const handleStatusChange = useCallback(async (orderId, newStatus) => {
+    // Optimistic UI
+    setLocalOrders(p => p.map(o => o._id === orderId ? { ...o, status: newStatus } : o));
     setSelectedOrder(prev => prev?._id === orderId ? { ...prev, status: newStatus } : prev);
 
-    if (isOnline) {
-      await updateStatus({ orderId, status: newStatus });
-    } else {
-      await addToSyncQueue('UPDATE_STATUS', { orderId, status: newStatus });
+    try {
+      if (isOnline && !String(orderId).startsWith('OFFLINE-')) {
+        await updateStatus({ orderId, status: newStatus });
+      } else {
+        throw new Error('OFFLINE');
+      }
+    } catch (err) {
+      const order = localOrders.find(o => o._id === orderId);
+      if (order?.isOffline) {
+        const queue = await db.sync_queue.toArray();
+        const item = queue.find(q => q.data.tempId === orderId);
+        if (item) {
+          item.data.status = newStatus;
+          await db.sync_queue.put(item);
+        }
+        await db.orders.update(orderId, { status: newStatus });
+      } else {
+        await addToSyncQueue('UPDATE_STATUS', { orderId, status: newStatus });
+        await db.orders.update(orderId, { status: newStatus });
+      }
       refreshPending();
     }
-  };
+  }, [isOnline, updateStatus, localOrders, refreshPending]);
 
   const handleMarkPaid = useCallback(async (orderId) => {
     const order = orders.find(o => o._id === orderId);
     if (!order) return;
 
-    // Optimistic UI for drawer
+    // Optimistic UI
+    const updateLocal = (list) => list.map(o => o._id === orderId ? { ...o, paymentStatus: 'paid', amountPaid: o.total } : o);
+    setLocalOrders(updateLocal);
     setSelectedOrder(prev =>
       prev?._id === orderId
         ? { ...prev, paymentStatus: 'paid', amountPaid: prev.total }
@@ -301,9 +390,26 @@ function StatusChanger({ orderId, current, onChange }) {
     setFlashedId(orderId);
     setTimeout(() => setFlashedId(null), 900);
 
-    // Persist to DB
-    await updatePayment({ orderId, paymentStatus: 'paid', amountPaid: order.total });
-  }, [orders, updatePayment]);
+    // Persist
+    if (isOnline && !String(orderId).startsWith('OFFLINE-')) {
+      await updatePayment({ orderId, paymentStatus: 'paid', amountPaid: order.total });
+    } else {
+      const orderObj = orders.find(o => o._id === orderId);
+      if (orderObj?.isOffline) {
+        const queue = await db.sync_queue.toArray();
+        const item = queue.find(q => q.data.tempId === orderId);
+        if (item) {
+          item.data.paymentStatus = 'paid';
+          item.data.amountPaid = orderObj.total;
+          await db.sync_queue.put(item);
+        }
+        await db.orders.update(orderId, { paymentStatus: 'paid', amountPaid: orderObj.total });
+      } else {
+        await addToSyncQueue('UPDATE_PAYMENT', { orderId, paymentStatus: 'paid', amountPaid: order.total });
+      }
+      refreshPending();
+    }
+  }, [orders, updatePayment, isOnline, refreshPending]);
   // ── Bulk Actions
   const toggleSelectAll = () => {
     if (selectedOrderIds.size === displayed.length) {
@@ -323,12 +429,44 @@ function StatusChanger({ orderId, current, onChange }) {
 
   const handleBulkUpdate = async (type, val) => {
     const ids = Array.from(selectedOrderIds);
-    const args = { orderIds: ids };
-    if (type === 'status') args.status = val;
-    if (type === 'payment') args.paymentStatus = val;
-
     setSelectedOrderIds(new Set());
-    await bulkUpdate(args);
+
+    // Optimistic UI
+    setLocalOrders(p => p.map(o => ids.includes(o._id) 
+      ? (type === 'status' ? { ...o, status: val } : { ...o, paymentStatus: val, amountPaid: o.total }) 
+      : o
+    ));
+
+    try {
+      if (isOnline) {
+        const args = { orderIds: ids };
+        if (type === 'status') args.status = val;
+        if (type === 'payment') args.paymentStatus = val;
+        await bulkUpdate(args);
+      } else {
+        throw new Error('OFFLINE');
+      }
+    } catch (err) {
+      for (const id of ids) {
+        const order = localOrders.find(o => o._id === id);
+        if (order?.isOffline) {
+          const queue = await db.sync_queue.toArray();
+          const item = queue.find(q => q.data.tempId === id);
+          if (item) {
+            if (type === 'status') item.data.status = val;
+            else { item.data.paymentStatus = val; item.data.amountPaid = order.total; }
+            await db.sync_queue.put(item);
+          }
+          await db.orders.update(id, type === 'status' ? { status: val } : { paymentStatus: val, amountPaid: order.total });
+        } else {
+          await addToSyncQueue(type === 'status' ? 'UPDATE_STATUS' : 'UPDATE_PAYMENT', 
+            type === 'status' ? { orderId: id, status: val } : { orderId: id, paymentStatus: val, amountPaid: order?.total }
+          );
+          await db.orders.update(id, type === 'status' ? { status: val } : { paymentStatus: val, amountPaid: order?.total });
+        }
+      }
+      refreshPending();
+    }
   };
 
   return (
@@ -556,7 +694,18 @@ function StatusChanger({ orderId, current, onChange }) {
                       }}
                     />
                   </td>
-                  <td><span className="ord-id">{order.orderId}</span></td>
+                  <td>
+                    <span className="ord-id">
+                      {order.isOffline ? (
+                        <span className="ord-sync-tag">
+                          <CloudSync size={12} className="spin-slow" />
+                          Syncing
+                        </span>
+                      ) : (
+                        order.orderId
+                      )}
+                    </span>
+                  </td>
                   <td>
                     <div className="cust-cell">
                       <div className="c-avatar">{getInitials(order.customer)}</div>
@@ -680,7 +829,15 @@ function StatusChanger({ orderId, current, onChange }) {
                     <div className="c-avatar">{getInitials(order.customer)}</div>
                     <div>
                       <span className="cust-name">{order.customer}</span>
-                      <span className="cust-email">{order.orderId}</span>
+                      <span className="cust-email">
+                        {order.isOffline ? (
+                          <span className="ord-sync-tag mobile">
+                            <CloudSync size={10} className="spin-slow" /> Syncing
+                          </span>
+                        ) : (
+                          order.orderId
+                        )}
+                      </span>
                     </div>
                   </div>
                   <div className="ord-mobile-badges">
@@ -721,6 +878,7 @@ function StatusChanger({ orderId, current, onChange }) {
         onClose={() => setSelectedOrder(null)}
         onStatusChange={handleStatusChange}
         onMarkPaid={handleMarkPaid}
+        onPriorityChange={handlePriorityChange}
         onDuplicate={handleDuplicate}
         onEdit={handleEdit}
         onDelete={handleDelete}

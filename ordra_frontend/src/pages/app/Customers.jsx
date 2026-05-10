@@ -343,7 +343,9 @@ export default function Customers() {
         await saveCustomerToCache(offlineCust);
         
         await addToSyncQueue(editingCustomer ? 'UPDATE_CUSTOMER' : 'CREATE_CUSTOMER', 
-          editingCustomer ? { customerId: editingCustomer._id, ...formData } : formData
+          editingCustomer 
+            ? { customerId: editingCustomer._id, ...formData, tempId } 
+            : { ...formData, tempId }
         );
         refreshPending();
       }
@@ -355,8 +357,18 @@ export default function Customers() {
 
   const handleDelete = async () => {
     if (!custToDelete) return;
-    await deleteCust({ customerId: custToDelete._id });
+    
+    // Optimistic UI
+    setLocalCustomers(p => p.filter(c => c._id !== custToDelete._id));
     if (drawerCustomer?._id === custToDelete._id) setDrawerCustomer(null);
+    
+    if (isOnline) {
+      await deleteCust({ customerId: custToDelete._id });
+    } else {
+      await addToSyncQueue('DELETE_CUSTOMER', { customerId: custToDelete._id });
+      refreshPending();
+    }
+    
     setCustToDelete(null);
   };
 

@@ -22,6 +22,10 @@ export function OfflineProvider({ children }) {
   const updateStatus = useMutation(api.orders.updateOrderStatus);
   const updatePayment = useMutation(api.orders.updateOrderPaymentStatus);
   const deleteOrder = useMutation(api.orders.deleteOrder);
+  const createCust = useMutation(api.orders.createCustomer);
+  const updateCust = useMutation(api.orders.updateCustomer);
+  const deleteCust = useMutation(api.orders.deleteCustomer);
+  const updatePriority = useMutation(api.orders.updateOrderPriority);
 
   // Refresh pending count
   const refreshPending = useCallback(async () => {
@@ -40,16 +44,30 @@ export function OfflineProvider({ children }) {
 
     for (const item of queue) {
       try {
+        const { tempId, ...mutationData } = item.data;
+
         if (item.type === 'CREATE_ORDER') {
-          await createOrder(item.data);
+          await createOrder(mutationData);
+          if (tempId) await db.orders.delete(tempId);
         } else if (item.type === 'UPDATE_ORDER') {
-          await updateOrder(item.data);
+          await updateOrder(mutationData);
+          if (tempId) await db.orders.delete(tempId);
+        } else if (item.type === 'CREATE_CUSTOMER') {
+          await createCust(mutationData);
+          if (tempId) await db.customers.delete(tempId);
+        } else if (item.type === 'UPDATE_CUSTOMER') {
+          await updateCust(mutationData);
+          if (tempId) await db.customers.delete(tempId);
+        } else if (item.type === 'DELETE_CUSTOMER') {
+          await deleteCust(mutationData);
         } else if (item.type === 'UPDATE_STATUS') {
-          await updateStatus(item.data);
+          await updateStatus(mutationData);
         } else if (item.type === 'UPDATE_PAYMENT') {
-          await updatePayment(item.data);
+          await updatePayment(mutationData);
+        } else if (item.type === 'UPDATE_PRIORITY') {
+          await updatePriority(mutationData);
         } else if (item.type === 'DELETE_ORDER') {
-          await deleteOrder(item.data);
+          await deleteOrder(mutationData);
         }
         
         // Remove from queue on success

@@ -24,6 +24,7 @@ export const setMetadata = async (key, value) => {
 export const saveOrderToCache = async (order) => {
   try {
     await db.orders.put(order);
+    window.dispatchEvent(new CustomEvent('ordra:cache-updated', { detail: { type: 'orders' } }));
   } catch (err) {
     console.error('Failed to cache order:', err);
   }
@@ -32,6 +33,7 @@ export const saveOrderToCache = async (order) => {
 export const saveCustomerToCache = async (customer) => {
   try {
     await db.customers.put(customer);
+    window.dispatchEvent(new CustomEvent('ordra:cache-updated', { detail: { type: 'customers' } }));
   } catch (err) {
     console.error('Failed to cache customer:', err);
   }

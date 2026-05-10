@@ -259,15 +259,17 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
         // 1. Save to local cache so it appears in the list immediately
         await saveOrderToCache(offlineOrder);
         
-        // 2. Add to sync queue
+        // 2. Add to sync queue (include tempId for cleanup)
         await addToSyncQueue(isEditing ? 'UPDATE_ORDER' : 'CREATE_ORDER', 
-          isEditing ? { orderId: initialData._id, ...orderPayload } : orderPayload
+          isEditing 
+            ? { orderId: initialData._id, ...orderPayload, tempId } 
+            : { ...orderPayload, tempId }
         );
 
         // 3. Trigger UI update for sync indicator
         refreshPending();
         
-        console.log('[Offline] Order saved locally and queued for sync.');
+        console.log(`[Offline] Order ${tempId} saved locally and queued for sync.`);
       }
       onClose();
     } catch (err) {
