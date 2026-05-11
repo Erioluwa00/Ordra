@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const ThemeContext = createContext();
 
@@ -8,6 +9,8 @@ export function ThemeProvider({ children }) {
     const saved = localStorage.getItem('ordra_theme');
     return saved || 'system';
   });
+
+  const location = useLocation();
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -21,6 +24,12 @@ export function ThemeProvider({ children }) {
       
       if (t === 'system') {
         resolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      
+      // Force light mode on non-app routes
+      const isAppRoute = location.pathname.startsWith('/app');
+      if (!isAppRoute) {
+        resolvedTheme = 'light';
       }
       
       root.setAttribute('data-theme', resolvedTheme);
@@ -53,7 +62,7 @@ export function ThemeProvider({ children }) {
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
-  }, [theme]);
+  }, [theme, location.pathname]);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>

@@ -70,19 +70,19 @@ import { OfflineProvider } from './context/OfflineContext';
 
 function App() {
   return (
-    <ThemeProvider>
-      <ProductProvider>
-        <AuthProvider>
-          <OfflineProvider>
-            <Router>
+    <Router>
+      <ThemeProvider>
+        <ProductProvider>
+          <AuthProvider>
+            <OfflineProvider>
               <ScrollToTop />
               <ReloadPrompt />
               <AppRoutes />
-            </Router>
-          </OfflineProvider>
-        </AuthProvider>
-      </ProductProvider>
-    </ThemeProvider>
+            </OfflineProvider>
+          </AuthProvider>
+        </ProductProvider>
+      </ThemeProvider>
+    </Router>
   );
 }
 

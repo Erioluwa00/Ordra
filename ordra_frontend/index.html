@@ -12,6 +12,13 @@
         if (saved === 'system') {
           theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
+        
+        // Force light mode on all non-app pages (landing page, auth pages)
+        const isAppRoute = window.location.pathname.startsWith('/app');
+        if (!isAppRoute) {
+          theme = 'light';
+        }
+        
         document.documentElement.setAttribute('data-theme', theme);
         
         // Inject theme-color meta tag and root background immediately
