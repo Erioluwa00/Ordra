@@ -920,7 +920,7 @@
 .nom-footer {
   /* Never shrinks — sticks to the bottom of the sheet */
   flex-shrink: 0;
-  padding: 0.875rem 1.25rem;
+  padding: 0.875rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
   border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
