@@ -5,6 +5,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { ProductProvider } from './context/ProductContext';
 import LandingPage from './pages/LandingPage';
 import ScrollToTop from './components/ScrollToTop';
+import ReloadPrompt from './components/ReloadPrompt';
 import SignUp from './pages/auth/SignUp';
 import LogIn from './pages/auth/LogIn';
 import ForgotPassword from './pages/auth/ForgotPassword';
@@ -75,6 +76,7 @@ function App() {
           <OfflineProvider>
             <Router>
               <ScrollToTop />
+              <ReloadPrompt />
               <AppRoutes />
             </Router>
           </OfflineProvider>

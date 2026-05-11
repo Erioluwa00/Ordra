@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.svg', 'favicon.png', 'blue-logo-animation.mp4', 'white-logo-animation.mp4'],
       manifest: {
         name: 'Ordra',
