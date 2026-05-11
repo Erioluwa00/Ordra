@@ -12,6 +12,10 @@ db.version(1).stores({
   metadata: 'key'
 });
 
+db.version(2).stores({
+  orders: '_id, orderId, customer, customerPhone, status, createdAt, isOffline'
+});
+
 export const getMetadata = async (key) => {
   const item = await db.metadata.get(key);
   return item ? item.value : null;
