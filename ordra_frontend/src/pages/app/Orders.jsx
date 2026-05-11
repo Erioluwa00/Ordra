@@ -104,7 +104,12 @@ function StatusChanger({ orderId, current, onChange }) {
           {next.map(s => (
             <button key={s} className="ord-status-option"
               style={{ color: STATUS_CONFIG[s]?.color }}
-              onClick={() => { onChange(orderId, s); setOpen(false); }}
+              onMouseDown={(e) => { 
+                e.preventDefault();
+                e.stopPropagation();
+                onChange(orderId, s); 
+                setOpen(false); 
+              }}
             >
               {STATUS_CONFIG[s]?.icon} {s}
             </button>
