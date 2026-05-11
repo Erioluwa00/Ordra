@@ -13,7 +13,7 @@ export default defineConfig({
         name: 'Ordra',
         short_name: 'Ordra',
         description: 'Professional Order Management for Vendors',
-        theme_color: '#6366f1',
+        theme_color: '#fafafa',
         background_color: '#ffffff',
         display: 'standalone',
         icons: [

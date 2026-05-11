@@ -13,6 +13,13 @@
           theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
         document.documentElement.setAttribute('data-theme', theme);
+        
+        // Inject theme-color meta tag and root background immediately
+        const metaThemeColor = document.createElement('meta');
+        metaThemeColor.name = 'theme-color';
+        metaThemeColor.content = theme === 'dark' ? '#0f172a' : '#fafafa';
+        document.head.appendChild(metaThemeColor);
+        document.documentElement.style.backgroundColor = theme === 'dark' ? '#0f172a' : '#fafafa';
       })();
     </script>
   </head>

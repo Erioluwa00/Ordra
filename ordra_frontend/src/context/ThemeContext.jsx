@@ -25,12 +25,23 @@ export function ThemeProvider({ children }) {
       
       root.setAttribute('data-theme', resolvedTheme);
       
-      // Also handle body background to prevent flashes
+      // Also handle body and html background to prevent flashes and fix overscroll
       if (resolvedTheme === 'dark') {
         document.body.style.backgroundColor = '#0f172a'; // slate-950
+        document.documentElement.style.backgroundColor = '#0f172a';
       } else {
-        document.body.style.backgroundColor = '#ffffff';
+        document.body.style.backgroundColor = '#fafafa';
+        document.documentElement.style.backgroundColor = '#fafafa';
       }
+
+      // Update theme-color meta tag for mobile status bar and overscroll
+      let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (!metaThemeColor) {
+        metaThemeColor = document.createElement('meta');
+        metaThemeColor.name = 'theme-color';
+        document.head.appendChild(metaThemeColor);
+      }
+      metaThemeColor.content = resolvedTheme === 'dark' ? '#0f172a' : '#fafafa';
     };
 
     applyTheme(theme);
