@@ -10,11 +10,12 @@ import logo from '../assets/logo.png';
 import './LandingPage.css';
 
 const FAQ_DATA = [
-  { q: 'Is Ordra free to use?', a: 'Yes! You can start using Ordra completely free with up to 50 orders per month. When your business grows and you need unlimited orders plus advanced analytics, you can upgrade to Pro.' },
-  { q: 'Can I manage orders from my phone?', a: 'Absolutely. Ordra is fully responsive and works beautifully on any device — phone, tablet, or desktop. Your dashboard is always in your pocket.' },
-  { q: 'How does the WhatsApp integration work?', a: 'When you need to message a customer, Ordra generates a pre-formatted message with their order details and opens WhatsApp directly. No copy-pasting needed — just tap and send.' },
-  { q: 'Is my data secure?', a: 'Your data is stored securely on Convex cloud infrastructure with encryption. Only you can access your business data through your authenticated account.' },
-  { q: 'Can I track customer debts and partial payments?', a: 'Yes! Ordra has a built-in debt tracker that shows outstanding balances at a glance. You can log partial payments and send payment reminders directly via WhatsApp.' },
+  { q: 'What exactly is Ordra?', a: 'Ordra is a digital notebook and assistant for your business. Instead of writing orders in a physical book or trying to remember them in your WhatsApp chats, you save them in Ordra. It helps you see who has paid, what needs to be delivered, and which customers are owing you money.' },
+  { q: 'Is it an online shop for my customers?', a: 'No, Ordra is a dashboard just for YOU (the business owner). Your customers don\'t need to download anything. You use Ordra to stay organized behind the scenes so you can serve your customers faster and never forget an order.' },
+  { q: 'Do I need to be a "tech person" to use this?', a: 'Not at all! If you know how to send a message on WhatsApp, you can use Ordra. It is designed to be as simple as possible—just like filling a form. No complex settings or confusing buttons.' },
+  { q: 'Can I use it if I only sell on Instagram or WhatsApp?', a: 'Yes! That is exactly what Ordra is for. Most of our users are Instagram vendors. You get an order in your DM, you save it in Ordra, and then you can send professional updates to your customer with one tap.' },
+  { q: 'Is Ordra free to use?', a: 'Yes! You can start using Ordra completely free with up to 50 orders per month. If your business grows very large and you need to save hundreds of orders, you can upgrade to the Pro version.' },
+  { q: 'Can I manage orders from my phone?', a: 'Absolutely. Ordra works like an app on your phone. You can add orders while you are on the bus, in the market, or lying in bed. Your business is always in your pocket.' },
 ];
 
 export default function LandingPage() {
@@ -76,8 +77,8 @@ export default function LandingPage() {
           </div>
           <h1 className="hero-title">An easy-to-use dashboard to manage all your business orders</h1>
           <p className="hero-subtitle">
-            Turn chaotic DMs into a smooth, professional process. Manage orders,
-            track payments, monitor inventory, and keep your customers happy — all from one dashboard.
+            Ordra is your digital business book. Stop searching through WhatsApp chats for orders. 
+            Track who has paid, manage your deliveries, and see your profits—all in one simple place.
           </p>
           <div className="hero-buttons">
             <Link to="/auth/signup" className="btn btn-primary" onClick={() => localStorage.removeItem('ordra_pending_upgrade')}>
@@ -228,6 +229,33 @@ export default function LandingPage() {
               </div>
             </RevealWrapper>
           ))}
+        </div>
+      </section>
+
+      {/* ── WHO IS IT FOR ────────────────────────────── */}
+      <section className="who-section">
+        <RevealWrapper direction="up">
+          <div className="who-header">
+            <span className="who-pill">Who is Ordra for?</span>
+            <h2>Made for the "Hustle" Generation</h2>
+          </div>
+        </RevealWrapper>
+        <div className="who-grid">
+          <div className="who-card">
+            <div className="who-icon-circle">🛍️</div>
+            <h4>Instagram Vendors</h4>
+            <p>If you sell clothes, hair, shoes, or food through DMs, Ordra is for you.</p>
+          </div>
+          <div className="who-card">
+            <div className="who-icon-circle">📦</div>
+            <h4>Pre-order Sellers</h4>
+            <p>Easily track who has paid their commitment fee and who is still owing.</p>
+          </div>
+          <div className="who-card">
+            <div className="who-icon-circle">🏠</div>
+            <h4>Home Businesses</h4>
+            <p>Keep your business records separate from your personal life and stay organized.</p>
+          </div>
         </div>
       </section>
 
