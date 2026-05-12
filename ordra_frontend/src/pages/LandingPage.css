@@ -1766,7 +1766,7 @@ label {
   .hero-section {
     padding-top: 6rem;
   }
-  
+
   .demo-ui {
     flex-direction: column;
     padding: 1rem;
@@ -1774,7 +1774,7 @@ label {
     display: flex;
     align-items: center;
   }
-  
+
   .demo-panel {
     width: 100%;
     min-width: 0;
@@ -1785,29 +1785,30 @@ label {
   .hero-title {
     font-size: 2.25rem;
   }
-  
+
   .hero-buttons {
     flex-direction: column;
     width: 100%;
     padding: 0 1rem;
   }
-  
+
   .btn {
     width: 100%;
     justify-content: center;
   }
-  
+
   .hero-mockup-bg {
     padding: 1rem;
   }
-  
+
   .notification-badge {
     left: 10px;
     bottom: -10px;
     padding: 0.75rem;
   }
-  
+
   .demo-panel.orders-panel {
-    display: none; /* Hide complex panel on small mobile to save space */
+    display: none;
+    /* Hide complex panel on small mobile to save space */
   }
 }

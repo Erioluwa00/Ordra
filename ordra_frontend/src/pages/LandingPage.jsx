@@ -78,7 +78,7 @@ export default function LandingPage() {
           </div>
           <h1 className="hero-title">An easy-to-use dashboard to manage all your business orders</h1>
           <p className="hero-subtitle">
-            Ordra is your digital business book. Stop searching through WhatsApp chats for orders. 
+            Ordra is your digital business book. Stop searching through WhatsApp chats for orders.
             Track who has paid, manage your deliveries, and see your profits—all in one simple place.
           </p>
           <div className="hero-buttons">
@@ -127,13 +127,13 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          {/* <div className="notification-badge">
+          <div className="notification-badge">
             <div className="badge-icon"><CheckCircle2 size={20} /></div>
             <div>
               <div className="badge-text">New Order Added</div>
               <div className="badge-subtext">From @stylebyamira</div>
             </div>
-          </div> */}
+          </div>
         </div>
       </section>
 
