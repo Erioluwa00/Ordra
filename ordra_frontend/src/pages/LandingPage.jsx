@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { RevealWrapper } from '../hooks/useScrollReveal';
 import logo from '../assets/logo.png';
+import heroMockupImg from '../assets/hero.png';
 import './LandingPage.css';
 
 const FAQ_DATA = [
@@ -109,23 +110,7 @@ export default function LandingPage() {
 
         <div className="hero-image-wrapper">
           <div className="hero-mockup-bg">
-            <div className="hero-mockup">
-              <div className="mockup-header">
-                <div className="mockup-dot" style={{ backgroundColor: '#ef4444' }} />
-                <div className="mockup-dot" style={{ backgroundColor: '#eab308' }} />
-                <div className="mockup-dot" style={{ backgroundColor: '#22c55e' }} />
-              </div>
-              <div className="mockup-body">
-                <div className="mockup-line long" />
-                <div className="mockup-line short" />
-                <br />
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                  <div style={{ flex: 1, backgroundColor: '#374151', height: '100px', borderRadius: '8px' }} />
-                  <div style={{ flex: 1, backgroundColor: '#374151', height: '100px', borderRadius: '8px' }} />
-                  <div style={{ flex: 1, backgroundColor: '#374151', height: '100px', borderRadius: '8px' }} />
-                </div>
-              </div>
-            </div>
+            <img src={heroMockupImg} alt="Ordra Dashboard Interface Preview" className="hero-mockup-img" />
           </div>
           <div className="notification-badge">
             <div className="badge-icon"><CheckCircle2 size={20} /></div>
