@@ -35,15 +35,8 @@ const STATUS_OPTIONS = [
 ];
 
 const COUNTRY_CODES = [
-  { code: '234', label: '🇳🇬 +234' },
-  { code: '233', label: '🇬🇭 +233' },
-  { code: '44', label: '🇬🇧 +44' },
-  { code: '1', label: '🇺🇸 +1' },
-  { code: '27', label: '🇿🇦 +27' },
-  { code: '254', label: '🇰🇪 +254' },
-  { code: '971', label: '🇦🇪 +971' },
-  { code: '256', label: '🇺🇬 +256' },
-  { code: 'custom', label: '🌐 Custom (+)' },
+  { code: '234', label: '+234' },
+  { code: 'custom', label: 'Custom (+)' },
 ];
 
 export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
