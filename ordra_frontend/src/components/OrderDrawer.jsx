@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import {
   X, MessageCircle, Package, MapPin,
   CreditCard, FileText, Zap, CheckCheck, Copy,
@@ -137,7 +138,7 @@ export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid
 
   const nextStatuses = STATUS_TRANSITIONS[order.status] || [];
 
-  return (
+  return createPortal(
     <div className="ord-drawer-backdrop" onClick={onClose}>
       <aside className="ord-drawer" onClick={e => e.stopPropagation()}>
         {/* Header */}
@@ -315,6 +316,7 @@ export default function OrderDrawer({ order, onClose, onStatusChange, onMarkPaid
           <span className="ord-drawer-date">Created {relativeDate(order.createdAt)}</span>
         </div>
       </aside>
-    </div>
+    </div>,
+    document.body
   );
 }
