@@ -4,7 +4,7 @@ import {
   ArrowRight, Check, CheckCircle2, MessageSquare, ClipboardList,
   Wallet, Truck, Menu, X, ChevronUp, ChevronDown, Package, Users, Zap,
   AlertCircle, CreditCard, MapPin, HelpCircle, BarChart3, ShieldCheck, Sparkles,
-  ShoppingBag, PackageCheck, Store
+  ShoppingBag, PackageCheck, Store, Filter
 } from 'lucide-react';
 import { RevealWrapper } from '../hooks/useScrollReveal';
 import logo from '../assets/logo.png';
@@ -306,14 +306,14 @@ export default function LandingPage() {
               <div className="demo-textarea">Custom ankara bag × 2</div>
               <div className="demo-row">
                 <div><label>Total Amount</label><div className="demo-input">₦25,000</div></div>
-                <div><label>Status</label><div className="demo-select">New ▾</div></div>
+                <div><label>Status</label><div className="demo-select" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>New <ChevronDown size={14} /></div></div>
               </div>
               <div className="demo-save-btn">Save Order</div>
             </div>
             <div className="demo-panel orders-panel">
               <div className="orders-header-row">
                 <div><h4>Recent Orders</h4><span className="orders-sub">Your latest transactions</span></div>
-                <div className="filter-btn">⬡ Filter</div>
+                <div className="filter-btn" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Filter size={13} /> Filter</div>
               </div>
               {[
                 { initials: 'AB', name: 'Amina Bello', item: 'Custom Ankara Bag × 2', amount: '₦25,000', date: 'May 5, 2026', status: 'New', statusColor: '#6366f1', statusBg: '#e0e7ff' },
@@ -327,7 +327,7 @@ export default function LandingPage() {
                   <span className="order-badge" style={{ color: statusColor, backgroundColor: statusBg }}>{status}</span>
                 </div>
               ))}
-              <div className="view-all-link">View All Orders →</div>
+              <div className="view-all-link" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>View All Orders <ArrowRight size={14} /></div>
             </div>
           </div>
         </RevealWrapper>

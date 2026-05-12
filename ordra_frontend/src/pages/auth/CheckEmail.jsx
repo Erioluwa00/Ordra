@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Mail, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Mail, ArrowLeft, RefreshCw, ArrowRight } from 'lucide-react';
 import AuthLayout from '../../layouts/AuthLayout';
 
 export default function CheckEmail() {
@@ -60,15 +60,15 @@ export default function CheckEmail() {
         <button
           type="button"
           className="auth-btn"
-          style={{ background: '#f3f4f6', color: '#374151' }}
+          style={{ background: '#f3f4f6', color: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
           onClick={() => navigate('/auth/reset-password')}
         >
-          I have the reset link →
+          I have the reset link <ArrowRight size={15} />
         </button>
       </div>
 
       <p className="auth-switch" style={{ marginTop: '2rem' }}>
-        <Link to="/auth/login">← Back to Log In</Link>
+        <Link to="/auth/login" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}><ArrowLeft size={14} /> Back to Log In</Link>
       </p>
     </AuthLayout>
   );

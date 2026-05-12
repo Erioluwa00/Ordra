@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import logo from '../assets/logo.png';
 import './LegalPage.css';
 
@@ -18,8 +19,8 @@ export default function LegalPage({ type = 'privacy' }) {
           <img src={logo} alt="Ordra Logo" className="nav-logo-img" />
           <span>Ordra</span>
         </Link>
-        <Link to="/" className="legal-back-btn">
-          ← Back to Homepage
+        <Link to="/" className="legal-back-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <ArrowLeft size={14} /> Back to Homepage
         </Link>
       </header>
 
