@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
-import { Menu, Search, Bell, X, MessageSquareHeart } from 'lucide-react';
+import { Menu, Bell, X, MessageSquareHeart } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import NotificationsPanel from '../components/NotificationsPanel';
 import UpgradeModal from '../components/UpgradeModal';
@@ -13,7 +13,6 @@ import './AppLayout.css';
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [upgradeModal, setUpgradeModal] = useState(null);
@@ -66,29 +65,6 @@ export default function AppLayout() {
             >
               <Menu size={24} />
             </button>
-            
-            <button 
-              className="search-toggle-mobile" 
-              onClick={() => setShowMobileSearch(true)}
-              aria-label="Search"
-            >
-              <Search size={22} />
-            </button>
-            
-            <div className={`search-bar-wrapper ${showMobileSearch ? 'mobile-active' : ''}`}>
-              <Search className="search-icon" size={18} />
-              <input 
-                type="text" 
-                className="search-input" 
-                placeholder="Search orders, customers..." 
-              />
-              <button 
-                className="mobile-search-close" 
-                onClick={() => setShowMobileSearch(false)}
-              >
-                <X size={18} />
-              </button>
-            </div>
           </div>
 
           <div className="topbar-right">
