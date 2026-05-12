@@ -469,9 +469,9 @@ export default function LandingPage() {
             </div>
             <div className="footer-link-group">
               <span className="footer-link-heading">Legal</span>
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Service</a>
-              <a href="#">Support</a>
+              <Link to="/privacy">Privacy Policy</Link>
+              <Link to="/terms">Terms of Service</Link>
+              <a href="mailto:erioluwamole12@gmail.com">Support</a>
             </div>
           </div>
         </div>

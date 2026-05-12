@@ -18,6 +18,7 @@ import Products from './pages/app/Products';
 import AnalyticsPage from './pages/app/Analytics';
 import Settings from './pages/app/Settings';
 import Debts from './pages/app/Debts';
+import LegalPage from './pages/LegalPage';
 
 
 
@@ -40,6 +41,8 @@ function AppRoutes() {
     <Routes>
       {/* Public */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/privacy" element={<LegalPage type="privacy" />} />
+      <Route path="/terms" element={<LegalPage type="terms" />} />
 
       {/* Auth pages — redirect to /app if already logged in */}
       <Route path="/auth/signup" element={<AuthGuard><SignUp /></AuthGuard>} />
