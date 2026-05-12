@@ -127,13 +127,13 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          <div className="notification-badge">
+          {/* <div className="notification-badge">
             <div className="badge-icon"><CheckCircle2 size={20} /></div>
             <div>
               <div className="badge-text">New Order Added</div>
               <div className="badge-subtext">From @stylebyamira</div>
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 

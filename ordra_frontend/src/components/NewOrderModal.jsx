@@ -43,6 +43,7 @@ const COUNTRY_CODES = [
   { code: '254', label: '🇰🇪 +254' },
   { code: '971', label: '🇦🇪 +971' },
   { code: '256', label: '🇺🇬 +256' },
+  { code: 'custom', label: '🌐 Custom (+)' },
 ];
 
 export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
@@ -204,11 +205,16 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
     const isSocialHandle = finalPhone.startsWith('@') || /[a-zA-Z]/.test(finalPhone);
     
     // International formatting for phone numbers
-    if (!isSocialHandle && /^\d+$/.test(finalPhone)) {
+    if (!isSocialHandle && countryCode !== 'custom' && /^\d+$/.test(finalPhone)) {
       if (finalPhone.startsWith('0')) {
         finalPhone = countryCode + finalPhone.slice(1);
       } else if (!finalPhone.startsWith(countryCode)) {
         finalPhone = countryCode + finalPhone;
+      }
+    } else if (countryCode === 'custom' && !isSocialHandle) {
+      // Prefix custom number with plus if omitted
+      if (!finalPhone.startsWith('+')) {
+        finalPhone = '+' + finalPhone.replace(/^[0]+/g, '');
       }
     }
 
@@ -283,7 +289,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
   const openWhatsApp = () => {
     if (!custPhone) return;
     const clean = custPhone.replace(/\D/g, '');
-    const intl = clean.startsWith('0') ? countryCode + clean.slice(1) : clean;
+    const intl = countryCode === 'custom' ? clean : (clean.startsWith('0') ? countryCode + clean.slice(1) : clean);
     const itemLines = items.filter(it => it.desc.trim())
       .map(it => `• ${it.desc} × ${it.qty} — ${formatCurrency(Number(it.price || 0) * Number(it.qty))}`)
       .join('\n');
@@ -374,7 +380,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
                       ref={phoneRef}
                       type="text"
                       className={`nom-input${errors.custPhone ? ' error' : ''}${selectedCustId ? ' nom-input--linked' : ''}`}
-                      placeholder={custPhone.startsWith('@') ? "@handle" : "Phone or @handle *"}
+                      placeholder={custPhone.startsWith('@') ? "@handle" : countryCode === 'custom' ? "+CountryCode and Phone *" : "Phone or @handle *"}
                       value={custPhone}
                       autoComplete="off"
                       onChange={e => {
