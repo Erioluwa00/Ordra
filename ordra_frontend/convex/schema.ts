@@ -97,4 +97,16 @@ export default defineSchema({
     notificationKey: v.string(), // e.g. "low_stock:productId123"
     readAt: v.string(),
   }).index("by_user", ["userId"]),
+
+  // ── USER FEEDBACK / REVIEWS ──────────────────────────────────────────────
+  feedback: defineTable({
+    userId: v.id("users"),
+    rating: v.number(), // 1 to 5
+    type: v.string(), // "report_issue" | "feature_request" | "general_feedback"
+    message: v.string(),
+    businessHandle: v.optional(v.string()), // Optional IG/social handle
+    isApproved: v.optional(v.boolean()), // Admin approval flag for Phase 2
+    createdAt: v.string(), // ISO string
+  }).index("by_user", ["userId"])
+    .index("by_approved", ["isApproved"]),
 });

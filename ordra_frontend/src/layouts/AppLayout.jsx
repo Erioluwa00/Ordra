@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
-import { Menu, Search, Bell, X } from 'lucide-react';
+import { Menu, Search, Bell, X, MessageSquareHeart } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import NotificationsPanel from '../components/NotificationsPanel';
 import UpgradeModal from '../components/UpgradeModal';
+import FeedbackModal from '../components/FeedbackModal';
 import { useAuth } from '../context/AuthContext';
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -14,6 +15,7 @@ export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [upgradeModal, setUpgradeModal] = useState(null);
   
   const { user } = useAuth();
@@ -90,6 +92,17 @@ export default function AppLayout() {
           </div>
 
           <div className="topbar-right">
+            {/* Feedback Trigger Button */}
+            <button
+              className="action-btn secondary"
+              style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', gap: '6px' }}
+              onClick={() => setFeedbackOpen(true)}
+              title="Leave Feedback or Request Feature"
+            >
+              <MessageSquareHeart size={16} color="var(--accent-primary)" />
+              <span style={{ fontWeight: 700 }} className="hidden sm:inline">Feedback</span>
+            </button>
+
             {/* ── Notifications Bell ── */}
             <div className="notif-wrapper">
               <button
@@ -135,6 +148,11 @@ export default function AppLayout() {
             onClose={() => setUpgradeModal(null)}
           />
         )}
+
+        <FeedbackModal
+          isOpen={feedbackOpen}
+          onClose={() => setFeedbackOpen(false)}
+        />
       </main>
     </div>
   );
