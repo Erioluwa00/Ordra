@@ -42,12 +42,13 @@ export function AuthProvider({ children }) {
           muted
           loop
           playsInline
+          controls={false}
           webkit-playsinline="true"
           preload="auto"
           disablePictureInPicture
           style={{
-            width: '180px',
-            height: '180px',
+            width: '110px',
+            height: '110px',
             objectFit: 'contain',
             pointerEvents: 'none'
           }}

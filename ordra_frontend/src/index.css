@@ -260,3 +260,12 @@ ul {
   background: #1e293b;
   background-image: linear-gradient(to right, #1e293b 0%, #334155 20%, #1e293b 40%, #1e293b 100%);
 }
+
+/* Forcehide Native WebKit Video Play Button Overlays on Mobile */
+video::-webkit-media-controls,
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
