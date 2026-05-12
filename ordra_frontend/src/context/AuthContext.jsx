@@ -21,7 +21,8 @@ export function AuthProvider({ children }) {
 
   // While Convex is still deciding if we are logged in, show the branded splash
   if (isLoading) {
-    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const isAppRoute = window.location.pathname.startsWith('/app');
+    const isDark = isAppRoute && (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches));
     const videoSrc = isDark ? '/blue-logo-animation.mp4' : '/white-logo-animation.mp4';
 
     return (

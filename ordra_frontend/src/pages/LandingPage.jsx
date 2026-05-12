@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import {
   ArrowRight, Check, CheckCircle2, MessageSquare, ClipboardList,
   Wallet, Truck, Menu, X, ChevronUp, ChevronDown, Package, Users, Zap,
-  AlertCircle, CreditCard, MapPin, HelpCircle, BarChart3, ShieldCheck, Sparkles
+  AlertCircle, CreditCard, MapPin, HelpCircle, BarChart3, ShieldCheck, Sparkles,
+  ShoppingBag, PackageCheck, Store
 } from 'lucide-react';
 import { RevealWrapper } from '../hooks/useScrollReveal';
 import logo from '../assets/logo.png';
@@ -242,17 +243,17 @@ export default function LandingPage() {
         </RevealWrapper>
         <div className="who-grid">
           <div className="who-card">
-            <div className="who-icon-circle">🛍️</div>
+            <div className="who-icon-circle"><ShoppingBag size={28} color="#9333ea" /></div>
             <h4>Instagram Vendors</h4>
             <p>If you sell clothes, hair, shoes, or food through DMs, Ordra is for you.</p>
           </div>
           <div className="who-card">
-            <div className="who-icon-circle">📦</div>
+            <div className="who-icon-circle"><PackageCheck size={28} color="#9333ea" /></div>
             <h4>Pre-order Sellers</h4>
             <p>Easily track who has paid their commitment fee and who is still owing.</p>
           </div>
           <div className="who-card">
-            <div className="who-icon-circle">🏠</div>
+            <div className="who-icon-circle"><Store size={28} color="#9333ea" /></div>
             <h4>Home Businesses</h4>
             <p>Keep your business records separate from your personal life and stay organized.</p>
           </div>
