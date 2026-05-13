@@ -77,7 +77,18 @@ export default function Settings() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await updateSettings(settings);
+      const payload = {
+        businessName: settings.businessName || '',
+        phone: settings.phone,
+        theme: settings.theme || 'system',
+        currency: settings.currency || 'NGN',
+        templateConfirmation: settings.templateConfirmation || '',
+        templateReminder: settings.templateReminder || '',
+        lowStockThreshold: settings.lowStockThreshold,
+        stockpileDays: settings.stockpileDays,
+        templateStockpile: settings.templateStockpile,
+      };
+      await updateSettings(payload);
       setShowSaved(true);
       setTimeout(() => setShowSaved(false), 3000);
     } catch (err) {

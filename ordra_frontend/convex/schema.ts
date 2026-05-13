@@ -66,6 +66,8 @@ export default defineSchema({
     phone: v.optional(v.string()),
     theme: v.string(), // light, dark, system
     currency: v.string(), // NGN, USD, etc.
+    notifyPayments: v.optional(v.boolean()), // legacy deprecated field
+    notifySummary: v.optional(v.boolean()),  // legacy deprecated field
     templateConfirmation: v.string(),
     templateReminder: v.string(),
     lowStockThreshold: v.optional(v.number()), // default 5 if not set
