@@ -25,6 +25,7 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
@@ -83,12 +84,12 @@ export default function LandingPage() {
             Track who has paid, manage your deliveries, and see your profits—all in one simple place.
           </p>
           <div className="hero-buttons">
-            <Link to="/auth/signup" className="btn btn-primary" onClick={() => localStorage.removeItem('ordra_pending_upgrade')}>
+            <Link to="/auth/signup" className="btn btn-primary" onClick={() => localStorage.removeItem('ordra_pending_upgrade')} style={{ fontSize: '1.05rem', padding: '0.75rem 1.75rem' }}>
               Get Started Free <ArrowRight size={18} />
             </Link>
-            <a href="#how-it-works" className="btn btn-secondary">
-              See How It Works
-            </a>
+            <button onClick={() => setShowVideoModal(true)} className="btn btn-secondary" style={{ border: 'none', cursor: 'pointer', fontSize: '1.05rem', padding: '0.75rem 1.75rem' }}>
+              Demo Video
+            </button>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
             <div style={{ display: 'flex', marginLeft: '10px' }}>
@@ -470,6 +471,28 @@ export default function LandingPage() {
       >
         <ChevronUp size={22} />
       </button>
+
+      {/* ── VIDEO MODAL ──────────────────────────────── */}
+      {showVideoModal && (
+        <div className="video-modal-overlay" onClick={() => setShowVideoModal(false)}>
+          <div className="video-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="video-modal-close" onClick={() => setShowVideoModal(false)} aria-label="Close demo video">
+              <X size={24} />
+            </button>
+            <div className="video-wrapper">
+              <video 
+                src="/demo-video.mp4" 
+                controls 
+                autoPlay 
+                playsInline 
+                className="demo-video-player"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
