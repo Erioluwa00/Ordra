@@ -497,43 +497,7 @@ export default function Settings() {
                   </div>
                 </div>
 
-                <div style={{ height: '1px', background: 'var(--border-subtle)', marginBottom: '1.5rem' }} />
 
-                {/* ── Push / Summary Toggles ── */}
-                <p className="form-label" style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', fontWeight: 700 }}>
-                  <Bell size={13} /> Alert Preferences
-                </p>
-
-                <div className="toggle-group">
-                  <div className="toggle-info">
-                    <span className="toggle-label">Payment Reminders</span>
-                    <span className="toggle-desc">Get alerted for overdue payments from customers.</span>
-                  </div>
-                  <label className="switch">
-                    <input 
-                      type="checkbox" 
-                      name="notifyPayments"
-                      checked={settings.notifyPayments}
-                      onChange={handleChange}
-                    />
-                    <span className="slider"></span>
-                  </label>
-                </div>
-                <div className="toggle-group">
-                  <div className="toggle-info">
-                    <span className="toggle-label">Daily Summary</span>
-                    <span className="toggle-desc">A morning overview of your orders and revenue.</span>
-                  </div>
-                  <label className="switch">
-                    <input 
-                      type="checkbox" 
-                      name="notifySummary"
-                      checked={settings.notifySummary}
-                      onChange={handleChange}
-                    />
-                    <span className="slider"></span>
-                  </label>
-                </div>
               </div>
             </div>
           )}
