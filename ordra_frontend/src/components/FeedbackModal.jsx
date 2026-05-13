@@ -95,7 +95,6 @@ export default function FeedbackModal({ isOpen, onClose }) {
                       className={`feedback-type-pill ${type === t.id ? 'active' : ''}`}
                       onClick={() => setType(t.id)}
                     >
-                      {t.icon}
                       <span>{t.label}</span>
                     </button>
                   ))}
