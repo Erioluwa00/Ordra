@@ -53,8 +53,11 @@ export const createOrder = mutation({
       });
     }
 
-    // Generate a pretty Order ID (e.g. ORD-1234)
-    const count = (await ctx.db.query("orders").collect()).length;
+    // Generate a pretty Order ID (e.g. ORD-1234) scoped to the user
+    const count = (await ctx.db
+      .query("orders")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect()).length;
     const displayId = `ORD-${1000 + count}`;
 
     // Insert the Order
@@ -198,7 +201,7 @@ export const updateOrderStatus = mutation({
     const userId = await auth.getUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
     const order = await ctx.db.get(args.orderId);
-    if (!order) throw new Error("Order not found");
+    if (!order || order.userId !== userId) throw new Error("Order not found or unauthorized");
 
     const oldStatus = order.status;
     await ctx.db.patch(args.orderId, { status: args.status });
@@ -286,7 +289,7 @@ export const updateOrderPaymentStatus = mutation({
     if (!userId) throw new Error("Not authenticated");
 
     const order = await ctx.db.get(args.orderId);
-    if (!order) throw new Error("Order not found");
+    if (!order || order.userId !== userId) throw new Error("Order not found or unauthorized");
 
     const patch: any = { paymentStatus: args.paymentStatus };
     if (args.paymentStatus === "paid") {

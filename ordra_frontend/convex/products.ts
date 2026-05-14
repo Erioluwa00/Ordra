@@ -85,6 +85,10 @@ export const deleteProduct = mutation({
   handler: async (ctx, args) => {
     const userId = await auth.getUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
+    
+    const product = await ctx.db.get(args.id);
+    if (!product || product.userId !== userId) throw new Error("Product not found or unauthorized");
+
     await ctx.db.delete(args.id);
   },
 });
@@ -93,8 +97,11 @@ export const deleteProduct = mutation({
 export const adjustStock = mutation({
   args: { productId: v.id("products"), amount: v.number() },
   handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
     const product = await ctx.db.get(args.productId);
-    if (!product) throw new Error("Product not found");
+    if (!product || product.userId !== userId) throw new Error("Product not found or unauthorized");
 
     const newQuantity = (product.quantity || 0) + args.amount;
     await ctx.db.patch(args.productId, { 
@@ -119,6 +126,9 @@ export const getProductLogs = query({
   handler: async (ctx, args) => {
     const userId = await auth.getUserId(ctx);
     if (!userId) return [];
+
+    const product = await ctx.db.get(args.productId);
+    if (!product || product.userId !== userId) return [];
 
     return await ctx.db
       .query("inventoryLogs")
