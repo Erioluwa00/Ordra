@@ -5,15 +5,11 @@ export const db = new Dexie('OrdraOfflineDB');
 // Define the database schema
 // The '++' means auto-incrementing primary key for the queue
 // For orders and customers, we use the Convex _id as the primary key
-db.version(1).stores({
-  orders: '_id, orderId, customer, customerPhone, status, createdAt',
+db.version(4).stores({
+  orders: '_id, orderId, customer, customerPhone, status, createdAt, isOffline',
   customers: '_id, name, phone',
   sync_queue: '++id, type, timestamp',
   metadata: 'key'
-});
-
-db.version(2).stores({
-  orders: '_id, orderId, customer, customerPhone, status, createdAt, isOffline'
 });
 
 export const getMetadata = async (key) => {
@@ -27,6 +23,11 @@ export const setMetadata = async (key, value) => {
 
 export const saveOrderToCache = async (order) => {
   try {
+    // Basic validation to prevent DataError: Provided data is inadequate
+    if (!order || !order._id || !order.createdAt) {
+      console.warn("Skipping cache for invalid order object:", order);
+      return;
+    }
     await db.orders.put(order);
     window.dispatchEvent(new CustomEvent('ordra:cache-updated', { detail: { type: 'orders' } }));
   } catch (err) {

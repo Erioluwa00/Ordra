@@ -8,9 +8,9 @@ const FEATURE_CONFIG = {
     icon: <Package size={28} />,
     iconBg: '#fef3c7',
     iconColor: '#d97706',
-    title: "You've Reached Your Monthly Limit",
-    subtitle: '50 / 50 orders used this month',
-    description: 'Free users can create up to 50 orders per month. Upgrade to Pro for unlimited orders.',
+    title: "Unlimited Orders with Pro",
+    subtitle: 'Free users are limited to 50 orders/month',
+    description: 'Upgrade to Pro to remove limits and keep your business growing without interruptions.',
     highlight: 'Unlimited orders/month',
     cta: 'Upgrade to Pro — ₦5,000/mo',
     secondaryCta: 'Orders reset on the 1st',
@@ -95,7 +95,7 @@ export default function UpgradeModal({ feature = 'orders', onClose }) {
     }
 
     const handler = window.PaystackPop.setup({
-      key: 'pk_test_0550e62b160543b3f08e0374ae5954ba0d08ba65', // FIXME: Replace with your actual public key
+      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user?.email || '',
       amount: 500000, // ₦5,000 in kobo
       currency: 'NGN',
@@ -147,9 +147,21 @@ export default function UpgradeModal({ feature = 'orders', onClose }) {
         <div className="upgrade-zap-badge">
           <Zap size={12} fill="currentColor" /> Pro Feature
         </div>
-        <h2 className="upgrade-title">{config.title}</h2>
-        <p className="upgrade-subtitle">{config.subtitle}</p>
-        <p className="upgrade-description">{config.description}</p>
+        <h2 className="upgrade-title">
+          {feature === 'orders' && plan.orderLimitReached 
+            ? "You've Reached Your Monthly Limit" 
+            : config.title}
+        </h2>
+        <p className="upgrade-subtitle">
+          {feature === 'orders' 
+            ? `${plan.monthlyOrderCount} / 50 orders used this month` 
+            : config.subtitle}
+        </p>
+        <p className="upgrade-description">
+          {feature === 'orders' && plan.orderLimitReached
+            ? 'You have used all 50 free orders for this month. Upgrade to Pro for unlimited orders.'
+            : config.description}
+        </p>
 
         {/* Highlight chip */}
         <div className="upgrade-highlight">

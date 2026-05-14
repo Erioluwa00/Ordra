@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
@@ -36,6 +36,7 @@ const isUpcoming = (isoDate, days = 2) => {
 export default function Dashboard() {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [bannerDismissed, setBannerDismissed] = useState(
     () => sessionStorage.getItem('ordra_banner_dismissed') === '1'
@@ -359,7 +360,7 @@ export default function Dashboard() {
                         )}
                         <button 
                           className="recent-view-btn" 
-                          onClick={() => window.location.href = `/app/orders?id=${order._id}`}
+                          onClick={() => navigate(`/app/orders?id=${order._id}`)}
                         >
                           View
                         </button>

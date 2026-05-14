@@ -30,7 +30,9 @@ export default defineSchema({
     source: v.optional(v.string()), // whatsapp, instagram, tiktok, etc.
     createdAt: v.string(), // ISO string
     notifiedAt: v.optional(v.string()), // ISO string — last stockpile notice sent
-  }).index("by_user", ["userId"]),
+  }).index("by_user", ["userId"])
+    .index("by_user_status", ["userId", "status"])
+    .index("by_user_payment", ["userId", "paymentStatus"]),
 
   customers: defineTable({
     userId: v.id("users"),
@@ -42,7 +44,8 @@ export default defineSchema({
     lifetimeValue: v.number(),
     notes: v.optional(v.string()),
     createdAt: v.optional(v.string()),
-  }).index("by_user", ["userId"]),
+  }).index("by_user", ["userId"])
+    .index("by_user_phone", ["userId", "phone"]),
 
   products: defineTable({
     userId: v.id("users"),
