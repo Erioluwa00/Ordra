@@ -30,8 +30,7 @@ export const createOrder = mutation({
     // Find or Create Customer
     let customer = await ctx.db
       .query("customers")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .filter((q) => q.eq(q.field("phone"), args.customerPhone))
+      .withIndex("by_user_phone", (q) => q.eq("userId", userId).eq("phone", args.customerPhone))
       .first();
 
     if (!customer) {
@@ -304,8 +303,7 @@ export const updateOrderPaymentStatus = mutation({
     if (args.paymentStatus === "paid" && order.paymentStatus !== "paid") {
       const customer = await ctx.db
         .query("customers")
-        .withIndex("by_user", (q) => q.eq("userId", userId))
-        .filter((q) => q.eq(q.field("phone"), order.customerPhone))
+        .withIndex("by_user_phone", (q) => q.eq("userId", userId).eq("phone", order.customerPhone))
         .first();
 
       if (customer) {
@@ -399,8 +397,7 @@ export const createCustomer = mutation({
     // Check if phone already exists for this user
     const existing = await ctx.db
       .query("customers")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .filter((q) => q.eq(q.field("phone"), args.phone))
+      .withIndex("by_user_phone", (q) => q.eq("userId", userId).eq("phone", args.phone))
       .first();
 
     if (existing) throw new Error("A customer with this phone number already exists");
@@ -573,7 +570,7 @@ export const getDebtors = query({
 
     const unpaidOrders = await ctx.db
       .query("orders")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .withIndex("by_user_payment", (q) => q.eq("userId", userId))
       .filter((q) => q.neq(q.field("paymentStatus"), "paid"))
       .filter((q) => q.neq(q.field("status"), "Cancelled"))
       .collect();
@@ -688,8 +685,7 @@ export const updateOrder = mutation({
       // Decrement old customer
       const oldCust = await ctx.db
         .query("customers")
-        .withIndex("by_user", (q) => q.eq("userId", userId))
-        .filter((q) => q.eq(q.field("phone"), oldOrder.customerPhone))
+        .withIndex("by_user_phone", (q) => q.eq("userId", userId).eq("phone", oldOrder.customerPhone))
         .first();
       if (oldCust) {
         await ctx.db.patch(oldCust._id, {
@@ -700,8 +696,7 @@ export const updateOrder = mutation({
       // Increment new customer
       const newCust = await ctx.db
         .query("customers")
-        .withIndex("by_user", (q) => q.eq("userId", userId))
-        .filter((q) => q.eq(q.field("phone"), args.customerPhone))
+        .withIndex("by_user_phone", (q) => q.eq("userId", userId).eq("phone", args.customerPhone))
         .first();
       if (newCust) {
         await ctx.db.patch(newCust._id, {
@@ -713,8 +708,7 @@ export const updateOrder = mutation({
       // Same customer, just adjust the difference
       const cust = await ctx.db
         .query("customers")
-        .withIndex("by_user", (q) => q.eq("userId", userId))
-        .filter((q) => q.eq(q.field("phone"), args.customerPhone))
+        .withIndex("by_user_phone", (q) => q.eq("userId", userId).eq("phone", args.customerPhone))
         .first();
       if (cust) {
         await ctx.db.patch(cust._id, {
@@ -768,8 +762,7 @@ export const deleteOrder = mutation({
     // 2. Adjust customer stats
     const customer = await ctx.db
       .query("customers")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .filter((q) => q.eq(q.field("phone"), order.customerPhone))
+      .withIndex("by_user_phone", (q) => q.eq("userId", userId).eq("phone", order.customerPhone))
       .first();
     if (customer) {
       await ctx.db.patch(customer._id, {

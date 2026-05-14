@@ -244,7 +244,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
         }
       } else {
         // OFFLINE MODE
-        const tempId = `OFFLINE-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+        const tempId = `OFFLINE-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
         const offlineOrder = {
           ...orderPayload,
           _id: tempId,
@@ -451,10 +451,15 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
                       </div>
                       <input
                         type="number" min="1"
-                        className="nom-input nom-qty"
+                        className={`nom-input nom-qty ${item.productId && products?.find(p => p._id === item.productId)?.quantity < item.qty ? 'warning' : ''}`}
                         value={item.qty}
                         onChange={e => updateItem(item.id, 'qty', e.target.value)}
                       />
+                      {item.productId && products?.find(p => p._id === item.productId)?.quantity < item.qty && (
+                        <div className="nom-qty-warning">
+                          <AlertCircle size={10} /> Not enough stock
+                        </div>
+                      )}
                       <div className="nom-price-wrap">
                         <span className="nom-price-prefix">₦</span>
                         <input
