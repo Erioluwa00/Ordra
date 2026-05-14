@@ -2,6 +2,7 @@ import { httpAction } from "./_generated/server";
 import { api } from "./_generated/api";
 
 export const webhook = httpAction(async (ctx, request) => {
+  console.log("🚀 PAYSTACK WEBHOOK ATTEMPT: Connection received!");
   const rawBody = await request.text();
   const signature = request.headers.get("x-paystack-signature");
 
@@ -14,11 +15,12 @@ export const webhook = httpAction(async (ctx, request) => {
   if (secret) {
     const isValid = await verifyPaystackSignature(rawBody, signature, secret);
     if (!isValid) {
-      console.error("Paystack Webhook: Invalid Signature detected.");
+      console.error("❌ Paystack Webhook: Invalid Signature detected.");
       return new Response("Invalid signature", { status: 401 });
     }
+    console.log("✅ Paystack Webhook: Signature verified!");
   } else {
-    console.warn("PAYSTACK_SECRET_KEY not set. Skipping signature verification (Not recommended for production).");
+    console.warn("⚠️ PAYSTACK_SECRET_KEY not set. Skipping verification.");
   }
 
   const body = JSON.parse(rawBody);
@@ -45,10 +47,11 @@ export const webhook = httpAction(async (ctx, request) => {
       // Update the user's plan via an internal mutation
       await ctx.runMutation(api.settings.upgradeToPro, {
         userId,
-        // For subscriptions, Paystack usually sends a subscription_code in data
-        // For one-time payments, we use the reference
         paystackSubscriptionCode: data.subscription_code || data.reference, 
       });
+      console.log("🎊 Plan upgraded to PRO successfully!");
+    } else {
+      console.error("❌ Webhook failed: No userId found in metadata.");
     }
   }
 
