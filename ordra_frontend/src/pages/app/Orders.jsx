@@ -135,13 +135,17 @@ export default function Orders() {
   useEffect(() => {
     if (isOnline && liveOrders) {
       const cleanup = async () => {
-        const offline = await db.orders.where('isOffline').equals(true).toArray();
-        for (const off of offline) {
-          const inQueue = await db.sync_queue.toArray();
-          const item = inQueue.find(q => q.data.tempId === off._id);
-          if (!item) {
-            await db.orders.delete(off._id);
+        try {
+          const offline = await db.orders.where('isOffline').equals(true).toArray();
+          for (const off of offline) {
+            const inQueue = await db.sync_queue.toArray();
+            const item = inQueue.find(q => q.data.tempId === off._id);
+            if (!item) {
+              await db.orders.delete(off._id);
+            }
           }
+        } catch (err) {
+          console.warn("Offline cleanup failed (likely schema update in progress):", err);
         }
       };
       cleanup();
@@ -150,10 +154,19 @@ export default function Orders() {
 
   useEffect(() => {
     const loadFromCache = () => {
-      db.orders.reverse().sortBy('createdAt').then(cached => {
-        setLocalOrders(cached || []);
-        setIsInitialLoad(false);
-      });
+      db.orders.reverse().sortBy('createdAt')
+        .then(cached => {
+          setLocalOrders(cached || []);
+          setIsInitialLoad(false);
+        })
+        .catch(err => {
+          console.warn("Local cache sort failed:", err);
+          // Fallback to unsorted list if index sort fails
+          db.orders.toArray().then(orders => {
+            setLocalOrders(orders || []);
+            setIsInitialLoad(false);
+          });
+        });
     };
 
     if (liveOrders) {
