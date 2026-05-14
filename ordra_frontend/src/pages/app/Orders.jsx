@@ -238,7 +238,17 @@ export default function Orders() {
     if (location.state?.filterPayment) {
       setFilterPayment(location.state.filterPayment);
     }
-  }, [location.state]);
+
+    // Handle deep-linking to a specific order via ?id=...
+    const params = new URLSearchParams(location.search);
+    const orderId = params.get('id');
+    if (orderId && orders.length > 0) {
+      const order = orders.find(o => o._id === orderId);
+      if (order) {
+        setSelectedOrder(order);
+      }
+    }
+  }, [location.state, location.search, orders.length]);
 
   const isUpcoming = (isoDate, days = 2) => {
     if (!isoDate) return false;
