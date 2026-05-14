@@ -50,6 +50,7 @@ export default function usePlan() {
     isFree: !status.isPro,
     isExpired: status.isExpired,
     plan: status.plan,
+    userId: status.userId,
     trialDaysLeft: status.trialDaysLeft,
     monthlyOrderCount: status.monthlyOrderCount,
     orderLimitReached: !status.isPro && status.monthlyOrderCount >= FREE_ORDER_LIMIT,
