@@ -5,7 +5,7 @@ export const db = new Dexie('OrdraOfflineDB');
 // Define the database schema
 // The '++' means auto-incrementing primary key for the queue
 // For orders and customers, we use the Convex _id as the primary key
-db.version(3).stores({
+db.version(4).stores({
   orders: '_id, orderId, customer, customerPhone, status, createdAt, isOffline',
   customers: '_id, name, phone',
   sync_queue: '++id, type, timestamp',

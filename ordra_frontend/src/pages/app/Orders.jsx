@@ -136,7 +136,8 @@ export default function Orders() {
     if (isOnline && liveOrders) {
       const cleanup = async () => {
         try {
-          const offline = await db.orders.where('isOffline').equals(true).toArray();
+          // Use filter instead of where('isOffline') to bypass strict index issues
+          const offline = await db.orders.filter(o => o.isOffline === true).toArray();
           for (const off of offline) {
             const inQueue = await db.sync_queue.toArray();
             const item = inQueue.find(q => q.data.tempId === off._id);
