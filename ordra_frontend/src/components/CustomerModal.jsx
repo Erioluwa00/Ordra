@@ -11,6 +11,7 @@ export default function CustomerModal({ isOpen, onClose, onSave, initialData }) 
     notes: ''
   });
   const [errors, setErrors] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -44,15 +45,25 @@ export default function CustomerModal({ isOpen, onClose, onSave, initialData }) 
     if (errors[name]) setErrors(er => ({ ...er, [name]: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSaving) return;
+
     const e2 = validate();
     if (Object.keys(e2).length > 0) {
       setErrors(e2);
       return;
     }
-    const capitalizedName = form.name.trim().split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
-    onSave({ ...form, name: capitalizedName });
+
+    setIsSaving(true);
+    try {
+      const capitalizedName = form.name.trim().split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+      await onSave({ ...form, name: capitalizedName });
+    } catch (err) {
+      // Error is handled in parent via alert, but we need to stop loading
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -127,8 +138,8 @@ export default function CustomerModal({ isOpen, onClose, onSave, initialData }) 
             <button type="button" className="action-btn secondary" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="action-btn primary">
-              {initialData ? 'Save Changes' : 'Add Customer'}
+            <button type="submit" className="action-btn primary" disabled={isSaving}>
+              {isSaving ? 'Saving...' : (initialData ? 'Save Changes' : 'Add Customer')}
             </button>
           </div>
         </form>

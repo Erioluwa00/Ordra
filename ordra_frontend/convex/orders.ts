@@ -420,7 +420,10 @@ export const createCustomer = mutation({
 export const updateCustomer = mutation({
   args: {
     customerId: v.id("customers"),
+    name: v.optional(v.string()),
+    phone: v.optional(v.string()),
     email: v.optional(v.string()),
+    address: v.optional(v.string()),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -431,10 +434,24 @@ export const updateCustomer = mutation({
     const existing = await ctx.db.get(args.customerId);
     if (!existing || existing.userId !== userId) throw new Error("Unauthorized");
 
-    await ctx.db.patch(args.customerId, {
-      email: args.email,
-      notes: args.notes,
-    });
+    // If phone is changing, check for duplicates
+    const newPhone = args.phone;
+    if (newPhone && newPhone !== existing.phone) {
+      const duplicate = await ctx.db
+        .query("customers")
+        .withIndex("by_user_phone", (q) => q.eq("userId", userId).eq("phone", newPhone))
+        .first();
+      if (duplicate) throw new Error("A customer with this phone number already exists");
+    }
+
+    const patch: any = {};
+    if (args.name !== undefined) patch.name = args.name;
+    if (args.phone !== undefined) patch.phone = args.phone;
+    if (args.email !== undefined) patch.email = args.email;
+    if (args.address !== undefined) patch.address = args.address;
+    if (args.notes !== undefined) patch.notes = args.notes;
+
+    await ctx.db.patch(args.customerId, patch);
   },
 });
 

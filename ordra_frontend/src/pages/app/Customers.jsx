@@ -315,7 +315,10 @@ export default function Customers() {
         if (editingCustomer) {
           await updateCust({
             customerId: editingCustomer._id,
+            name: formData.name,
+            phone: formData.phone,
             email: formData.email,
+            address: formData.address,
             notes: formData.notes
           });
         } else {
