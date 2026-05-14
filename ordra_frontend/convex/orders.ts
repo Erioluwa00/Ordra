@@ -27,7 +27,7 @@ export const createOrder = mutation({
     const userId = await auth.getUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
-    // 1. Find or Create Customer
+    // Find or Create Customer
     let customer = await ctx.db
       .query("customers")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -53,11 +53,11 @@ export const createOrder = mutation({
       });
     }
 
-    // 2. Generate a pretty Order ID (e.g. ORD-1234)
+    // Generate a pretty Order ID (e.g. ORD-1234)
     const count = (await ctx.db.query("orders").collect()).length;
     const displayId = `ORD-${1000 + count}`;
 
-    // 3. Insert the Order
+    // Insert the Order
     const orderId = await ctx.db.insert("orders", {
       userId,
       orderId: displayId,
@@ -77,7 +77,7 @@ export const createOrder = mutation({
       createdAt: new Date().toISOString(),
     });
     
-    // 4. Decrement Stock for products
+    // Decrement Stock for products
     for (const item of args.items) {
       if (item.productId) {
         const product = await ctx.db.get(item.productId);
@@ -657,7 +657,7 @@ export const updateOrder = mutation({
     const oldOrder = await ctx.db.get(args.orderId);
     if (!oldOrder || oldOrder.userId !== userId) throw new Error("Order not found");
 
-    // 1. Revert stock for OLD items
+    // Revert stock for OLD items
     for (const item of (oldOrder.items || [])) {
       if (item.productId) {
         const product = await ctx.db.get(item.productId);
@@ -668,7 +668,7 @@ export const updateOrder = mutation({
       }
     }
 
-    // 2. Apply stock for NEW items
+    // Apply stock for NEW items
     for (const item of args.items) {
       if (item.productId) {
         const product = await ctx.db.get(item.productId);
@@ -679,7 +679,7 @@ export const updateOrder = mutation({
       }
     }
 
-    // 3. Adjust customer lifetime value
+    // Adjust customer lifetime value
     // If the phone number changed, we need to handle both old and new customers
     if (oldOrder.customerPhone !== args.customerPhone) {
       // Decrement old customer
@@ -720,7 +720,7 @@ export const updateOrder = mutation({
       }
     }
 
-    // 4. Update the order
+    // Update the order
     await ctx.db.patch(args.orderId, {
       customer: args.customerName,
       customerPhone: args.customerPhone,

@@ -95,7 +95,7 @@ export default function UpgradeModal({ feature = 'orders', onClose }) {
     }
 
     const handler = window.PaystackPop.setup({
-      key: 'pk_test_0550e62b160543b3f08e0374ae5954ba0d08ba65', // FIXME: Replace with your actual public key
+      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user?.email || '',
       amount: 500000, // ₦5,000 in kobo
       currency: 'NGN',
