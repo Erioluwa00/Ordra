@@ -681,6 +681,16 @@ export const updateOrder = mutation({
         if (product) {
           const newQty = (product.quantity || 0) + item.qty;
           await ctx.db.patch(item.productId, { quantity: newQty, inStock: newQty > 0 });
+
+          // Log stock recovery
+          await ctx.db.insert("inventoryLogs", {
+            userId,
+            productId: item.productId,
+            type: "adjustment",
+            quantityChange: item.qty,
+            reason: `Order ${oldOrder.orderId} updated (Revert)`,
+            createdAt: new Date().toISOString(),
+          });
         }
       }
     }
@@ -692,6 +702,16 @@ export const updateOrder = mutation({
         if (product) {
           const newQty = (product.quantity || 0) - item.qty;
           await ctx.db.patch(item.productId, { quantity: newQty, inStock: newQty > 0 });
+
+          // Log stock deduction
+          await ctx.db.insert("inventoryLogs", {
+            userId,
+            productId: item.productId,
+            type: "sale",
+            quantityChange: -item.qty,
+            reason: `Order ${oldOrder.orderId} updated (Apply)`,
+            createdAt: new Date().toISOString(),
+          });
         }
       }
     }

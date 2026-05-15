@@ -114,8 +114,9 @@ export const activateTrial = mutation({
 
 /**
  * Called by Paystack webhook on successful payment.
+ * Now an internalMutation for security — cannot be called from the frontend.
  */
-export const upgradeToPro = mutation({
+export const upgradeToPro = internalMutation({
   args: {
     userId: v.id("users"),
     paystackSubscriptionCode: v.optional(v.string()),
@@ -125,6 +126,12 @@ export const upgradeToPro = mutation({
       .query("settings")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .unique();
+
+    // Idempotency check: Don't process the same transaction twice
+    if (existing && paystackSubscriptionCode && existing.paystackSubscriptionCode === paystackSubscriptionCode) {
+      console.log(`Payment ${paystackSubscriptionCode} already processed for user ${userId}. Skipping.`);
+      return;
+    }
 
     const now = new Date();
     const proEnd = new Date(now);

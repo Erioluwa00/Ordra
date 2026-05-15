@@ -152,7 +152,8 @@ export const getProductPerformance = query({
     const orders = await ctx.db
       .query("orders")
       .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
+      .order("desc")
+      .take(1000); // Only analyze the last 1000 orders for performance stats to avoid timeouts
 
     // Map to store stats per product ID
     const statsMap: Record<string, { qtySold: number; revenue: number }> = {};
@@ -162,18 +163,18 @@ export const getProductPerformance = query({
       statsMap[p._id] = { qtySold: 0, revenue: 0 };
     });
 
-    // Aggregate from orders
-    orders.forEach(order => {
-      // Some old orders might not have the 'items' array yet
+    // Aggregate from orders (efficiently)
+    for (const order of orders) {
+      if (order.status === "Cancelled") continue;
       if (order.items && Array.isArray(order.items)) {
-        order.items.forEach(item => {
+        for (const item of order.items) {
           if (item.productId && statsMap[item.productId]) {
             statsMap[item.productId].qtySold += item.qty;
             statsMap[item.productId].revenue += (item.qty * item.price);
           }
-        });
+        }
       }
-    });
+    }
 
     // Combine with product info
     const performance = products.map(p => ({
