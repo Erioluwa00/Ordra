@@ -80,7 +80,7 @@ export default function Settings() {
       const payload = {
         businessName: settings.businessName || '',
         phone: settings.phone,
-        theme: settings.theme || 'system',
+        theme: settings.theme || 'light',
         currency: settings.currency || 'NGN',
         templateConfirmation: settings.templateConfirmation || '',
         templateReminder: settings.templateReminder || '',

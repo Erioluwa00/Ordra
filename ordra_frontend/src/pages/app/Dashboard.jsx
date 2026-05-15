@@ -290,6 +290,7 @@ export default function Dashboard() {
         orders={allOrders || []} 
         products={allProducts || []} 
         plan={plan}
+        stockpileDays={settings?.stockpileDays ?? 7}
       />
 
       {/* Recent Orders Table */}

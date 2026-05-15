@@ -396,6 +396,7 @@ export default function NewOrderModal({ isOpen, onClose, initialData = null }) {
                     >
                       <option value="whatsapp">WhatsApp</option>
                       <option value="instagram">Instagram</option>
+                      <option value="telegram">Telegram</option>
                       <option value="tiktok">TikTok</option>
                       <option value="facebook">Facebook</option>
                       <option value="physical">In-Store</option>

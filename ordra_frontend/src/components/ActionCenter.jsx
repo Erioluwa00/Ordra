@@ -21,7 +21,7 @@ const isUpcoming = (isoDate, days = 2) => {
 // Action definitions
 // Each returns null if the condition isn't met (so it hides cleanly)
 // ─────────────────────────────────────────────
-function buildActions(orders, products = []) {
+function buildActions(orders, products = [], stockpileDays = 7) {
   const actions = [];
 
   // —1 — Priority / Urgent Orders
@@ -141,14 +141,36 @@ function buildActions(orders, products = []) {
     });
   }
 
+  // 5 — Stockpiling (paid, not delivered/cancelled, age >= stockpileDays)
+  const stockpiling = orders.filter(o => {
+    if (o.paymentStatus !== 'paid') return false;
+    if (o.status === 'Delivered' || o.status === 'Cancelled') return false;
+    const days = Math.floor((Date.now() - new Date(o.createdAt).getTime()) / (1000 * 60 * 60 * 24));
+    return days >= stockpileDays;
+  });
+  if (stockpiling.length > 0) {
+    actions.push({
+      id:        'stockpile',
+      priority:  5,
+      icon:      <Archive size={18} />,
+      accent:    '#059669',
+      bg:        '#d1fae5',
+      title:     `${stockpiling.length} stockpiling order${stockpiling.length > 1 ? 's' : ''}`,
+      sub:       `Paid orders sitting for ${stockpileDays}+ days. Send pickup reminders.`,
+      cta:       'Notify now',
+      linkTo:    '/app/orders',
+      linkState: { filterStockpile: true },
+    });
+  }
+
   return actions;
 }
 
 // ─────────────────────────────────────────────
 // ActionCenter component
 // ─────────────────────────────────────────────
-export default function ActionCenter({ orders = [], products = [], plan = {} }) {
-  const actions = useMemo(() => buildActions(orders, products), [orders, products]);
+export default function ActionCenter({ orders = [], products = [], plan = {}, stockpileDays = 7 }) {
+  const actions = useMemo(() => buildActions(orders, products, stockpileDays), [orders, products, stockpileDays]);
   const isFreeUser = plan.isFree && !plan.isTrial;
 
   // All clear state
@@ -160,7 +182,7 @@ export default function ActionCenter({ orders = [], products = [], plan = {} }) 
             <CheckCircle2 size={24} />
           </div>
           <div>
-            <p className="ac-all-clear-title">You're all caught up! 🎉</p>
+            <p className="ac-all-clear-title">You're all caught up!</p>
             <p className="ac-all-clear-sub">No unpaid orders, no pending deliveries. Great work.</p>
           </div>
         </div>

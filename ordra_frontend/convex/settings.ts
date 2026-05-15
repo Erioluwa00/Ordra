@@ -4,7 +4,7 @@ import { auth } from "./auth";
 
 const DEFAULT_SETTINGS = {
   businessName: "My Store",
-  theme: "system",
+  theme: "light",
   currency: "NGN",
   lowStockThreshold: 5,
   stockpileDays: 7,

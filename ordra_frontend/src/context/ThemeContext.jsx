@@ -7,7 +7,7 @@ export function ThemeProvider({ children }) {
   // Try to load from localStorage, fallback to system preference
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('ordra_theme');
-    return saved || 'system';
+    return saved || 'light';
   });
 
   const location = useLocation();

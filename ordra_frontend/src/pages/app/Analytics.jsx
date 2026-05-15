@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import RevenueChart from '../../components/RevenueChart';
@@ -23,6 +24,8 @@ const formatCurrency = (amt) => {
 export default function Analytics() {
   const plan = usePlan();
   const { isOnline } = useOffline();
+  const location = useLocation();
+  const topSellersRef = useRef(null);
 
   const liveStats = useQuery(api.orders.getDashboardStats);
   const liveCustomers = useQuery(api.orders.getCustomers);
@@ -62,6 +65,14 @@ export default function Analytics() {
       });
     }
   }, [liveStats, liveCustomers, livePerformance, isOnline]);
+
+  useEffect(() => {
+    if (!isInitialLoad && location.state?.scrollTo === 'performance') {
+      setTimeout(() => {
+        topSellersRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
+  }, [isInitialLoad, location.state]);
 
   const isLoadingStats = isInitialLoad;
   const isLoadingCust  = isInitialLoad;
@@ -181,7 +192,7 @@ export default function Analytics() {
             </div>
 
             {/* Best Sellers */}
-            <div className="performance-card">
+            <div className="performance-card" ref={topSellersRef} id="performance">
               <div className="perf-header">
                 <h3 className="perf-title"><Trophy size={18} color="#d97706" /> Best Selling Products</h3>
                 <span className="a-trend-text">By quantity sold</span>

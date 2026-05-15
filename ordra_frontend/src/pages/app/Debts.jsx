@@ -28,8 +28,14 @@ const relativeDate = (dateStr) => {
 export default function Debts() {
   const plan = usePlan();
   const debtors = useQuery(api.orders.getDebtors);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const isLocked = plan.isFree && !plan.isTrial;
+
+  const filteredDebtors = debtors?.filter(d => 
+    d.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    d.phone.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const totalOwed = debtors?.reduce((sum, d) => sum + d.totalOwed, 0) || 0;
   const totalDebtors = debtors?.length || 0;
@@ -119,7 +125,9 @@ export default function Debts() {
             <input 
               type="text" 
               placeholder="Search by customer name or phone..." 
-              className="debt-search-input" 
+              className="debt-search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
@@ -138,18 +146,18 @@ export default function Debts() {
               </tr>
             </thead>
             <tbody>
-              {debtors === undefined ? (
+              {filteredDebtors === undefined ? (
                 <DebtSkeleton />
-              ) : debtors.length === 0 ? (
+              ) : filteredDebtors.length === 0 ? (
                 <tr>
                   <td colSpan="5" style={{ textAlign: 'center', padding: '4rem' }}>
                     <div className="empty-state">
                       <CreditCard size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-                      <p>No outstanding debts found. Your books are clean!</p>
+                      <p>{searchQuery ? "No debtors found matching your search." : "No outstanding debts found. Your books are clean!"}</p>
                     </div>
                   </td>
                 </tr>
-              ) : debtors.map((debtor) => (
+              ) : filteredDebtors.map((debtor) => (
                 <tr key={debtor.phone} className="ord-row">
                   <td>
                     <div className="cust-cell">
@@ -182,7 +190,7 @@ export default function Debts() {
 
         {/* Mobile List View */}
         <div className="mobile-only debt-mobile-list">
-          {debtors?.map((debtor) => (
+          {filteredDebtors?.map((debtor) => (
             <div key={debtor.phone} className="debt-mobile-card">
               <div className="debt-mobile-top">
                 <div className="cust-cell">

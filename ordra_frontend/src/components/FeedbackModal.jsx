@@ -77,7 +77,7 @@ export default function FeedbackModal({ isOpen, onClose }) {
 
         {status === 'success' ? (
           <div className="feedback-success-state">
-            <div className="success-icon-circle">🎉</div>
+            {/* <div className="success-icon-circle">🎉</div> */}
             <h3>Thank you for your feedback!</h3>
             <p>Your review helps us improve Ordra for small businesses everywhere.</p>
           </div>

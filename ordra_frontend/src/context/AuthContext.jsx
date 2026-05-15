@@ -3,6 +3,7 @@ import { useConvexAuth, useQuery, useMutation } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "../../convex/_generated/api";
 import { useTheme } from "./ThemeContext";
+import logo from '../assets/logo.png';
 
 const AuthContext = createContext(null);
 
@@ -21,10 +22,6 @@ export function AuthProvider({ children }) {
 
   // While Convex is still deciding if we are logged in, show the branded splash
   if (isLoading) {
-    const isAppRoute = window.location.pathname.startsWith('/app');
-    const isDark = isAppRoute && (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches));
-    const videoSrc = isDark ? '/blue-logo-animation.mp4' : '/white-logo-animation.mp4';
-
     return (
       <div style={{
         height: '100vh',
@@ -36,25 +33,7 @@ export function AuthProvider({ children }) {
         inset: 0,
         zIndex: 99999,
       }}>
-        <video
-          key={videoSrc}
-          autoPlay
-          muted
-          loop
-          playsInline
-          controls={false}
-          webkit-playsinline="true"
-          preload="auto"
-          disablePictureInPicture
-          style={{
-            width: '110px',
-            height: '110px',
-            objectFit: 'contain',
-            pointerEvents: 'none'
-          }}
-        >
-          <source src={videoSrc} type="video/mp4" />
-        </video>
+        <div className="spinner-purple" />
       </div>
     );
   }
