@@ -97,7 +97,7 @@ export default function UpgradeModal({ feature = 'orders', onClose }) {
     const handler = window.PaystackPop.setup({
       key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user?.email || '',
-      amount: 500000, // ₦5,000 in kobo
+      amount: 5000, // ₦5,000 in kobo
       currency: 'NGN',
       ref: `ORD-${Date.now()}`,
       metadata: {
@@ -148,13 +148,13 @@ export default function UpgradeModal({ feature = 'orders', onClose }) {
           <Zap size={12} fill="currentColor" /> Pro Feature
         </div>
         <h2 className="upgrade-title">
-          {feature === 'orders' && plan.orderLimitReached 
-            ? "You've Reached Your Monthly Limit" 
+          {feature === 'orders' && plan.orderLimitReached
+            ? "You've Reached Your Monthly Limit"
             : config.title}
         </h2>
         <p className="upgrade-subtitle">
-          {feature === 'orders' 
-            ? `${plan.monthlyOrderCount} / 50 orders used this month` 
+          {feature === 'orders'
+            ? `${plan.monthlyOrderCount} / 50 orders used this month`
             : config.subtitle}
         </p>
         <p className="upgrade-description">
@@ -192,7 +192,7 @@ export default function UpgradeModal({ feature = 'orders', onClose }) {
             <Zap size={16} fill="currentColor" />
             {config.cta}
           </button>
-          
+
           {plan.plan === 'free' && (
             <button className="upgrade-trial-btn" onClick={handleTrial}>
               Try Pro Free for 14 Days
